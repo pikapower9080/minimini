@@ -7,6 +7,7 @@ import Keyboard from 'react-simple-keyboard';
 import 'react-simple-keyboard/build/css/index.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import posthog from 'posthog-js';
 
 interface MiniProps {
 	data: MiniCrossword;
@@ -249,11 +250,13 @@ export default function Mini({ data }: MiniProps) {
 			setModalOpen(true);
 			fireworks();
 			incorrectShown.current = false;
+			posthog.capture('completed_puzzle', {puzzle: data.id, puzzleDate: data.publicationDate})
 		} else if (results.totalCells > 0 && results.totalCells === results.totalFilled && results.totalCorrect < results.totalCells) {
 			if (incorrectShown.current) return;
 			setModalType("incorrect");
 			setModalOpen(true);
 			incorrectShown.current = true;
+			posthog.capture('incorrect_solution')
 		}
 	}, [boardState]);
 
