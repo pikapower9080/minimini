@@ -1,0 +1,97 @@
+#root {
+  width: 65vw;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+h2 {
+  margin-bottom: 5px;
+}
+h4 {
+  margin-top: 0;
+}
+
+.mini-container {
+  /* outline: 1px solid red; */
+  display: flex;
+  align-items: stretch;
+}
+
+.board-container {
+  width: 50%;
+}
+
+.board {
+  width: 100%;
+  max-width: 400px;
+  user-select: none;
+  display: block;
+  /* margin: 0 auto; */
+  margin-left: auto;
+}
+
+.clues {
+  margin-left: 18px;
+  max-width: 50%;
+}
+.clues h4 {
+  margin-top: 0;
+}
+
+ol {
+  list-style: none;
+  text-align: left;
+  padding: 0;
+  margin-top: 0;
+}
+
+ol li {
+  margin-block: 5px;
+}
+
+.clue-set {
+  text-align: left;
+  margin-bottom: 0;
+}
+
+.highlighted {
+  fill: #a7d8ff;
+}
+
+.selected {
+  fill: #ffda00;
+}
+
+.clue {
+  display: flex;
+  border-left: transparent solid 10px;
+}
+
+.clue-label {
+  font-weight: bold;
+  padding-inline: 5px;
+}
+
+.active-clue {
+  border-left: #A7D8FF solid 10px;
+}
+
+.selected-clue {
+  background-color: #A7D8FF;
+}
+
+.react-responsive-modal-modal * {
+  text-align: center;
+  display: block;
+}
+.react-responsive-modal-root h2, .react-responsive-modal-modal h3 {
+  margin-top: 0;
+}
+.react-responsive-modal-modal button {
+  margin-inline: auto;
+}
+
+canvas {
+  z-index: 999999 !important;
+}
