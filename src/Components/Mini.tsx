@@ -3,6 +3,10 @@ import type { MiniCrossword } from '../lib/types';
 import { fireworks } from '../lib/confetti';
 import { Modal } from 'react-responsive-modal';
 import 'react-responsive-modal/styles.css';
+import Keyboard from 'react-simple-keyboard';
+import 'react-simple-keyboard/build/css/index.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronLeft, faChevronRight, faDeleteLeft } from '@fortawesome/free-solid-svg-icons';
 
 interface MiniProps {
 	data: MiniCrossword;
@@ -18,6 +22,8 @@ export default function Mini({ data }: MiniProps) {
 	const [boardState, setBoardState] = useState<{[key: number]: string}>({});
 	const [modalOpen, setModalOpen] = useState<boolean>(false);
 	const [modalType, setModalType] = useState<"victory" | "incorrect">("victory");
+	const [keyboardLayout, setKeyboardLayout] = useState<"default" | "numeric">("default");
+	const [keyboardOpen, setKeyboardOpen] = useState<boolean>(false);
 	const boardRef = useRef<HTMLDivElement>(null);
 	const incorrectShown = useRef<boolean>(false);
 
@@ -113,119 +119,126 @@ export default function Mini({ data }: MiniProps) {
 		})
 	});
 
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.metaKey || e.ctrlKey || e.altKey) return;
-			if (modalOpen) return;
-            if (e.key === "Escape") {
-                setSelected(null);
-            }
-			function next() {
-				if (!selected) return;
-				const currentClue = body.clues.findIndex(clue => clue.cells.includes(selected) && clue.direction.toLowerCase() === direction);
-				const nextClue = body.clues[(currentClue + 1) % body.clues.length];
-				if (nextClue) {
-					setSelected(nextClue.cells[0]);
-					setDirection(nextClue.direction.toLowerCase() === "across" ? "across" : "down");
-				}
+	function next() {
+		if (selected === null) return;
+		const currentClue = body.clues.findIndex(clue => clue.cells.includes(selected) && clue.direction.toLowerCase() === direction);
+		const nextClue = body.clues[(currentClue + 1) % body.clues.length];
+		if (nextClue) {
+			setSelected(nextClue.cells[0]);
+			setDirection(nextClue.direction.toLowerCase() === "across" ? "across" : "down");
+		}
+	}
+	function previous() {
+		if (selected === null) return;
+		const currentClue = body.clues.findIndex(clue => clue.cells.includes(selected) && clue.direction.toLowerCase() === direction);
+		const prevClue = body.clues[(currentClue - 1 + body.clues.length) % body.clues.length];
+		if (prevClue) {
+			setSelected(prevClue.cells[prevClue.cells.length - 1]);
+			setDirection(prevClue.direction.toLowerCase() === "across" ? "across" : "down");
+			typeLetter("", prevClue.cells[prevClue.cells.length - 1]);
+		}
+	}
+
+	const handleKeyDown = (e: KeyboardEvent) => {
+		if (e.metaKey || e.ctrlKey || e.altKey) return;
+		if (modalOpen) return;
+		if (e.key === "Escape") {
+			setSelected(null);
+		}
+		if (letters.includes(e.key) && selected !== null) {
+			typeLetter(e.key, selected);
+			const highlightedCells = getCellsInDirection(selected, direction);
+			const currentIndex = highlightedCells.indexOf(selected);
+			if (currentIndex >= 0 && currentIndex < highlightedCells.length - 1) {
+				setSelected(highlightedCells[currentIndex + 1]);
+			} else if (currentIndex === highlightedCells.length - 1) {
+				next()
 			}
-			function previous() {
-				if (!selected) return;
-				const currentClue = body.clues.findIndex(clue => clue.cells.includes(selected) && clue.direction.toLowerCase() === direction);
-				const prevClue = body.clues[(currentClue - 1 + body.clues.length) % body.clues.length];
-				if (prevClue) {
-					setSelected(prevClue.cells[prevClue.cells.length - 1]);
-					setDirection(prevClue.direction.toLowerCase() === "across" ? "across" : "down");
-					typeLetter("", prevClue.cells[prevClue.cells.length - 1]);
-				}
-			}
-            if (letters.includes(e.key) && selected !== null) {
-                typeLetter(e.key, selected);
+		}
+		if (e.key === "Backspace" && selected !== null) {
+			// If the cell is filled, clear it, if it is empty, select one before
+			if (boardState[selected]) {
+				typeLetter("", selected);
+			} else {
 				const highlightedCells = getCellsInDirection(selected, direction);
+				const currentIndex = highlightedCells.indexOf(selected);
+				if (currentIndex > 0) {
+					setSelected(highlightedCells[currentIndex - 1]);
+					typeLetter("", highlightedCells[currentIndex - 1]);
+				} else if (currentIndex === 0) {
+					previous();
+				}
+			}
+		}
+		if (e.key === "ArrowRight" && selected !== null) {
+			if (direction !== "across") {
+				setDirection("across");
+			} else {
+				const highlightedCells = getCellsInDirection(selected, "across");
 				const currentIndex = highlightedCells.indexOf(selected);
 				if (currentIndex >= 0 && currentIndex < highlightedCells.length - 1) {
 					setSelected(highlightedCells[currentIndex + 1]);
-				} else if (currentIndex === highlightedCells.length - 1) {
-					next()
-				}
-            }
-			if (e.key === "Backspace" && selected !== null) {
-				// If the cell is filled, clear it, if it is empty, select one before
-				if (boardState[selected]) {
-					typeLetter("", selected);
-				} else {
-					const highlightedCells = getCellsInDirection(selected, direction);
-					const currentIndex = highlightedCells.indexOf(selected);
-					if (currentIndex > 0) {
-						setSelected(highlightedCells[currentIndex - 1]);
-						typeLetter("", highlightedCells[currentIndex - 1]);
-					} else if (currentIndex === 0) {
-						previous();
-					}
 				}
 			}
-			if (e.key === "ArrowRight" && selected !== null) {
-				if (direction !== "across") {
-					setDirection("across");
-				} else {
-					const highlightedCells = getCellsInDirection(selected, "across");
-					const currentIndex = highlightedCells.indexOf(selected);
-					if (currentIndex >= 0 && currentIndex < highlightedCells.length - 1) {
-						setSelected(highlightedCells[currentIndex + 1]);
-					}
+		}
+		if (e.key === "ArrowLeft" && selected !== null) {
+			if (direction !== "across") {
+				setDirection("across");
+			} else {
+				const highlightedCells = getCellsInDirection(selected, "across");
+				const currentIndex = highlightedCells.indexOf(selected);
+				if (currentIndex > 0) {
+					setSelected(highlightedCells[currentIndex - 1]);
 				}
 			}
-			if (e.key === "ArrowLeft" && selected !== null) {
-				if (direction !== "across") {
-					setDirection("across");
-				} else {
-					const highlightedCells = getCellsInDirection(selected, "across");
-					const currentIndex = highlightedCells.indexOf(selected);
-					if (currentIndex > 0) {
-						setSelected(highlightedCells[currentIndex - 1]);
-					}
+		}
+		if (e.key === "ArrowDown" && selected !== null) {
+			e.preventDefault();
+			if (direction !== "down") {
+				setDirection("down");
+			} else {
+				const highlightedCells = getCellsInDirection(selected, "down");
+				const currentIndex = highlightedCells.indexOf(selected);
+				if (currentIndex >= 0 && currentIndex < highlightedCells.length - 1) {
+					setSelected(highlightedCells[currentIndex + 1]);
 				}
 			}
-			if (e.key === "ArrowDown" && selected !== null) {
-				e.preventDefault();
-				if (direction !== "down") {
-					setDirection("down");
-				} else {
-					const highlightedCells = getCellsInDirection(selected, "down");
-					const currentIndex = highlightedCells.indexOf(selected);
-					if (currentIndex >= 0 && currentIndex < highlightedCells.length - 1) {
-						setSelected(highlightedCells[currentIndex + 1]);
-					}
+		}
+		if (e.key === "ArrowUp" && selected !== null) {
+			e.preventDefault();
+			if (direction !== "down") {
+				setDirection("down");
+			} else {
+				const highlightedCells = getCellsInDirection(selected, "down");
+				const currentIndex = highlightedCells.indexOf(selected);
+				if (currentIndex > 0) {
+					setSelected(highlightedCells[currentIndex - 1]);
 				}
 			}
-			if (e.key === "ArrowUp" && selected !== null) {
-				e.preventDefault();
-				if (direction !== "down") {
-					setDirection("down");
-				} else {
-					const highlightedCells = getCellsInDirection(selected, "down");
-					const currentIndex = highlightedCells.indexOf(selected);
-					if (currentIndex > 0) {
-						setSelected(highlightedCells[currentIndex - 1]);
-					}
-				}
-			}
-			if (e.key === "Enter" && selected !== null) {
+		}
+		if (e.key === "Enter" && selected !== null) {
+			next();
+		}
+		if (e.key === "Tab" && selected !== null) {
+			e.preventDefault();
+			if (e.shiftKey) {
+				previous();
+			} else {
 				next();
 			}
-			if (e.key === "Tab" && selected !== null) {
-				e.preventDefault();
-				if (e.shiftKey) {
-					previous();
-				} else {
-					next();
-				}
-			}
-        };
+		}
+	};
 
+	const handleTouchStart = () => {
+		setKeyboardOpen(true);
+	}
+
+    useEffect(() => {
         document.addEventListener("keydown", handleKeyDown);
+		document.addEventListener("touchstart", handleTouchStart);
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
+			document.removeEventListener("touchstart", handleTouchStart);
         };
 	}, [selected, direction, boardState]);
 
@@ -246,15 +259,17 @@ export default function Mini({ data }: MiniProps) {
 
 	let activeClues: number[] = [];
 	let selectedClue = -1;
+	let globalSelectedClue = {};
 
 	if (selected !== null) {
 		activeClues = body.cells[selected].clues || [];
 		selectedClue = activeClues.findIndex(clueIndex => body.clues[clueIndex].direction.toLowerCase() === direction);
+		globalSelectedClue = body.clues[activeClues.find(clueIndex => body.clues[clueIndex].direction.toLowerCase() === direction) || 0] || {};
 	}
 
 	return (
 		<>
-			<div className='mini-container'>
+			<div className={`mini-container${!(keyboardOpen && selected !== null) ? '' : ' keyboard-open'}`}>
 				<div className='board-container'>
 					<div ref={boardRef} className='board' dangerouslySetInnerHTML={{__html: body.board}}></div>
 				</div>
@@ -278,12 +293,52 @@ export default function Mini({ data }: MiniProps) {
 					})}
 				</div>
 			</div>
-			<Modal open={modalOpen} onClose={() => setModalOpen(false)} center closeIcon={<></>}>
+			<Modal open={modalOpen} onClose={() => setModalOpen(false)} center showCloseIcon={false}>
 				<h2>{modalType == "victory" ? "Congratulations!" : "Not Quite..."}</h2>
 				<h3>{modalType == "victory" ? "You solved today's Mini Crossword!" : "One or more squares are filled incorrectly."}</h3>
 				<button onClick={() => {setModalOpen(false)}}>{modalType == "victory" ? "Admire Puzzle" : "Keep Trying"}</button>
 			</Modal>
-			{/* <h4>{new Date(data.publicationDate).toLocaleDateString("en", {dateStyle: "medium"})}</h4> */}
+			<div className='keyboard-container'>
+				{ (keyboardOpen && selected !== null && selectedClue > -1) ? <>
+					<div className='clue-bar'>
+						<div className='clue-bar-back' onClick={previous}>
+							<FontAwesomeIcon icon={faChevronLeft} />
+						</div>
+						<span className='clue-bar-text'>{globalSelectedClue.text.map(t => t.plain).join(' ')}</span>
+						<div className='clue-bar-forward' onClick={next}>
+							<FontAwesomeIcon icon={faChevronRight} />
+						</div>
+					</div>
+				</> : "" }
+				<Keyboard onKeyPress={(key) => {
+					if (key === "{numbers}" || key === "{abc}") {
+						setKeyboardLayout(key === "{numbers}" ? "numeric" : "default");
+						return;
+					}
+					let keyCode = key;
+					if (key === "{bksp}") keyCode = "Backspace";
+					if (key === "{enter}") keyCode = "Enter";
+					if (key === "{esc}") keyCode = "Escape";
+					if (key === "{tab}") keyCode = "Tab";
+					handleKeyDown(new KeyboardEvent("keydown", {key: keyCode}));
+				}} layout={{
+					default: [
+						"Q W E R T Y U I O P",
+						"A S D F G H J K L",
+						"{numbers} Z X C V B N M {bksp}"
+					],
+					numeric: [
+						"1 2 3",
+						"4 5 6",
+						"7 8 9",
+						"{abc} 0 {bksp}"
+					]
+				}} display={{
+					"{numbers}": "123",
+					"{abc}": "ABC",
+					"{bksp}": "⌫",
+				}} layoutName={keyboardLayout} autoUseTouchEvents={true} theme={!(keyboardOpen && selected !== null) ? "hidden" : ""} />
+			</div>
 		</>
 	);
 }

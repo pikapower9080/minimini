@@ -85,7 +85,7 @@ ol li {
   text-align: center;
   display: block;
 }
-.react-responsive-modal-root h2, .react-responsive-modal-modal h3 {
+.react-responsive-modal-modal h2, .react-responsive-modal-modal h3 {
   margin-top: 0;
 }
 .react-responsive-modal-modal button {
@@ -94,4 +94,88 @@ ol li {
 
 canvas {
   z-index: 999999 !important;
+}
+
+.hidden {
+  display: none;
+}
+
+.keyboard-container {
+  position: fixed;
+  width: 100vw;
+  bottom: 0;
+  left: 0;
+}
+
+.hg-functionBtn {
+  background-color: #C8D1D9 !important;
+}
+
+.clue-bar {
+  background-color: #a7d8ff;
+  width: 100vw;
+  height: 2.8em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.clue-bar-back {
+  padding-inline: 5px;
+  margin-right: auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.clue-bar-forward {
+  padding-inline: 5px;
+  margin-left: auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.clue-bar-text {
+  flex: 1;
+  text-align: center;
+  line-height: 1;
+}
+
+.welcome-modal h4 {
+  margin-bottom: 5px;
+}
+.welcome-modal h3 {
+  margin-bottom: 10px;
+}
+.welcome-modal button {
+  margin-top: 15px;
+}
+
+@media (max-width: 900px) {
+  .mini-container {
+    flex-direction: column;
+  }
+  .board-container {
+    width: 100%;
+  }
+  .board {
+    margin-inline: auto;
+  }
+  .clues {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+  }
+  body:has(.keyboard-open) {
+    place-items: unset;
+  }
+  #root:has(.keyboard-open) {
+    width: 100vw;
+    margin: 0;
+  }
+  .keyboard-open .mini-container {
+    display: block;
+  }
+  .keyboard-open .clues {
+    display: none;
+  }
 }
