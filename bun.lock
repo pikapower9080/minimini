@@ -14,6 +14,7 @@
         "react-dom": "^19.1.1",
         "react-responsive-modal": "^7.1.0",
         "react-simple-keyboard": "^3.8.126",
+        "react-timer-hook": "^4.0.5",
       },
       "devDependencies": {
         "@eslint/js": "^9.36.0",
@@ -466,6 +467,8 @@
     "react-responsive-modal": ["react-responsive-modal@7.1.0", "", { "dependencies": { "@bedrock-layout/use-forwarded-ref": "^2.0.17", "body-scroll-lock": "^3.1.5", "classnames": "^2.3.1" }, "peerDependencies": { "react": "^16.8.0 || ^17 || ^18 || ^19", "react-dom": "^16.8.0 || ^17 || ^18 || ^19" } }, "sha512-BKcvf+SYCmTqmgd22l0tkWT2/eZ9FzkirS0e/4SwDIAfry5QyqGRtsMUpq9z8XPQzIOQZ3EM+5Z2u46iTmVtvQ=="],
 
     "react-simple-keyboard": ["react-simple-keyboard@3.8.126", "", { "peerDependencies": { "react": "^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react-dom": "^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-eULRTm9Rrvo72+WnU9h3fTooSLMgJ52Yi5VvVm0SirMKQnigRgOlcx1VJeVdFVN4JfJEuSN1voV+Vsmeheg3vA=="],
+
+    "react-timer-hook": ["react-timer-hook@4.0.5", "", { "peerDependencies": { "react": ">=16.8.0" } }, "sha512-elDxx4OIxBTbm4rXSK5cjBHkq06prO2qY9JzoYxOa11AkL3ij69jp0VuDUOqcehEK38CV0uu7FzUKtPVISRLKA=="],
 
     "resolve-from": ["resolve-from@4.0.0", "", {}, "sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g=="],
 

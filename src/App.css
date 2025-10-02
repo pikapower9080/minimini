@@ -150,6 +150,28 @@ canvas {
   margin-top: 15px;
 }
 
+.timer {
+  margin-bottom: 10px;
+}
+
+.timer-icon {
+  color: #B7B7B7;
+  transition: color 250ms;
+}
+
+.timer-icon:hover {
+  cursor: pointer;
+  color: black;
+}
+
+.react-responsive-modal-modal strong {
+  margin-bottom: 10px;
+}
+
+.pause-modal-container {
+  backdrop-filter: blur(5px);
+}
+
 @media (max-width: 900px) {
   .mini-container {
     flex-direction: column;

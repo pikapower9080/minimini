@@ -12,11 +12,14 @@ import posthog from 'posthog-js';
 interface MiniProps {
 	data: MiniCrossword;
 	startTouched: boolean;
+	timeRef: React.RefObject<number[]>;
+	complete: boolean;
+	setComplete: (paused: boolean) => void;
 }
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890=+-?.,/".split('');
 
-export default function Mini({ data, startTouched }: MiniProps) {
+export default function Mini({ data, startTouched, timeRef, complete, setComplete }: MiniProps) {
 	const body = data.body[0];
 
 	const [selected, setSelected] = useState<number | null>(null);
@@ -31,6 +34,7 @@ export default function Mini({ data, startTouched }: MiniProps) {
 
 	function typeLetter(letter: string, cellIndex: number) {
 		if (!boardRef.current) return;
+		if (complete) return;
 		const square = boardRef.current.querySelector(`g[data-index='${cellIndex}']`);
 		if (!square) return;
 		const guess = square.querySelector(".guess");
@@ -242,7 +246,7 @@ export default function Mini({ data, startTouched }: MiniProps) {
             document.removeEventListener("keydown", handleKeyDown);
 			document.removeEventListener("touchstart", handleTouchStart);
         };
-	}, [selected, direction, boardState]);
+	}, [selected, direction, boardState, complete, modalOpen]);
 
 	useEffect(() => {
 		const results = checkBoard();
@@ -251,13 +255,14 @@ export default function Mini({ data, startTouched }: MiniProps) {
 			setModalOpen(true);
 			fireworks();
 			incorrectShown.current = false;
-			posthog.capture('completed_puzzle', {puzzle: data.id, puzzleDate: data.publicationDate})
+			posthog.capture('completed_puzzle', {puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current})
+			setComplete(true);
 		} else if (results.totalCells > 0 && results.totalCells === results.totalFilled && results.totalCorrect < results.totalCells) {
 			if (incorrectShown.current) return;
 			setModalType("incorrect");
 			setModalOpen(true);
 			incorrectShown.current = true;
-			posthog.capture('incorrect_solution')
+			posthog.capture('incorrect_solution', {puzzle: data.id, puddleDate: data.publicationDate, time: timeRef.current})
 		}
 	}, [boardState]);
 
@@ -308,7 +313,7 @@ export default function Mini({ data, startTouched }: MiniProps) {
 			</div>
 			<Modal open={modalOpen} onClose={() => setModalOpen(false)} center showCloseIcon={false}>
 				<h2>{modalType == "victory" ? "Congratulations!" : "Not Quite..."}</h2>
-				<h3>{modalType == "victory" ? "You solved today's Mini Crossword!" : "One or more squares are filled incorrectly."}</h3>
+				<h3>{modalType == "victory" && timeRef.current.length > 0 ? `You solved the Mini Crossword in ${timeRef.current[0]}:${timeRef.current[1].toString().padStart(2, "0")}` : "One or more squares are filled incorrectly."}</h3>
 				<button onClick={() => {setModalOpen(false)}}>{modalType == "victory" ? "Admire Puzzle" : "Keep Trying"}</button>
 			</Modal>
 			<div className='keyboard-container'>
