@@ -18,11 +18,16 @@ function App() {
   useEffect(() => {
     const cached = localStorage.getItem("mini-cache");
     const cachedDate = localStorage.getItem("mini-cache-date");
-    const today = new Date().toISOString().split("T")[0];
 
-    if (cached && cachedDate && cachedDate.split("T")[0] === today) {
-      setData(JSON.parse(cached));
-      return;
+    if (cached && cachedDate) {
+      const cachedTime = new Date(cachedDate).getTime();
+      const now = new Date().getTime();
+      const tenMinutes = 10 * 60 * 1000;
+
+      if (now - cachedTime < tenMinutes) {
+        setData(JSON.parse(cached));
+        return;
+      }
     }
     fetch("https://miniminicw.vercel.app/api/today")
       .then((res) => res.json())
