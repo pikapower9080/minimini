@@ -2,7 +2,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import posthog from 'posthog-js';
-import { PostHogProvider } from 'posthog-js/react'
+import { PostHogProvider, PostHogErrorBoundary } from 'posthog-js/react'
 
 posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
   api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
@@ -11,6 +11,8 @@ posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
 
 createRoot(document.getElementById('root')!).render(
   <PostHogProvider client={posthog}>
-    <App />
+    <PostHogErrorBoundary>
+      <App />
+    </PostHogErrorBoundary>
   </PostHogProvider>
 )
