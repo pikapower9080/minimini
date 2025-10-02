@@ -8,6 +8,7 @@ import posthog from "posthog-js";
 
 function App() {
   const [data, setData] = useState<MiniCrossword | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(true);
   const [paused, setPaused] = useState(false);
   const [complete, setComplete] = useState(false);
@@ -23,12 +24,16 @@ function App() {
       setData(JSON.parse(cached));
       return;
     }
-    fetch("https://corsanywhere.vercel.app/www.nytimes.com/svc/crosswords/v6/puzzle/mini.json")
+    fetch("https://miniminicw.vercel.app/api/today")
       .then((res) => res.json())
       .then((json) => {
         setData(json);
         localStorage.setItem("mini-cache", JSON.stringify(json));
         localStorage.setItem("mini-cache-date", new Date().toISOString());
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("Failed to load today's puzzle.");
       });
   }, []);
 
@@ -122,8 +127,9 @@ function App() {
       {data && !modalOpen ? (
         <Mini data={data} startTouched={startTouched.current} timeRef={timeRef} complete={complete} setComplete={setComplete} />
       ) : (
-        !data && <div className="loading">Loading...</div>
+        !data && !error && <div className="loading">Loading...</div>
       )}
+      {error && <div className="error">{error}</div>}
     </>
   );
 }
