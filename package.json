@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"vite\" \"bun api/index.ts\" --names \"vite,api\" --kill-others --success first",
+    "dev": "concurrently \"vite --host\" \"bun api/index.ts\" --names \"vite,api\" --kill-others --success first",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
