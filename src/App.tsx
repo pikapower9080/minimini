@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
 import type { MiniCrossword } from './lib/types'
 import Mini from './Components/Mini';
@@ -7,6 +7,7 @@ import Modal from 'react-responsive-modal';
 function App() {
   const [data, setData] = useState<MiniCrossword | null>(null);
   const [modalOpen, setModalOpen] = useState(true);
+  const startTouched = useRef(false);
   // const [paused, setPaused] = useState(false);
 
   useEffect(() => {
@@ -38,9 +39,12 @@ function App() {
         <h4>by {data.constructors.join(", ")}</h4>
         <button onClick={() => {
           setModalOpen(false);
+        }} onTouchStart={() => {
+          startTouched.current = true;
+          console.log("touch input detected")
         }}>Start Solving</button>
       </Modal>}
-      {data && !modalOpen ? <Mini data={data} /> : <p>Loading...</p>}
+      {data && !modalOpen ? <Mini data={data} startTouched={startTouched.current} /> : <p>Loading...</p>}
     </>
   )
 }

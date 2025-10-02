@@ -11,11 +11,12 @@ import posthog from 'posthog-js';
 
 interface MiniProps {
 	data: MiniCrossword;
+	startTouched: boolean;
 }
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890=+-?.,/".split('');
 
-export default function Mini({ data }: MiniProps) {
+export default function Mini({ data, startTouched }: MiniProps) {
 	const body = data.body[0];
 
 	const [selected, setSelected] = useState<number | null>(null);
@@ -24,7 +25,7 @@ export default function Mini({ data }: MiniProps) {
 	const [modalOpen, setModalOpen] = useState<boolean>(false);
 	const [modalType, setModalType] = useState<"victory" | "incorrect">("victory");
 	const [keyboardLayout, setKeyboardLayout] = useState<"default" | "numeric">("default");
-	const [keyboardOpen, setKeyboardOpen] = useState<boolean>(false);
+	const [keyboardOpen, setKeyboardOpen] = useState<boolean>(startTouched);
 	const boardRef = useRef<HTMLDivElement>(null);
 	const incorrectShown = useRef<boolean>(false);
 
@@ -259,6 +260,15 @@ export default function Mini({ data }: MiniProps) {
 			posthog.capture('incorrect_solution')
 		}
 	}, [boardState]);
+
+	useEffect(() => {
+		if (selected === null) {
+			const firstCell = body.cells.findIndex(cell => 'answer' in cell);
+			if (firstCell >= 0) {
+				setSelected(firstCell);
+			}
+		}
+	}, []);
 
 	let activeClues: number[] = [];
 	let selectedClue = -1;
