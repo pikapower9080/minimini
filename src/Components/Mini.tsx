@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import type { MiniCrossword } from '../lib/types';
+import type { MiniCrossword, MiniCrosswordClue } from '../lib/types';
 import { fireworks } from '../lib/confetti';
 import { Modal } from 'react-responsive-modal';
 import 'react-responsive-modal/styles.css';
 import Keyboard from 'react-simple-keyboard';
 import 'react-simple-keyboard/build/css/index.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight, faDeleteLeft } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
 interface MiniProps {
 	data: MiniCrossword;
@@ -259,7 +259,7 @@ export default function Mini({ data }: MiniProps) {
 
 	let activeClues: number[] = [];
 	let selectedClue = -1;
-	let globalSelectedClue = {};
+	let globalSelectedClue: MiniCrosswordClue | null = null;
 
 	if (selected !== null) {
 		activeClues = body.cells[selected].clues || [];
@@ -304,7 +304,7 @@ export default function Mini({ data }: MiniProps) {
 						<div className='clue-bar-back' onClick={previous}>
 							<FontAwesomeIcon icon={faChevronLeft} />
 						</div>
-						<span className='clue-bar-text'>{globalSelectedClue.text.map(t => t.plain).join(' ')}</span>
+						{globalSelectedClue !== null ? <span className='clue-bar-text'>{globalSelectedClue.text.map(t => t.plain).join(' ')}</span> : ""}
 						<div className='clue-bar-forward' onClick={next}>
 							<FontAwesomeIcon icon={faChevronRight} />
 						</div>

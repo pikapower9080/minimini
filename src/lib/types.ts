@@ -9,7 +9,7 @@ export interface MiniCrossword {
   freePuzzle: boolean;
 }
 
-interface MiniCrosswordBody {
+export interface MiniCrosswordBody {
   board: string;
   cells: MiniCrosswordCell[];
   clueLists: MiniCrosswordClueList[];
@@ -17,19 +17,19 @@ interface MiniCrosswordBody {
   dimensions: MiniCrosswordDimensions;
 }
 
-interface MiniCrosswordCell {
+export interface MiniCrosswordCell {
   answer?: string;
   clues?: number[];
   label?: string;
   type?: number;
 }
 
-interface MiniCrosswordClueList {
+export interface MiniCrosswordClueList {
   clues: number[];
   name: string;
 }
 
-interface MiniCrosswordClue {
+export interface MiniCrosswordClue {
   cells: number[];
   direction: string;
   label: string;
@@ -37,12 +37,12 @@ interface MiniCrosswordClue {
   text: MiniCrosswordClueText[];
 }
 
-interface MiniCrosswordClueText {
+export interface MiniCrosswordClueText {
   formatted?: string;
   plain: string;
 }
 
-interface MiniCrosswordDimensions {
+export interface MiniCrosswordDimensions {
   height: number;
   width: number;
 }
