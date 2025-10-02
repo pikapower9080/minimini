@@ -74,18 +74,19 @@ ol li {
 }
 
 .active-clue {
-  border-left: #A7D8FF solid 10px;
+  border-left: #a7d8ff solid 10px;
 }
 
 .selected-clue {
-  background-color: #A7D8FF;
+  background-color: #a7d8ff;
 }
 
 .react-responsive-modal-modal * {
   text-align: center;
   display: block;
 }
-.react-responsive-modal-modal h2, .react-responsive-modal-modal h3 {
+.react-responsive-modal-modal h2,
+.react-responsive-modal-modal h3 {
   margin-top: 0;
 }
 .react-responsive-modal-modal button {
@@ -108,7 +109,7 @@ canvas {
 }
 
 .hg-functionBtn {
-  background-color: #C8D1D9 !important;
+  background-color: #c8d1d9 !important;
 }
 
 .clue-bar {
@@ -155,7 +156,7 @@ canvas {
 }
 
 .timer-icon {
-  color: #B7B7B7;
+  color: #b7b7b7;
   transition: color 250ms;
 }
 

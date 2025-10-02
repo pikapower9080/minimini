@@ -11,12 +11,7 @@ interface TimerProps {
 }
 
 export default function Timer({ onPause, running, setTime }: TimerProps) {
-  const {
-    seconds,
-    minutes,
-    start,
-    pause
-  } = useStopwatch({ autoStart: true, interval: 20 });
+  const { seconds, minutes, start, pause } = useStopwatch({ autoStart: true, interval: 20 });
 
   useEffect(() => {
     if (running) {
@@ -30,11 +25,19 @@ export default function Timer({ onPause, running, setTime }: TimerProps) {
     setTime([minutes, seconds]);
   }, [minutes, seconds]);
 
-  return <div className="timer">
-    <span className="timer-text">{minutes}:{seconds.toString().padStart(2, "0")}</span>
-    <FontAwesomeIcon icon={faPause} className="timer-icon" onClick={() => {
-      posthog.capture('manual_pause', {time: `${minutes}:${seconds.toString().padStart(2, "0")}`});
-      onPause();
-    }} />
-  </div>;
+  return (
+    <div className="timer">
+      <span className="timer-text">
+        {minutes}:{seconds.toString().padStart(2, "0")}
+      </span>
+      <FontAwesomeIcon
+        icon={faPause}
+        className="timer-icon"
+        onClick={() => {
+          posthog.capture("manual_pause", { time: `${minutes}:${seconds.toString().padStart(2, "0")}` });
+          onPause();
+        }}
+      />
+    </div>
+  );
 }

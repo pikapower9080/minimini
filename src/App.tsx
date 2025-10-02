@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
-import './App.css'
-import type { MiniCrossword } from './lib/types'
-import Mini from './Components/Mini';
-import Timer from './Components/Timer';
-import Modal from 'react-responsive-modal';
-import posthog from 'posthog-js';
+import { useEffect, useRef, useState } from "react";
+import "./App.css";
+import type { MiniCrossword } from "./lib/types";
+import Mini from "./Components/Mini";
+import Timer from "./Components/Timer";
+import Modal from "react-responsive-modal";
+import posthog from "posthog-js";
 
 function App() {
   const [data, setData] = useState<MiniCrossword | null>(null);
@@ -15,19 +15,21 @@ function App() {
   const startTouched = useRef(false);
 
   useEffect(() => {
-    const cached = localStorage.getItem('mini-cache');
-    const cachedDate = localStorage.getItem('mini-cache-date');
-    const today = new Date().toISOString().split('T')[0];
+    const cached = localStorage.getItem("mini-cache");
+    const cachedDate = localStorage.getItem("mini-cache-date");
+    const today = new Date().toISOString().split("T")[0];
 
-    if (cached && cachedDate && cachedDate.split('T')[0] === today) {
+    if (cached && cachedDate && cachedDate.split("T")[0] === today) {
       setData(JSON.parse(cached));
       return;
     }
-    fetch("https://corsanywhere.vercel.app/www.nytimes.com/svc/crosswords/v6/puzzle/mini.json").then(res => res.json()).then(json => {
-      setData(json);
-      localStorage.setItem('mini-cache', JSON.stringify(json));
-      localStorage.setItem('mini-cache-date', new Date().toISOString());
-    });
+    fetch("https://corsanywhere.vercel.app/www.nytimes.com/svc/crosswords/v6/puzzle/mini.json")
+      .then((res) => res.json())
+      .then((json) => {
+        setData(json);
+        localStorage.setItem("mini-cache", JSON.stringify(json));
+        localStorage.setItem("mini-cache-date", new Date().toISOString());
+      });
   }, []);
 
   useEffect(() => {
@@ -35,52 +37,95 @@ function App() {
       console.log("focus lost");
       if (data && !modalOpen && !paused) {
         if (complete) return;
-        posthog.capture('auto_pause', {time: `${timeRef.current.length === 2 ? timeRef.current[0] + ":" + timeRef.current[1].toString().padStart(2, "0") : ""}`});
+        posthog.capture("auto_pause", {
+          time: `${timeRef.current.length === 2 ? timeRef.current[0] + ":" + timeRef.current[1].toString().padStart(2, "0") : ""}`
+        });
         setPaused(true);
       }
-    }
+    };
 
-    window.addEventListener('blur', handleBlur);
+    window.addEventListener("blur", handleBlur);
     return () => {
-      window.removeEventListener('blur', handleBlur);
-    }
+      window.removeEventListener("blur", handleBlur);
+    };
   });
 
   return (
     <>
-      {data && <Modal open={modalOpen} onClose={() => {}} showCloseIcon={false} center classNames={{ modal: 'welcome-modal' }}>
-        <h2>Welcome to minimini</h2>
-        <h4>{new Date(data.publicationDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).replace(/\b(\d{1,2})\b/, (match) => {
-          const suffix = ['th', 'st', 'nd', 'rd'];
-          const day = parseInt(match, 10);
-          const value = day % 100;
-          return day + (suffix[(value - 20) % 10] || suffix[value] || suffix[0]);
-        })}</h4>
-        <h4>by {data.constructors.join(", ")}</h4>
-        <button onClick={() => {
-          setModalOpen(false);
-        }} onTouchStart={() => {
-          startTouched.current = true;
-          console.log("touch input detected")
-        }}>Start Solving</button>
-      </Modal>}
-      <Modal open={paused} onClose={() => {setPaused(false);}} center classNames={{ modal: 'pause-modal', overlay: 'pause-modal-container' }} showCloseIcon={false}>
-        <h2>Paused</h2>
-        {timeRef.current.length === 2 ? <strong>{timeRef.current[0]}:{timeRef.current[1].toString().padStart(2, "0")}</strong> : ""}
-        <button onClick={() => {
+      {data && (
+        <Modal open={modalOpen} onClose={() => {}} showCloseIcon={false} center classNames={{ modal: "welcome-modal" }}>
+          <h2>Welcome to minimini</h2>
+          <h4>
+            {new Date(data.publicationDate)
+              .toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })
+              .replace(/\b(\d{1,2})\b/, (match) => {
+                const suffix = ["th", "st", "nd", "rd"];
+                const day = parseInt(match, 10);
+                const value = day % 100;
+                return day + (suffix[(value - 20) % 10] || suffix[value] || suffix[0]);
+              })}
+          </h4>
+          <h4>by {data.constructors.join(", ")}</h4>
+          <button
+            onClick={() => {
+              setModalOpen(false);
+            }}
+            onTouchStart={() => {
+              startTouched.current = true;
+              console.log("touch input detected");
+            }}
+          >
+            Start Solving
+          </button>
+        </Modal>
+      )}
+      <Modal
+        open={paused}
+        onClose={() => {
           setPaused(false);
-          posthog.capture('resume');
-        }}>Resume</button>
+        }}
+        center
+        classNames={{ modal: "pause-modal", overlay: "pause-modal-container" }}
+        showCloseIcon={false}
+      >
+        <h2>Paused</h2>
+        {timeRef.current.length === 2 ? (
+          <strong>
+            {timeRef.current[0]}:{timeRef.current[1].toString().padStart(2, "0")}
+          </strong>
+        ) : (
+          ""
+        )}
+        <button
+          onClick={() => {
+            setPaused(false);
+            posthog.capture("resume");
+          }}
+        >
+          Resume
+        </button>
       </Modal>
-      {data && !modalOpen ? <Timer onPause={() => {
-        if (complete) return;
-        setPaused(true);
-      }} running={!paused && !complete} setTime={(time) => {
-        timeRef.current = time;
-      }} /> : ""}
-      {data && !modalOpen ? <Mini data={data} startTouched={startTouched.current} timeRef={timeRef} complete={complete} setComplete={setComplete} /> : (!data && <div className="loading">Loading...</div>)}
+      {data && !modalOpen ? (
+        <Timer
+          onPause={() => {
+            if (complete) return;
+            setPaused(true);
+          }}
+          running={!paused && !complete}
+          setTime={(time) => {
+            timeRef.current = time;
+          }}
+        />
+      ) : (
+        ""
+      )}
+      {data && !modalOpen ? (
+        <Mini data={data} startTouched={startTouched.current} timeRef={timeRef} complete={complete} setComplete={setComplete} />
+      ) : (
+        !data && <div className="loading">Loading...</div>
+      )}
     </>
-  )
+  );
 }
 
-export default App
+export default App;
