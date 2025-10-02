@@ -56,7 +56,7 @@ function App() {
         <Modal open={modalOpen} onClose={() => {}} showCloseIcon={false} center classNames={{ modal: "welcome-modal" }}>
           <h2>Welcome to minimini</h2>
           <h4>
-            {new Date(data.publicationDate)
+            {new Date(data.publicationDate + "T00:00:00")
               .toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })
               .replace(/\b(\d{1,2})\b/, (match) => {
                 const suffix = ["th", "st", "nd", "rd"];
