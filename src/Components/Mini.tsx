@@ -120,6 +120,7 @@ export default function Mini({ data }: MiniProps) {
                 setSelected(null);
             }
 			function next() {
+				if (!selected) return;
 				const currentClue = body.clues.findIndex(clue => clue.cells.includes(selected) && clue.direction.toLowerCase() === direction);
 				const nextClue = body.clues[(currentClue + 1) % body.clues.length];
 				if (nextClue) {
@@ -128,6 +129,7 @@ export default function Mini({ data }: MiniProps) {
 				}
 			}
 			function previous() {
+				if (!selected) return;
 				const currentClue = body.clues.findIndex(clue => clue.cells.includes(selected) && clue.direction.toLowerCase() === direction);
 				const prevClue = body.clues[(currentClue - 1 + body.clues.length) % body.clues.length];
 				if (prevClue) {
