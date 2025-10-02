@@ -19,6 +19,7 @@ export default function Mini({ data }: MiniProps) {
 	const [modalOpen, setModalOpen] = useState<boolean>(false);
 	const [modalType, setModalType] = useState<"victory" | "incorrect">("victory");
 	const boardRef = useRef<HTMLDivElement>(null);
+	const incorrectShown = useRef<boolean>(false);
 
 	function typeLetter(letter: string, cellIndex: number) {
 		if (!boardRef.current) return;
@@ -234,9 +235,12 @@ export default function Mini({ data }: MiniProps) {
 			setModalType("victory");
 			setModalOpen(true);
 			fireworks();
+			incorrectShown.current = false;
 		} else if (results.totalCells > 0 && results.totalCells === results.totalFilled && results.totalCorrect < results.totalCells) {
+			if (incorrectShown.current) return;
 			setModalType("incorrect");
 			setModalOpen(true);
+			incorrectShown.current = true;
 		}
 	}, [boardState]);
 
