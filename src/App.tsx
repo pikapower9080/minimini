@@ -6,6 +6,21 @@ import Timer from "./Components/Timer";
 import Modal from "react-responsive-modal";
 import posthog from "posthog-js";
 
+let apiURL = "";
+let apiURLSource = "production";
+
+if (!import.meta.env.PROD) {
+  apiURL = "http://localhost:3000";
+  apiURLSource = "development default";
+}
+if (import.meta.env.VITE_API_URL) {
+  apiURL = import.meta.env.VITE_API_URL;
+  apiURLSource = "environment variable";
+}
+if (apiURL !== "") {
+  console.log(`API URL (from ${apiURLSource}): ${apiURL}`);
+}
+
 function App() {
   const [data, setData] = useState<MiniCrossword | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +44,7 @@ function App() {
         return;
       }
     }
-    fetch("https://miniminicw.vercel.app/api/today")
+    fetch(apiURL + "/api/today")
       .then((res) => res.json())
       .then((json) => {
         setData(json);
