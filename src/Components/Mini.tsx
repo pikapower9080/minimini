@@ -143,6 +143,14 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     });
   });
 
+  useEffect(() => {
+    if (autoCheck) {
+      posthog.capture("enabled_autocheck", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current });
+    } else {
+      posthog.capture("disabled_autocheck", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current });
+    }
+  }, [autoCheck]);
+
   function next() {
     if (selected === null) return;
     const currentClue = body.clues.findIndex((clue) => clue.cells.includes(selected) && clue.direction.toLowerCase() === direction);
@@ -268,14 +276,14 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       setModalOpen(true);
       fireworks();
       incorrectShown.current = false;
-      posthog.capture("completed_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current });
+      posthog.capture("completed_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current, autoCheck });
       setComplete(true);
     } else if (results.totalCells > 0 && results.totalCells === results.totalFilled && results.totalCorrect < results.totalCells) {
       if (incorrectShown.current) return;
       setModalType("incorrect");
       setModalOpen(true);
       incorrectShown.current = true;
-      posthog.capture("incorrect_solution", { puzzle: data.id, puddleDate: data.publicationDate, time: timeRef.current });
+      posthog.capture("incorrect_solution", { puzzle: data.id, puddleDate: data.publicationDate, time: timeRef.current, autoCheck });
     }
   }, [boardState]);
 
