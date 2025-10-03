@@ -193,6 +193,9 @@ canvas {
   align-items: center;
   justify-content: center;
   margin-top: 5px;
+  width: 100%;
+  max-width: 400px;
+  margin-left: auto;
 }
 
 .toggle-container label {
@@ -206,7 +209,8 @@ canvas {
   .board-container {
     width: 100%;
   }
-  .board {
+  .board,
+  .toggle-container {
     margin-inline: auto;
   }
   .clues {
