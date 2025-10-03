@@ -62,6 +62,7 @@ function App() {
       console.log("focus lost");
       if (data && !modalOpen && !paused) {
         if (complete) return;
+        if (import.meta.env.VITE_AUTO_PAUSE === "false") return;
         posthog.capture("auto_pause", {
           time: `${timeRef.current.length === 2 ? timeRef.current[0] + ":" + timeRef.current[1].toString().padStart(2, "0") : ""}`
         });

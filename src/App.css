@@ -1,3 +1,10 @@
+:root {
+  --highlight: #a7d8ff;
+  --select: #ffda00;
+  --correct: #2860d8;
+  --incorrect: #e63333;
+}
+
 #root {
   width: 65vw;
   margin: 0 auto;
@@ -56,11 +63,11 @@ ol li {
 }
 
 .highlighted {
-  fill: #a7d8ff;
+  fill: var(--highlight);
 }
 
 .selected {
-  fill: #ffda00;
+  fill: var(--select);
 }
 
 .clue {
@@ -74,11 +81,11 @@ ol li {
 }
 
 .active-clue {
-  border-left: #a7d8ff solid 10px;
+  border-left: var(--highlight) solid 10px;
 }
 
 .selected-clue {
-  background-color: #a7d8ff;
+  background-color: var(--highlight);
 }
 
 .react-responsive-modal-modal * {
@@ -171,6 +178,25 @@ canvas {
 
 .pause-modal-container {
   backdrop-filter: blur(5px);
+}
+
+.correct {
+  fill: var(--correct);
+}
+
+.incorrect {
+  fill: var(--incorrect);
+}
+
+.toggle-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5px;
+}
+
+.toggle-container label {
+  padding-left: 5px;
 }
 
 @media (max-width: 900px) {

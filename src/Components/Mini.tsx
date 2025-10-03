@@ -8,6 +8,7 @@ import "react-simple-keyboard/build/css/index.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import posthog from "posthog-js";
+import { ToggleSlider } from "react-toggle-slider";
 
 interface MiniProps {
   data: MiniCrossword;
@@ -29,6 +30,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   const [modalType, setModalType] = useState<"victory" | "incorrect">("victory");
   const [keyboardLayout, setKeyboardLayout] = useState<"default" | "numeric">("default");
   const [keyboardOpen, setKeyboardOpen] = useState<boolean>(startTouched);
+  const [autoCheck, setAutoCheck] = useState<boolean>(false);
   const boardRef = useRef<HTMLDivElement>(null);
   const incorrectShown = useRef<boolean>(false);
 
@@ -39,7 +41,14 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     if (!square) return;
     const guess = square.querySelector(".guess");
     if (!guess) return;
-    // (guess as HTMLElement).innerHTML = letter.toUpperCase();
+    if (
+      autoCheck &&
+      "answer" in body.cells[cellIndex] &&
+      boardState[cellIndex] &&
+      boardState[cellIndex]?.toUpperCase() === body.cells[cellIndex].answer?.toUpperCase()
+    ) {
+      return;
+    }
     setBoardState((prev) => {
       const newState = { ...prev };
       if (letter === "") {
@@ -85,6 +94,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     if (!boardRef.current) return;
     const cells = boardRef.current.querySelectorAll(".cell");
     cells.forEach((cell) => {
+      // Cell renderer
       const parent = cell.parentElement;
       if (!parent) return;
       const index = parseInt(parent.getAttribute("data-index") || "-1", 10);
@@ -121,6 +131,14 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
           }
           setSelected(index);
         });
+        if (autoCheck) {
+          const guess = parent.querySelector(".guess");
+          if (guess && boardState[index]?.toUpperCase() === body.cells[index].answer?.toUpperCase() && boardState[index] !== undefined) {
+            guess.classList.add("correct");
+          } else {
+            guess?.classList.add("incorrect");
+          }
+        }
       }
     });
   });
@@ -154,26 +172,21 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     if (letters.includes(e.key) && selected !== null) {
       typeLetter(e.key, selected);
       const highlightedCells = getCellsInDirection(selected, direction);
-      const currentIndex = highlightedCells.indexOf(selected);
-      if (currentIndex >= 0 && currentIndex < highlightedCells.length - 1) {
-        setSelected(highlightedCells[currentIndex + 1]);
-      } else if (currentIndex === highlightedCells.length - 1) {
+      const localIndex = highlightedCells.indexOf(selected);
+      if (localIndex >= 0 && localIndex < highlightedCells.length - 1) {
+        setSelected(highlightedCells[localIndex + 1]);
+      } else if (localIndex === highlightedCells.length - 1) {
         next();
       }
     }
     if (e.key === "Backspace" && selected !== null) {
-      // If the cell is filled, clear it, if it is empty, select one before
-      if (boardState[selected]) {
-        typeLetter("", selected);
-      } else {
-        const highlightedCells = getCellsInDirection(selected, direction);
-        const currentIndex = highlightedCells.indexOf(selected);
-        if (currentIndex > 0) {
-          setSelected(highlightedCells[currentIndex - 1]);
-          typeLetter("", highlightedCells[currentIndex - 1]);
-        } else if (currentIndex === 0) {
-          previous();
-        }
+      const highlightedCells = getCellsInDirection(selected, direction);
+      const localIndex = highlightedCells.indexOf(selected);
+      if (localIndex > 0) {
+        setSelected(highlightedCells[localIndex - 1]);
+        typeLetter("", highlightedCells[localIndex - 1]);
+      } else if (localIndex === 0) {
+        previous();
       }
     }
     if (e.key === "ArrowRight" && selected !== null) {
@@ -181,9 +194,9 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         setDirection("across");
       } else {
         const highlightedCells = getCellsInDirection(selected, "across");
-        const currentIndex = highlightedCells.indexOf(selected);
-        if (currentIndex >= 0 && currentIndex < highlightedCells.length - 1) {
-          setSelected(highlightedCells[currentIndex + 1]);
+        const localIndex = highlightedCells.indexOf(selected);
+        if (localIndex >= 0 && localIndex < highlightedCells.length - 1) {
+          setSelected(highlightedCells[localIndex + 1]);
         }
       }
     }
@@ -192,9 +205,9 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         setDirection("across");
       } else {
         const highlightedCells = getCellsInDirection(selected, "across");
-        const currentIndex = highlightedCells.indexOf(selected);
-        if (currentIndex > 0) {
-          setSelected(highlightedCells[currentIndex - 1]);
+        const localIndex = highlightedCells.indexOf(selected);
+        if (localIndex > 0) {
+          setSelected(highlightedCells[localIndex - 1]);
         }
       }
     }
@@ -204,9 +217,9 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         setDirection("down");
       } else {
         const highlightedCells = getCellsInDirection(selected, "down");
-        const currentIndex = highlightedCells.indexOf(selected);
-        if (currentIndex >= 0 && currentIndex < highlightedCells.length - 1) {
-          setSelected(highlightedCells[currentIndex + 1]);
+        const localIndex = highlightedCells.indexOf(selected);
+        if (localIndex >= 0 && localIndex < highlightedCells.length - 1) {
+          setSelected(highlightedCells[localIndex + 1]);
         }
       }
     }
@@ -216,9 +229,9 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         setDirection("down");
       } else {
         const highlightedCells = getCellsInDirection(selected, "down");
-        const currentIndex = highlightedCells.indexOf(selected);
-        if (currentIndex > 0) {
-          setSelected(highlightedCells[currentIndex - 1]);
+        const localIndex = highlightedCells.indexOf(selected);
+        if (localIndex > 0) {
+          setSelected(highlightedCells[localIndex - 1]);
         }
       }
     }
@@ -246,7 +259,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("touchstart", handleTouchStart);
     };
-  }, [selected, direction, boardState, complete, modalOpen]);
+  }, [selected, direction, boardState, complete, modalOpen, autoCheck]);
 
   useEffect(() => {
     const results = checkBoard();
@@ -291,6 +304,10 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       <div className={`mini-container${!(keyboardOpen && selected !== null) ? "" : " keyboard-open"}`}>
         <div className="board-container">
           <div ref={boardRef} className="board" dangerouslySetInnerHTML={{ __html: body.board }}></div>
+          <div className="toggle-container">
+            <ToggleSlider active={autoCheck} onToggle={setAutoCheck} />
+            <label>Autocheck</label>
+          </div>
         </div>
         <div className="clues">
           {body.clueLists.map((list, index) => {
