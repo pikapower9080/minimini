@@ -191,9 +191,14 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       const highlightedCells = getCellsInDirection(selected, direction);
       const localIndex = highlightedCells.indexOf(selected);
       if (localIndex > 0) {
+        typeLetter("", selected);
+        const lastSelected = selected;
         setSelected(highlightedCells[localIndex - 1]);
-        typeLetter("", highlightedCells[localIndex - 1]);
+        if (!boardState[lastSelected]) {
+          typeLetter("", highlightedCells[localIndex - 1]);
+        }
       } else if (localIndex === 0) {
+        typeLetter("", highlightedCells[localIndex]);
         previous();
       }
     }
