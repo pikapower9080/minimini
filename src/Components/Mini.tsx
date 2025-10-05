@@ -6,7 +6,7 @@ import "react-responsive-modal/styles.css";
 import Keyboard from "react-simple-keyboard";
 import "react-simple-keyboard/build/css/index.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft, faChevronRight, faRotateLeft } from "@fortawesome/free-solid-svg-icons";
 import posthog from "posthog-js";
 import localforage from "localforage";
 import Toggle from "react-toggle";
@@ -403,6 +403,20 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         </button>
       </Modal>
       <div className="keyboard-container">
+        <div className="bottom-icons">
+          <FontAwesomeIcon
+            icon={faRotateLeft}
+            onClick={() => {
+              localforage.removeItem(`state-${data.id}`);
+              localforage.removeItem(`complete-${data.id}`);
+              localforage.removeItem(`time-${data.id}`);
+              localforage.removeItem(`selected-${data.id}`);
+              localforage.removeItem(`autocheck-${data.id}`);
+              location.reload();
+              posthog.capture("reset_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate });
+            }}
+          />
+        </div>
         {keyboardOpen && selected !== null && selectedClue > -1 ? (
           <>
             <div className="clue-bar">
