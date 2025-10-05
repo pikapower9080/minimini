@@ -8,7 +8,8 @@ import "react-simple-keyboard/build/css/index.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import posthog from "posthog-js";
-import { ToggleSlider } from "react-toggle-slider";
+import localforage from "localforage";
+import Toggle from "react-toggle";
 
 interface MiniProps {
   data: MiniCrossword;
@@ -30,7 +31,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   const [modalType, setModalType] = useState<"victory" | "incorrect">("victory");
   const [keyboardLayout, setKeyboardLayout] = useState<"default" | "numeric">("default");
   const [keyboardOpen, setKeyboardOpen] = useState<boolean>(startTouched);
-  const [autoCheck, setAutoCheck] = useState<boolean>(false);
+  const [autoCheck, setAutoCheck] = useState(false);
   const boardRef = useRef<HTMLDivElement>(null);
   const incorrectShown = useRef<boolean>(false);
 
@@ -56,6 +57,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       } else {
         newState[cellIndex] = letter;
       }
+      localforage.setItem(`state-${data.id}`, newState);
       return newState;
     });
   }
@@ -149,6 +151,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     } else {
       posthog.capture("disabled_autocheck", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current });
     }
+    localforage.setItem(`autocheck-${data.id}`, autoCheck);
   }, [autoCheck]);
 
   function next() {
@@ -283,6 +286,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       incorrectShown.current = false;
       posthog.capture("completed_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current, autoCheck });
       setComplete(true);
+      localforage.setItem(`complete-${data.id}`, true);
     } else if (results.totalCells > 0 && results.totalCells === results.totalFilled && results.totalCorrect < results.totalCells) {
       if (incorrectShown.current) return;
       setModalType("incorrect");
@@ -293,13 +297,42 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   }, [boardState]);
 
   useEffect(() => {
-    if (selected === null) {
-      const firstCell = body.cells.findIndex((cell) => "answer" in cell);
-      if (firstCell >= 0) {
-        setSelected(firstCell);
+    Promise.all([
+      localforage.getItem(`state-${data.id}`),
+      localforage.getItem(`autocheck-${data.id}`),
+      localforage.getItem(`complete-${data.id}`),
+      localforage.getItem(`selected-${data.id}`)
+    ]).then(([savedState, savedAutoCheck, savedComplete, savedSelected]) => {
+      let selectionRestored = false;
+      if (savedState && typeof savedState === "object") {
+        setBoardState(savedState as { [key: number]: string });
       }
-    }
+      if (savedAutoCheck !== null && typeof savedAutoCheck === "boolean") {
+        setAutoCheck(savedAutoCheck);
+      }
+      if (savedComplete !== null && typeof savedComplete === "boolean" && savedComplete) {
+        setComplete(true);
+      }
+      if (savedSelected && Array.isArray(savedSelected) && savedSelected.length === 2) {
+        const [sel, dir] = savedSelected;
+        if (typeof sel === "number" && (dir === "across" || dir === "down")) {
+          setSelected(sel);
+          setDirection(dir);
+          selectionRestored = true;
+        }
+      }
+      if (selected === null && !selectionRestored) {
+        const firstCell = body.cells.findIndex((cell) => "answer" in cell);
+        if (firstCell >= 0) {
+          setSelected(firstCell);
+        }
+      }
+    });
   }, []);
+
+  useEffect(() => {
+    localforage.setItem(`selected-${data.id}`, [selected, direction]);
+  }, [selected, direction]);
 
   let activeClues: number[] = [];
   let selectedClue = -1;
@@ -318,7 +351,14 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         <div className="board-container">
           <div ref={boardRef} className="board" dangerouslySetInnerHTML={{ __html: body.board }}></div>
           <div className="toggle-container">
-            <ToggleSlider active={autoCheck} onToggle={setAutoCheck} />
+            <Toggle
+              checked={autoCheck}
+              name="autoCheck"
+              icons={false}
+              onChange={(e) => {
+                setAutoCheck(e.target.checked);
+              }}
+            />
             <label>Autocheck</label>
           </div>
         </div>

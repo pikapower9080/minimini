@@ -202,6 +202,22 @@ canvas {
   padding-left: 5px;
 }
 
+.react-toggle--checked .react-toggle-track {
+  background-color: var(--correct) !important;
+}
+
+.react-toggle-thumb {
+  border-color: var(--correct) !important;
+}
+
+.react-toggle--focus .react-toggle-thumb {
+  box-shadow: none !important;
+}
+
+.react-toggle:active:not(.react-toggle--disabled) .react-toggle-thumb {
+  box-shadow: none !important;
+}
+
 @media (max-width: 900px) {
   .mini-container {
     flex-direction: column;

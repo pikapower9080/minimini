@@ -5,6 +5,7 @@ import Mini from "./Components/Mini";
 import Timer from "./Components/Timer";
 import Modal from "react-responsive-modal";
 import posthog from "posthog-js";
+import localforage from "localforage";
 
 let apiURL = "";
 let apiURLSource = "production";
@@ -23,6 +24,7 @@ if (apiURL !== "") {
 
 function App() {
   const [data, setData] = useState<MiniCrossword | null>(null);
+  const [restoredTime, setRestoredTime] = useState<number>(-1);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(true);
   const [paused, setPaused] = useState(false);
@@ -58,6 +60,24 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (data && data.id) {
+      localforage
+        .getItem(`time-${data.id}`)
+        .then((value) => {
+          if (value && typeof value === "number") {
+            setRestoredTime(value);
+          } else {
+            setRestoredTime(0);
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          setRestoredTime(0);
+        });
+    }
+  }, [data]);
+
+  useEffect(() => {
     const handleBlur = () => {
       console.log("focus lost");
       if (data && !modalOpen && !paused) {
@@ -80,7 +100,7 @@ function App() {
     <>
       {data && (
         <Modal open={modalOpen} onClose={() => {}} showCloseIcon={false} center classNames={{ modal: "welcome-modal" }}>
-          <h2>Welcome to minimini</h2>
+          <h2>{restoredTime > 0 ? "Welcome back!" : "Welcome to minimini"}</h2>
           <h4>
             {new Date(data.publicationDate + "T00:00:00")
               .toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })
@@ -101,7 +121,7 @@ function App() {
               console.log("touch input detected");
             }}
           >
-            Start Solving
+            {restoredTime > 0 ? "Continue Solving" : "Start Solving"}
           </button>
         </Modal>
       )}
@@ -131,7 +151,7 @@ function App() {
           Resume
         </button>
       </Modal>
-      {data && !modalOpen ? (
+      {data && restoredTime > -1 && !modalOpen ? (
         <Timer
           onPause={() => {
             if (complete) return;
@@ -141,11 +161,13 @@ function App() {
           setTime={(time) => {
             timeRef.current = time;
           }}
+          puzzle={data}
+          restoredTime={restoredTime}
         />
       ) : (
         ""
       )}
-      {data && !modalOpen ? (
+      {data && restoredTime > -1 && !modalOpen ? (
         <Mini data={data} startTouched={startTouched.current} timeRef={timeRef} complete={complete} setComplete={setComplete} />
       ) : (
         !data && !error && <div className="loading">Loading...</div>
