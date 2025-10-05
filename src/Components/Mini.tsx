@@ -174,7 +174,10 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     }
   }
 
-  const handleKeyDown = (e: KeyboardEvent) => {
+  const handleKeyDown = (e: KeyboardEvent, virtual: boolean) => {
+    if (!virtual) {
+      setKeyboardOpen(false);
+    }
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (modalOpen) return;
     if (e.key === "Escape") {
@@ -268,11 +271,15 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     setKeyboardOpen(true);
   };
 
+  const handlePhysicalKeydown = (e: KeyboardEvent) => {
+    handleKeyDown(e, false);
+  };
+
   useEffect(() => {
-    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", handlePhysicalKeydown);
     document.addEventListener("touchstart", handleTouchStart);
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keydown", handlePhysicalKeydown);
       document.removeEventListener("touchstart", handleTouchStart);
     };
   }, [selected, direction, boardState, complete, modalOpen, autoCheck]);
@@ -447,7 +454,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
             if (key === "{enter}") keyCode = "Enter";
             if (key === "{esc}") keyCode = "Escape";
             if (key === "{tab}") keyCode = "Tab";
-            handleKeyDown(new KeyboardEvent("keydown", { key: keyCode }));
+            handleKeyDown(new KeyboardEvent("keydown", { key: keyCode }), true);
           }}
           layout={{
             default: ["Q W E R T Y U I O P", "A S D F G H J K L", "{numbers} Z X C V B N M {bksp}"],
