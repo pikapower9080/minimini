@@ -98,7 +98,7 @@ function App() {
 
   return (
     <>
-      {data && (
+      {data && restoredTime > -1 && (
         <Modal open={modalOpen} onClose={() => {}} showCloseIcon={false} center classNames={{ modal: "welcome-modal" }}>
           <h2>{restoredTime > 0 ? "Welcome back!" : "Welcome to minimini"}</h2>
           <h4>
@@ -115,6 +115,7 @@ function App() {
           <button
             onClick={() => {
               setModalOpen(false);
+              posthog.capture(restoredTime > 0 ? "continue_puzzle" : "start_puzzle", { puzzle: data.id });
             }}
             onTouchStart={() => {
               startTouched.current = true;
