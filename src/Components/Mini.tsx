@@ -414,13 +414,16 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
           <FontAwesomeIcon
             icon={faRotateLeft}
             onClick={() => {
-              localforage.removeItem(`state-${data.id}`);
-              localforage.removeItem(`complete-${data.id}`);
-              localforage.removeItem(`time-${data.id}`);
-              localforage.removeItem(`selected-${data.id}`);
-              localforage.removeItem(`autocheck-${data.id}`);
-              location.reload();
-              posthog.capture("reset_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate });
+              Promise.all([
+                localforage.removeItem(`state-${data.id}`),
+                localforage.removeItem(`complete-${data.id}`),
+                localforage.removeItem(`time-${data.id}`),
+                localforage.removeItem(`selected-${data.id}`),
+                localforage.removeItem(`autocheck-${data.id}`)  
+              ]).then(() => {
+                location.reload();
+                posthog.capture("reset_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate });
+              })
             }}
           />
         </div>
