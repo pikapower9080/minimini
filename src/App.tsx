@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { createContext, useEffect, useRef, useState } from "react";
 import "./App.css";
 import type { MiniCrossword } from "./lib/types";
 import Mini from "./Components/Mini";
@@ -6,6 +6,8 @@ import Timer from "./Components/Timer";
 import Modal from "react-responsive-modal";
 import posthog from "posthog-js";
 import localforage from "localforage";
+import type { AuthRecord } from "pocketbase";
+import { pb } from "./main";
 
 let apiURL = "";
 let apiURLSource = "production";
@@ -22,6 +24,8 @@ if (apiURL !== "") {
   console.log(`API URL (from ${apiURLSource}): ${apiURL}`);
 }
 
+export const GlobalState = createContext<any>(null);
+
 function App() {
   const [data, setData] = useState<MiniCrossword | null>(null);
   const [restoredTime, setRestoredTime] = useState<number>(-1);
@@ -31,6 +35,13 @@ function App() {
   const [complete, setComplete] = useState(false);
   const timeRef = useRef<number[]>([]); // Use useRef instead of useState
   const startTouched = useRef(false);
+
+  const [user, setUser] = useState<AuthRecord | null>(pb.authStore.isValid ? pb.authStore.record : null);
+
+  const globalState = {
+    user,
+    setUser
+  };
 
   useEffect(() => {
     const cached = localStorage.getItem("mini-cache");
@@ -97,7 +108,7 @@ function App() {
   });
 
   return (
-    <>
+    <GlobalState.Provider value={globalState}>
       {data && restoredTime > -1 && (
         <Modal open={modalOpen} onClose={() => {}} showCloseIcon={false} center classNames={{ modal: "welcome-modal" }}>
           <h2>{restoredTime > 0 ? "Welcome back!" : "Welcome to minimini"}</h2>
@@ -174,7 +185,7 @@ function App() {
         !data && !error && <div className="loading">Loading...</div>
       )}
       {error && <div className="error">{error}</div>}
-    </>
+    </GlobalState.Provider>
   );
 }
 

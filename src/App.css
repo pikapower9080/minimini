@@ -4,6 +4,7 @@
   font-weight: 400;
 
   color-scheme: light;
+  accent-color: #000000;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -317,6 +318,10 @@ canvas {
   transition: color 250ms;
   cursor: pointer;
   font-size: 1.3em;
+  margin-right: 10px;
+}
+.bottom-icons svg:last-child {
+  margin-right: 0;
 }
 .bottom-icons svg:hover {
   color: black;
@@ -327,6 +332,45 @@ canvas {
 
 .keyboard-container:has(.react-simple-keyboard:not(.hidden)) .bottom-icons {
   top: 0;
+}
+
+input[type="text"],
+input[type="password"] {
+  display: block;
+  padding: 3px 2px;
+  margin-inline: auto;
+  border: #8f8f9d 1px solid;
+  border-radius: 4px;
+
+  &:focus {
+    outline: 1px black solid;
+  }
+}
+
+.top-input {
+  border-bottom: 0 !important;
+  border-end-start-radius: 0 !important;
+  border-end-end-radius: 0 !important;
+}
+
+.bottom-input {
+  border-start-start-radius: 0 !important;
+  border-start-end-radius: 0 !important;
+}
+
+.action-link {
+  text-decoration: underline;
+  cursor: pointer;
+  user-select: none;
+}
+
+.secondary-text {
+  color: var(--icon-button);
+}
+
+.szh-menu-container svg {
+  color: inherit;
+  padding-right: 5px;
 }
 
 @media (max-width: 900px) {

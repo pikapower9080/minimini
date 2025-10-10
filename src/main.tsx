@@ -4,6 +4,12 @@ import posthog from "posthog-js";
 import { PostHogProvider, PostHogErrorBoundary } from "posthog-js/react";
 import { configureStorage } from "./lib/storage.ts";
 import "react-toggle/style.css";
+import PocketBase from "pocketbase";
+import "@szhsin/react-menu/dist/core.css";
+import "@szhsin/react-menu/dist/index.css";
+import "@szhsin/react-menu/dist/transitions/zoom.css";
+
+export const pb = new PocketBase(import.meta.env.VITE_POCKETBASE_URL);
 
 posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
   api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,

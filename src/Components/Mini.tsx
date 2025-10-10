@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import type { MiniCrossword, MiniCrosswordClue } from "../lib/types";
 import { fireworks } from "../lib/confetti";
 import { Modal } from "react-responsive-modal";
@@ -6,10 +6,14 @@ import "react-responsive-modal/styles.css";
 import Keyboard from "react-simple-keyboard";
 import "react-simple-keyboard/build/css/index.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft, faChevronRight, faRotateLeft } from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft, faChevronRight, faDoorOpen, faRightToBracket, faRotateLeft, faUser } from "@fortawesome/free-solid-svg-icons";
 import posthog from "posthog-js";
 import localforage from "localforage";
 import Toggle from "react-toggle";
+import SignIn from "./SignIn";
+import { GlobalState } from "../App";
+import { Menu, MenuHeader, MenuItem, SubMenu } from "@szhsin/react-menu";
+import { pb } from "../main";
 
 interface MiniProps {
   data: MiniCrossword;
@@ -32,8 +36,11 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   const [keyboardLayout, setKeyboardLayout] = useState<"default" | "numeric">("default");
   const [keyboardOpen, setKeyboardOpen] = useState<boolean>(startTouched);
   const [autoCheck, setAutoCheck] = useState(false);
+  const [signInOpen, setSignInOpen] = useState(false);
   const boardRef = useRef<HTMLDivElement>(null);
   const incorrectShown = useRef<boolean>(false);
+
+  const { user } = useContext(GlobalState);
 
   function typeLetter(letter: string, cellIndex: number) {
     if (!boardRef.current) return;
@@ -179,7 +186,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       setKeyboardOpen(false);
     }
     if (e.metaKey || e.ctrlKey || e.altKey) return;
-    if (modalOpen) return;
+    if (modalOpen || signInOpen) return;
     if (e.key === "Escape") {
       setSelected(null);
     }
@@ -282,7 +289,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       document.removeEventListener("keydown", handlePhysicalKeydown);
       document.removeEventListener("touchstart", handleTouchStart);
     };
-  }, [selected, direction, boardState, complete, modalOpen, autoCheck]);
+  }, [selected, direction, boardState, complete, modalOpen, autoCheck, signInOpen]);
 
   useEffect(() => {
     const results = checkBoard();
@@ -409,8 +416,30 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
           {modalType == "victory" ? "Admire Puzzle" : "Keep Trying"}
         </button>
       </Modal>
+      <SignIn open={signInOpen} setOpen={setSignInOpen} />
       <div className="keyboard-container">
         <div className="bottom-icons">
+          <label className="secondary-text">{user ? user?.username || "Unknown User" : "Guest"}</label>
+          <Menu transition align="end" menuButton={<FontAwesomeIcon icon={faUser} />}>
+            {user ? (
+              <MenuItem
+                onClick={() => {
+                  pb.authStore.clear();
+                  window.location.reload();
+                }}
+              >
+                <FontAwesomeIcon icon={faDoorOpen}></FontAwesomeIcon>Sign out
+              </MenuItem>
+            ) : (
+              <MenuItem
+                onClick={() => {
+                  setSignInOpen(true);
+                }}
+              >
+                <FontAwesomeIcon icon={faRightToBracket}></FontAwesomeIcon>Sign in
+              </MenuItem>
+            )}
+          </Menu>
           <FontAwesomeIcon
             icon={faRotateLeft}
             onClick={() => {
@@ -419,11 +448,13 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
                 localforage.removeItem(`complete-${data.id}`),
                 localforage.removeItem(`time-${data.id}`),
                 localforage.removeItem(`selected-${data.id}`),
-                localforage.removeItem(`autocheck-${data.id}`)  
+                localforage.removeItem(`autocheck-${data.id}`)
               ]).then(() => {
+                localStorage.removeItem("mini-cache");
+                localStorage.removeItem("mini-cache-date");
                 location.reload();
                 posthog.capture("reset_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate });
-              })
+              });
             }}
           />
         </div>
