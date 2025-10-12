@@ -332,6 +332,7 @@ canvas {
 
 .keyboard-container:has(.react-simple-keyboard:not(.hidden)) .bottom-icons {
   top: 0;
+  height: fit-content;
 }
 
 input[type="text"],
