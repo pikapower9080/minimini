@@ -375,10 +375,10 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     ] as any[]).then((saved) => {
       record.set("id", generateStateDocId(user, data));
       record.set("user", user.id);
-      record.set("puzzle_id", data.id);
+      record.set("puzzle_id", data.id.toString());
       record.set("board_state", JSON.stringify(saved[0]));
-      record.set("time", saved[1]);
-      record.set("autocheck", saved[2]);
+      record.set("time", saved[1].toString());
+      record.set("autocheck", saved[2].toString());
       record.set("selected", JSON.stringify(saved[3]));
       if (cloudSaveLoaded.current) {
         puzzleState
