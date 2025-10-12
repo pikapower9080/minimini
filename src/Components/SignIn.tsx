@@ -43,7 +43,7 @@ export default function SignIn({ open, setOpen }: SignInProps) {
       center
     >
       <h2 style={{ marginBottom: 0 }}>{isSignUp ? "Sign Up" : "Sign In"}</h2>
-      <p>Connect with friends and sync your progress</p>
+      <p>Sync your progress between your devices</p>
       <form
         onSubmit={async (e) => {
           e.preventDefault();
