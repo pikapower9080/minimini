@@ -303,7 +303,6 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       incorrectShown.current = false;
       posthog.capture("completed_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current, autoCheck });
       setComplete(true);
-      localforage.setItem(`complete-${data.id}`, true);
     } else if (results.totalCells > 0 && results.totalCells === results.totalFilled && results.totalCorrect < results.totalCells) {
       if (incorrectShown.current) return;
       setModalType("incorrect");
@@ -317,18 +316,14 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     Promise.all([
       localforage.getItem(`state-${data.id}`),
       localforage.getItem(`autocheck-${data.id}`),
-      localforage.getItem(`complete-${data.id}`),
       localforage.getItem(`selected-${data.id}`)
-    ]).then(([savedState, savedAutoCheck, savedComplete, savedSelected]) => {
+    ]).then(([savedState, savedAutoCheck, savedSelected]) => {
       let selectionRestored = false;
       if (savedState && typeof savedState === "object") {
         setBoardState(savedState as { [key: number]: string });
       }
       if (savedAutoCheck !== null && typeof savedAutoCheck === "boolean") {
         setAutoCheck(savedAutoCheck);
-      }
-      if (savedComplete !== null && typeof savedComplete === "boolean" && savedComplete) {
-        setComplete(true);
       }
       if (savedSelected && Array.isArray(savedSelected) && savedSelected.length === 2) {
         const [sel, dir] = savedSelected;
