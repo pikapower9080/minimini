@@ -80,7 +80,8 @@ function App() {
       puzzleState
         .getOne(generateStateDocId(pb.authStore.record, data))
         .then((record) => {
-          console.log(record);
+          setRestoredTime(record.time);
+          console.log("Restored cloud time: " + record.time);
           Promise.all([
             localforage.setItem(`autocheck-${data.id}`, record.autocheck),
             localforage.setItem(`state-${data.id}`, record.board_state),
@@ -111,7 +112,7 @@ function App() {
   }, [user]);
 
   useEffect(() => {
-    if (data && data.id) {
+    if (data && data.id && !cloudSaveLoaded.current) {
       localforage
         .getItem(`time-${data.id}`)
         .then((value) => {
