@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { MiniCrossword, MiniCrosswordClue } from "../lib/types";
 import { fireworks } from "../lib/confetti";
 import { Modal } from "react-responsive-modal";
@@ -6,10 +6,16 @@ import "react-responsive-modal/styles.css";
 import Keyboard from "react-simple-keyboard";
 import "react-simple-keyboard/build/css/index.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft, faChevronRight, faRotateLeft } from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft, faChevronRight, faDoorOpen, faRightToBracket, faRotateLeft, faUser } from "@fortawesome/free-solid-svg-icons";
 import posthog from "posthog-js";
 import localforage from "localforage";
 import Toggle from "react-toggle";
+import SignIn from "./SignIn";
+import { GlobalState } from "../lib/GlobalState";
+import { Menu, MenuItem } from "@szhsin/react-menu";
+import { pb } from "../main";
+import throttle from "throttleit";
+import { generateStateDocId } from "../lib/storage";
 
 interface MiniProps {
   data: MiniCrossword;
@@ -17,11 +23,12 @@ interface MiniProps {
   timeRef: React.RefObject<number[]>;
   complete: boolean;
   setComplete: (paused: boolean) => void;
+  cloudSaveLoaded: React.RefObject<boolean>;
 }
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890=+-?.,/".split("");
 
-export default function Mini({ data, startTouched, timeRef, complete, setComplete }: MiniProps) {
+export default function Mini({ data, startTouched, timeRef, complete, setComplete, cloudSaveLoaded }: MiniProps) {
   const body = data.body[0];
 
   const [selected, setSelected] = useState<number | null>(null);
@@ -32,8 +39,11 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   const [keyboardLayout, setKeyboardLayout] = useState<"default" | "numeric">("default");
   const [keyboardOpen, setKeyboardOpen] = useState<boolean>(startTouched);
   const [autoCheck, setAutoCheck] = useState(false);
+  const [signInOpen, setSignInOpen] = useState(false);
   const boardRef = useRef<HTMLDivElement>(null);
   const incorrectShown = useRef<boolean>(false);
+
+  const { user } = useContext(GlobalState);
 
   function typeLetter(letter: string, cellIndex: number) {
     if (!boardRef.current) return;
@@ -179,7 +189,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       setKeyboardOpen(false);
     }
     if (e.metaKey || e.ctrlKey || e.altKey) return;
-    if (modalOpen) return;
+    if (modalOpen || signInOpen) return;
     if (e.key === "Escape") {
       setSelected(null);
     }
@@ -282,7 +292,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       document.removeEventListener("keydown", handlePhysicalKeydown);
       document.removeEventListener("touchstart", handleTouchStart);
     };
-  }, [selected, direction, boardState, complete, modalOpen, autoCheck]);
+  }, [selected, direction, boardState, complete, modalOpen, autoCheck, signInOpen]);
 
   useEffect(() => {
     const results = checkBoard();
@@ -339,7 +349,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
   useEffect(() => {
     localforage.setItem(`selected-${data.id}`, [selected, direction]);
-  }, [selected, direction]);
+  }, [selected, direction, data.id]);
 
   let activeClues: number[] = [];
   let selectedClue = -1;
@@ -350,6 +360,62 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     selectedClue = activeClues.findIndex((clueIndex) => body.clues[clueIndex].direction.toLowerCase() === direction);
     globalSelectedClue =
       body.clues[activeClues.find((clueIndex) => body.clues[clueIndex].direction.toLowerCase() === direction) || 0] || {};
+  }
+
+  async function cloudSave() {
+    if (!user) return;
+    const puzzleState = pb.collection("puzzle_state");
+    console.log("Running cloud save");
+    const record = new FormData();
+    Promise.all([
+      localforage.getItem(`state-${data.id}`),
+      localforage.getItem(`time-${data.id}`),
+      localforage.getItem(`autocheck-${data.id}`),
+      localforage.getItem(`selected-${data.id}`)
+    ] as any[]).then((saved) => {
+      record.set("id", generateStateDocId(user, data));
+      record.set("user", user.id);
+      record.set("puzzle_id", data.id.toString());
+      record.set("board_state", JSON.stringify(saved[0]));
+      record.set("time", saved[1].toString());
+      record.set("autocheck", saved[2].toString());
+      record.set("selected", JSON.stringify(saved[3]));
+      if (cloudSaveLoaded.current) {
+        puzzleState
+          .update(generateStateDocId(user, data), record)
+          .then(() => {
+            posthog.capture("cloud_save_update", { puzzle: data.id, puzzleDate: data.publicationDate });
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+      } else {
+        puzzleState
+          .create(record)
+          .then(() => {
+            posthog.capture("cloud_save", { puzzle: data.id, puzzleDate: data.publicationDate });
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+        cloudSaveLoaded.current = true;
+      }
+    });
+  }
+
+  const throttledCloudSave = useMemo(() => throttle(cloudSave, 4000), []);
+
+  useEffect(() => {
+    throttledCloudSave();
+  }, [boardState, autoCheck, complete, selected, direction, user]);
+
+  function clearLocalPuzzleData(id = data.id) {
+    return Promise.all([
+      localforage.removeItem(`state-${id}`),
+      localforage.removeItem(`time-${id}`),
+      localforage.removeItem(`selected-${id}`),
+      localforage.removeItem(`autocheck-${id}`)
+    ]);
   }
 
   return (
@@ -409,21 +475,45 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
           {modalType == "victory" ? "Admire Puzzle" : "Keep Trying"}
         </button>
       </Modal>
+      <SignIn open={signInOpen} setOpen={setSignInOpen} />
       <div className="keyboard-container">
         <div className="bottom-icons">
+          <label className="secondary-text">{user ? user?.username || "Unknown User" : "Guest"}</label>
+          <Menu transition align="end" menuButton={<FontAwesomeIcon icon={faUser} />}>
+            {user ? (
+              <MenuItem
+                onClick={() => {
+                  pb.authStore.clear();
+                  clearLocalPuzzleData().then(() => {
+                    window.location.reload();
+                  });
+                }}
+              >
+                <FontAwesomeIcon icon={faDoorOpen}></FontAwesomeIcon>Sign out
+              </MenuItem>
+            ) : (
+              <MenuItem
+                onClick={() => {
+                  setSignInOpen(true);
+                }}
+              >
+                <FontAwesomeIcon icon={faRightToBracket}></FontAwesomeIcon>Sign in
+              </MenuItem>
+            )}
+          </Menu>
           <FontAwesomeIcon
             icon={faRotateLeft}
             onClick={() => {
-              Promise.all([
-                localforage.removeItem(`state-${data.id}`),
-                localforage.removeItem(`complete-${data.id}`),
-                localforage.removeItem(`time-${data.id}`),
-                localforage.removeItem(`selected-${data.id}`),
-                localforage.removeItem(`autocheck-${data.id}`)  
-              ]).then(() => {
-                location.reload();
-                posthog.capture("reset_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate });
-              })
+              clearLocalPuzzleData().then(() => {
+                localStorage.removeItem("mini-cache");
+                localStorage.removeItem("mini-cache-date");
+                pb.collection("puzzle_state")
+                  .delete(generateStateDocId(user, data))
+                  .finally(() => {
+                    location.reload();
+                    posthog.capture("reset_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate });
+                  });
+              });
             }}
           />
         </div>

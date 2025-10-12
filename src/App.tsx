@@ -6,6 +6,10 @@ import Timer from "./Components/Timer";
 import Modal from "react-responsive-modal";
 import posthog from "posthog-js";
 import localforage from "localforage";
+import type { AuthRecord } from "pocketbase";
+import { pb } from "./main";
+import { GlobalState } from "./lib/GlobalState";
+import { generateStateDocId } from "./lib/storage";
 
 let apiURL = "";
 let apiURLSource = "production";
@@ -29,8 +33,17 @@ function App() {
   const [modalOpen, setModalOpen] = useState(true);
   const [paused, setPaused] = useState(false);
   const [complete, setComplete] = useState(false);
-  const timeRef = useRef<number[]>([]); // Use useRef instead of useState
+  const [cloudLoading, setCloudLoading] = useState(false);
+  const timeRef = useRef<number[]>([]);
   const startTouched = useRef(false);
+  const cloudSaveLoaded = useRef(false);
+
+  const [user, setUser] = useState<AuthRecord | null>(pb.authStore.isValid ? pb.authStore.record : null);
+
+  const globalState = {
+    user,
+    setUser
+  };
 
   useEffect(() => {
     const cached = localStorage.getItem("mini-cache");
@@ -58,6 +71,44 @@ function App() {
         setError("Failed to load today's puzzle.");
       });
   }, []);
+
+  useEffect(() => {
+    if (pb.authStore.isValid) {
+      if (!pb?.authStore?.record || !data?.id) return;
+      setCloudLoading(true);
+      const puzzleState = pb.collection("puzzle_state");
+      puzzleState
+        .getOne(generateStateDocId(pb.authStore.record, data))
+        .then((record) => {
+          console.log(record);
+          Promise.all([
+            localforage.setItem(`autocheck-${data.id}`, record.autocheck),
+            localforage.setItem(`state-${data.id}`, record.board_state),
+            localforage.setItem(`time-${data.id}`, record.time),
+            localforage.setItem(`selected-${data.id}`, record.selected)
+          ]).finally(() => {
+            cloudSaveLoaded.current = true;
+            setCloudLoading(false);
+          });
+        })
+        .catch((err) => {
+          if (err.toString().includes("404")) {
+            console.log("No cloud save found for this puzzle.");
+          } else {
+            console.error(err);
+          }
+          setCloudLoading(false);
+        });
+    }
+  }, [user, data]);
+
+  useEffect(() => {
+    if (user) {
+      posthog.identify(user.id, {
+        username: user.username
+      });
+    }
+  }, [user]);
 
   useEffect(() => {
     if (data && data.id) {
@@ -97,7 +148,7 @@ function App() {
   });
 
   return (
-    <>
+    <GlobalState.Provider value={globalState}>
       {data && restoredTime > -1 && (
         <Modal open={modalOpen} onClose={() => {}} showCloseIcon={false} center classNames={{ modal: "welcome-modal" }}>
           <h2>{restoredTime > 0 ? "Welcome back!" : "Welcome to minimini"}</h2>
@@ -121,8 +172,9 @@ function App() {
               startTouched.current = true;
               console.log("touch input detected");
             }}
+            disabled={cloudLoading}
           >
-            {restoredTime > 0 ? "Continue Solving" : "Start Solving"}
+            {cloudLoading ? "Loading..." : restoredTime > 0 ? "Continue Solving" : "Start Solving"}
           </button>
         </Modal>
       )}
@@ -169,12 +221,19 @@ function App() {
         ""
       )}
       {data && restoredTime > -1 && !modalOpen ? (
-        <Mini data={data} startTouched={startTouched.current} timeRef={timeRef} complete={complete} setComplete={setComplete} />
+        <Mini
+          data={data}
+          startTouched={startTouched.current}
+          timeRef={timeRef}
+          complete={complete}
+          setComplete={setComplete}
+          cloudSaveLoaded={cloudSaveLoaded}
+        />
       ) : (
         !data && !error && <div className="loading">Loading...</div>
       )}
       {error && <div className="error">{error}</div>}
-    </>
+    </GlobalState.Provider>
   );
 }
 
