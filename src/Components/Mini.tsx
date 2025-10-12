@@ -12,7 +12,7 @@ import localforage from "localforage";
 import Toggle from "react-toggle";
 import SignIn from "./SignIn";
 import { GlobalState } from "../lib/GlobalState";
-import { Menu, MenuHeader, MenuItem, SubMenu } from "@szhsin/react-menu";
+import { Menu, MenuItem } from "@szhsin/react-menu";
 import { pb } from "../main";
 import throttle from "throttleit";
 import { generateStateDocId } from "../lib/storage";
@@ -372,7 +372,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       localforage.getItem(`time-${data.id}`),
       localforage.getItem(`autocheck-${data.id}`),
       localforage.getItem(`selected-${data.id}`)
-    ]).then((saved) => {
+    ] as any[]).then((saved) => {
       record.set("id", generateStateDocId(user, data));
       record.set("user", user.id);
       record.set("puzzle_id", data.id);

@@ -17,7 +17,7 @@ export default function SignIn({ open, setOpen }: SignInProps) {
   const [passwordValidation, setPasswordValidation] = useState("");
   const [error, setError] = useState("");
 
-  const { user, setUser } = useContext(GlobalState);
+  const { setUser } = useContext(GlobalState);
 
   function handleError(err: any) {
     setIsLoading(false);
