@@ -502,12 +502,17 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
               clearLocalPuzzleData().then(() => {
                 localStorage.removeItem("mini-cache");
                 localStorage.removeItem("mini-cache-date");
-                pb.collection("puzzle_state")
-                  .delete(generateStateDocId(user, data))
-                  .finally(() => {
-                    location.reload();
-                    posthog.capture("reset_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate });
-                  });
+                if (user) {
+                  pb.collection("puzzle_state")
+                    .delete(generateStateDocId(user, data))
+                    .finally(() => {
+                      posthog.capture("reset_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate });
+                      location.reload();
+                    });
+                } else {
+                  posthog.capture("reset_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate });
+                  location.reload();
+                }
               });
             }}
           />
