@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { MiniCrossword, MiniCrosswordClue } from "../lib/types";
 import { fireworks } from "../lib/confetti";
 import { Modal } from "react-responsive-modal";
@@ -11,9 +11,11 @@ import posthog from "posthog-js";
 import localforage from "localforage";
 import Toggle from "react-toggle";
 import SignIn from "./SignIn";
-import { GlobalState } from "../App";
+import { GlobalState } from "../lib/GlobalState";
 import { Menu, MenuHeader, MenuItem, SubMenu } from "@szhsin/react-menu";
 import { pb } from "../main";
+import throttle from "throttleit";
+import { generateStateDocId } from "../lib/storage";
 
 interface MiniProps {
   data: MiniCrossword;
@@ -21,11 +23,12 @@ interface MiniProps {
   timeRef: React.RefObject<number[]>;
   complete: boolean;
   setComplete: (paused: boolean) => void;
+  cloudSaveLoaded: React.RefObject<boolean>;
 }
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890=+-?.,/".split("");
 
-export default function Mini({ data, startTouched, timeRef, complete, setComplete }: MiniProps) {
+export default function Mini({ data, startTouched, timeRef, complete, setComplete, cloudSaveLoaded }: MiniProps) {
   const body = data.body[0];
 
   const [selected, setSelected] = useState<number | null>(null);
@@ -346,7 +349,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
   useEffect(() => {
     localforage.setItem(`selected-${data.id}`, [selected, direction]);
-  }, [selected, direction]);
+  }, [selected, direction, data.id]);
 
   let activeClues: number[] = [];
   let selectedClue = -1;
@@ -357,6 +360,62 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     selectedClue = activeClues.findIndex((clueIndex) => body.clues[clueIndex].direction.toLowerCase() === direction);
     globalSelectedClue =
       body.clues[activeClues.find((clueIndex) => body.clues[clueIndex].direction.toLowerCase() === direction) || 0] || {};
+  }
+
+  async function cloudSave() {
+    if (!user) return;
+    const puzzleState = pb.collection("puzzle_state");
+    console.log("Running cloud save");
+    const record = new FormData();
+    Promise.all([
+      localforage.getItem(`state-${data.id}`),
+      localforage.getItem(`time-${data.id}`),
+      localforage.getItem(`autocheck-${data.id}`),
+      localforage.getItem(`selected-${data.id}`)
+    ]).then((saved) => {
+      record.set("id", generateStateDocId(user, data));
+      record.set("user", user.id);
+      record.set("puzzle_id", data.id);
+      record.set("board_state", JSON.stringify(saved[0]));
+      record.set("time", saved[1]);
+      record.set("autocheck", saved[2]);
+      record.set("selected", JSON.stringify(saved[3]));
+      if (cloudSaveLoaded.current) {
+        puzzleState
+          .update(generateStateDocId(user, data), record)
+          .then(() => {
+            posthog.capture("cloud_save_update", { puzzle: data.id, puzzleDate: data.publicationDate });
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+      } else {
+        puzzleState
+          .create(record)
+          .then(() => {
+            posthog.capture("cloud_save", { puzzle: data.id, puzzleDate: data.publicationDate });
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+        cloudSaveLoaded.current = true;
+      }
+    });
+  }
+
+  const throttledCloudSave = useMemo(() => throttle(cloudSave, 4000), []);
+
+  useEffect(() => {
+    throttledCloudSave();
+  }, [boardState, autoCheck, complete, selected, direction, user]);
+
+  function clearLocalPuzzleData(id = data.id) {
+    return Promise.all([
+      localforage.removeItem(`state-${id}`),
+      localforage.removeItem(`time-${id}`),
+      localforage.removeItem(`selected-${id}`),
+      localforage.removeItem(`autocheck-${id}`)
+    ]);
   }
 
   return (
@@ -425,7 +484,9 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
               <MenuItem
                 onClick={() => {
                   pb.authStore.clear();
-                  window.location.reload();
+                  clearLocalPuzzleData().then(() => {
+                    window.location.reload();
+                  });
                 }}
               >
                 <FontAwesomeIcon icon={faDoorOpen}></FontAwesomeIcon>Sign out
@@ -443,17 +504,15 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
           <FontAwesomeIcon
             icon={faRotateLeft}
             onClick={() => {
-              Promise.all([
-                localforage.removeItem(`state-${data.id}`),
-                localforage.removeItem(`complete-${data.id}`),
-                localforage.removeItem(`time-${data.id}`),
-                localforage.removeItem(`selected-${data.id}`),
-                localforage.removeItem(`autocheck-${data.id}`)
-              ]).then(() => {
+              clearLocalPuzzleData().then(() => {
                 localStorage.removeItem("mini-cache");
                 localStorage.removeItem("mini-cache-date");
-                location.reload();
-                posthog.capture("reset_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate });
+                pb.collection("puzzle_state")
+                  .delete(generateStateDocId(user, data))
+                  .finally(() => {
+                    location.reload();
+                    posthog.capture("reset_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate });
+                  });
               });
             }}
           />

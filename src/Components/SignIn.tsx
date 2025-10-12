@@ -1,7 +1,7 @@
 import { useContext, useRef, useState } from "react";
 import Modal from "react-responsive-modal";
 import { pb } from "../main";
-import { GlobalState } from "../App";
+import { GlobalState } from "../lib/GlobalState";
 
 interface SignInProps {
   open: boolean;
@@ -96,6 +96,7 @@ export default function SignIn({ open, setOpen }: SignInProps) {
                 setError("");
                 setUser(pb.authStore.record);
               }
+              location.reload();
             })
             .catch((err) => {
               handleError(err);
