@@ -6,16 +6,26 @@ import "react-responsive-modal/styles.css";
 import Keyboard from "react-simple-keyboard";
 import "react-simple-keyboard/build/css/index.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft, faChevronRight, faDoorOpen, faRightToBracket, faRotateLeft, faUser } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronLeft,
+  faChevronRight,
+  faDoorOpen,
+  faRightToBracket,
+  faRotateLeft,
+  faUser,
+  faUserPlus,
+  faUsers
+} from "@fortawesome/free-solid-svg-icons";
 import posthog from "posthog-js";
 import localforage from "localforage";
 import Toggle from "react-toggle";
 import SignIn from "./SignIn";
 import { GlobalState } from "../lib/GlobalState";
-import { Menu, MenuItem } from "@szhsin/react-menu";
+import { Menu, MenuItem, SubMenu } from "@szhsin/react-menu";
 import { pb } from "../main";
 import throttle from "throttleit";
 import { generateStateDocId } from "../lib/storage";
+import AddFriend from "./AddFriend";
 
 interface MiniProps {
   data: MiniCrossword;
@@ -40,6 +50,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   const [keyboardOpen, setKeyboardOpen] = useState<boolean>(startTouched);
   const [autoCheck, setAutoCheck] = useState(false);
   const [signInOpen, setSignInOpen] = useState(false);
+  const [addFriendOpen, setAddFriendOpen] = useState(false);
   const boardRef = useRef<HTMLDivElement>(null);
   const incorrectShown = useRef<boolean>(false);
 
@@ -471,21 +482,52 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         </button>
       </Modal>
       <SignIn open={signInOpen} setOpen={setSignInOpen} />
+      <AddFriend open={addFriendOpen} setOpen={setAddFriendOpen} />
       <div className="keyboard-container">
         <div className="bottom-icons">
           <label className="secondary-text">{user ? user?.username || "Unknown User" : "Guest"}</label>
           <Menu transition align="end" menuButton={<FontAwesomeIcon icon={faUser} />}>
             {user ? (
-              <MenuItem
-                onClick={() => {
-                  pb.authStore.clear();
-                  clearLocalPuzzleData().then(() => {
-                    window.location.reload();
-                  });
-                }}
-              >
-                <FontAwesomeIcon icon={faDoorOpen}></FontAwesomeIcon>Sign out
-              </MenuItem>
+              <>
+                <SubMenu
+                  label={
+                    <>
+                      <FontAwesomeIcon fixedWidth icon={faUserPlus} />
+                      Friend Requests
+                    </>
+                  }
+                ></SubMenu>
+                <SubMenu
+                  label={
+                    <>
+                      <FontAwesomeIcon fixedWidth icon={faUsers} />
+                      Friends
+                    </>
+                  }
+                >
+                  <MenuItem>
+                    <FontAwesomeIcon
+                      fixedWidth
+                      icon={faUserPlus}
+                      onClick={() => {
+                        setAddFriendOpen(true);
+                      }}
+                    />
+                    Add Friend
+                  </MenuItem>
+                </SubMenu>
+                <MenuItem
+                  onClick={() => {
+                    pb.authStore.clear();
+                    clearLocalPuzzleData().then(() => {
+                      window.location.reload();
+                    });
+                  }}
+                >
+                  <FontAwesomeIcon fixedWidth icon={faDoorOpen} />
+                  Sign out
+                </MenuItem>
+              </>
             ) : (
               <MenuItem
                 onClick={() => {
