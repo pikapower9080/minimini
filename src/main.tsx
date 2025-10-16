@@ -3,11 +3,16 @@ import App from "./App.tsx";
 import posthog from "posthog-js";
 import { PostHogProvider, PostHogErrorBoundary } from "posthog-js/react";
 import { configureStorage } from "./lib/storage.ts";
-import "react-toggle/style.css";
 import PocketBase from "pocketbase";
 import "@szhsin/react-menu/dist/core.css";
 import "@szhsin/react-menu/dist/index.css";
 import "@szhsin/react-menu/dist/transitions/zoom.css";
+import "rsuite/Toggle/styles/index.css";
+import "rsuite/Button/styles/index.css";
+import "react-responsive-modal/styles.css";
+import "react-simple-keyboard/build/css/index.css";
+
+import "./App.css";
 
 export const pb = new PocketBase(import.meta.env.VITE_POCKETBASE_URL);
 

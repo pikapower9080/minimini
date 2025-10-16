@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import "./App.css";
 import type { MiniCrossword } from "./lib/types";
 import Mini from "./Components/Mini";
 import Timer from "./Components/Timer";

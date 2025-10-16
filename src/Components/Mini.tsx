@@ -2,20 +2,18 @@ import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { MiniCrossword, MiniCrosswordClue } from "../lib/types";
 import { fireworks } from "../lib/confetti";
 import { Modal } from "react-responsive-modal";
-import "react-responsive-modal/styles.css";
 import Keyboard from "react-simple-keyboard";
-import "react-simple-keyboard/build/css/index.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faChevronRight, faDoorOpen, faRightToBracket, faRotateLeft, faUser } from "@fortawesome/free-solid-svg-icons";
 import posthog from "posthog-js";
 import localforage from "localforage";
-import Toggle from "react-toggle";
 import SignIn from "./SignIn";
 import { GlobalState } from "../lib/GlobalState";
 import { Menu, MenuItem } from "@szhsin/react-menu";
 import { pb } from "../main";
 import throttle from "throttleit";
 import { generateStateDocId } from "../lib/storage";
+import { Toggle } from "rsuite";
 
 interface MiniProps {
   data: MiniCrossword;
@@ -219,7 +217,6 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     }
     function arrowKey(key: string, dir: "across" | "down") {
       if (selected === null) return;
-
       if (direction !== dir) {
         setDirection(dir);
         return;
@@ -253,6 +250,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       e.preventDefault();
       arrowKey("ArrowUp", "down");
     }
+
     if (e.key === "Enter" && selected !== null) {
       next();
     }
@@ -411,9 +409,8 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
             <Toggle
               checked={autoCheck}
               name="autoCheck"
-              icons={false}
               onChange={(e) => {
-                setAutoCheck(e.target.checked);
+                setAutoCheck(e);
               }}
             />
             <label>Autocheck</label>
