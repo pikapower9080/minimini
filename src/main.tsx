@@ -8,7 +8,6 @@ import "@szhsin/react-menu/dist/core.css";
 import "@szhsin/react-menu/dist/index.css";
 import "@szhsin/react-menu/dist/transitions/zoom.css";
 import "rsuite/Toggle/styles/index.css";
-import "rsuite/Button/styles/index.css";
 import "react-responsive-modal/styles.css";
 import "react-simple-keyboard/build/css/index.css";
 
