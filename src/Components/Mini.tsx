@@ -2,9 +2,7 @@ import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { MiniCrossword, MiniCrosswordClue } from "../lib/types";
 import { fireworks } from "../lib/confetti";
 import { Modal } from "react-responsive-modal";
-import "react-responsive-modal/styles.css";
 import Keyboard from "react-simple-keyboard";
-import "react-simple-keyboard/build/css/index.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronLeft,
@@ -18,7 +16,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import posthog from "posthog-js";
 import localforage from "localforage";
-import Toggle from "react-toggle";
 import SignIn from "./SignIn";
 import { GlobalState } from "../lib/GlobalState";
 import { Menu, MenuItem, SubMenu } from "@szhsin/react-menu";
@@ -26,6 +23,7 @@ import { pb } from "../main";
 import throttle from "throttleit";
 import { generateStateDocId } from "../lib/storage";
 import AddFriend from "./AddFriend";
+import { Toggle } from "rsuite";
 
 interface MiniProps {
   data: MiniCrossword;
@@ -191,7 +189,6 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     if (prevClue) {
       setSelected(prevClue.cells[prevClue.cells.length - 1]);
       setDirection(prevClue.direction.toLowerCase() === "across" ? "across" : "down");
-      typeLetter("", prevClue.cells[prevClue.cells.length - 1]);
     }
   }
 
@@ -229,52 +226,42 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         previous();
       }
     }
-    if (e.key === "ArrowRight" && selected !== null) {
-      if (direction !== "across") {
-        setDirection("across");
-      } else {
-        const highlightedCells = getCellsInDirection(selected, "across");
-        const localIndex = highlightedCells.indexOf(selected);
+    function arrowKey(key: string, dir: "across" | "down") {
+      if (selected === null) return;
+      if (direction !== dir) {
+        setDirection(dir);
+        return;
+      }
+
+      const highlightedCells = getCellsInDirection(selected, dir);
+      const localIndex = highlightedCells.indexOf(selected);
+
+      if (key === "ArrowRight" || key === "ArrowDown") {
         if (localIndex >= 0 && localIndex < highlightedCells.length - 1) {
           setSelected(highlightedCells[localIndex + 1]);
         }
-      }
-    }
-    if (e.key === "ArrowLeft" && selected !== null) {
-      if (direction !== "across") {
-        setDirection("across");
-      } else {
-        const highlightedCells = getCellsInDirection(selected, "across");
-        const localIndex = highlightedCells.indexOf(selected);
+      } else if (key === "ArrowLeft" || key === "ArrowUp") {
         if (localIndex > 0) {
           setSelected(highlightedCells[localIndex - 1]);
         }
       }
     }
-    if (e.key === "ArrowDown" && selected !== null) {
-      e.preventDefault();
-      if (direction !== "down") {
-        setDirection("down");
-      } else {
-        const highlightedCells = getCellsInDirection(selected, "down");
-        const localIndex = highlightedCells.indexOf(selected);
-        if (localIndex >= 0 && localIndex < highlightedCells.length - 1) {
-          setSelected(highlightedCells[localIndex + 1]);
-        }
-      }
+
+    if (e.key === "ArrowRight") {
+      arrowKey("ArrowRight", "across");
     }
-    if (e.key === "ArrowUp" && selected !== null) {
-      e.preventDefault();
-      if (direction !== "down") {
-        setDirection("down");
-      } else {
-        const highlightedCells = getCellsInDirection(selected, "down");
-        const localIndex = highlightedCells.indexOf(selected);
-        if (localIndex > 0) {
-          setSelected(highlightedCells[localIndex - 1]);
-        }
-      }
+    if (e.key === "ArrowLeft") {
+      arrowKey("ArrowLeft", "across");
     }
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      arrowKey("ArrowDown", "down");
+    }
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      arrowKey("ArrowUp", "down");
+    }
+
     if (e.key === "Enter" && selected !== null) {
       next();
     }
@@ -433,9 +420,8 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
             <Toggle
               checked={autoCheck}
               name="autoCheck"
-              icons={false}
               onChange={(e) => {
-                setAutoCheck(e.target.checked);
+                setAutoCheck(e);
               }}
             />
             <label>Autocheck</label>
