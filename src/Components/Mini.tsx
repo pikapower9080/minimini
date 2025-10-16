@@ -180,7 +180,6 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     if (prevClue) {
       setSelected(prevClue.cells[prevClue.cells.length - 1]);
       setDirection(prevClue.direction.toLowerCase() === "across" ? "across" : "down");
-      typeLetter("", prevClue.cells[prevClue.cells.length - 1]);
     }
   }
 
