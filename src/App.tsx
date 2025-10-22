@@ -9,6 +9,7 @@ import type { AuthRecord } from "pocketbase";
 import { pb } from "./main";
 import { GlobalState } from "./lib/GlobalState";
 import { generateStateDocId } from "./lib/storage";
+import { Archive } from "./Components/Archive";
 
 let apiURL = "";
 let apiURLSource = "production";
@@ -33,6 +34,7 @@ function App() {
   const [paused, setPaused] = useState(false);
   const [complete, setComplete] = useState(false);
   const [cloudLoading, setCloudLoading] = useState(false);
+  const [archiveOpen, setArchiveOpen] = useState(false);
   const timeRef = useRef<number[]>([]);
   const startTouched = useRef(false);
   const cloudSaveLoaded = useRef(false);
@@ -176,8 +178,15 @@ function App() {
           >
             {cloudLoading ? "Loading..." : restoredTime > 0 ? "Continue Solving" : "Start Solving"}
           </button>
+          <button style={{marginTop: 5}} onClick={() => {
+            // setModalOpen(false);
+            setArchiveOpen(true);
+          }}>
+            Archive
+          </button>
         </Modal>
       )}
+      <Archive open={archiveOpen} setOpen={setArchiveOpen} />
       <Modal
         open={paused}
         onClose={() => {
