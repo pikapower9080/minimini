@@ -9,6 +9,8 @@ import "@szhsin/react-menu/dist/index.css";
 import "@szhsin/react-menu/dist/transitions/zoom.css";
 import "rsuite/Toggle/styles/index.css";
 import "rsuite/Calendar/styles/index.css";
+import "rsuite/Badge/styles/index.css";
+import "rsuite/Loader/styles/index.css";
 import "react-responsive-modal/styles.css";
 import "react-simple-keyboard/build/css/index.css";
 

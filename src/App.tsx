@@ -179,7 +179,6 @@ function App() {
             {cloudLoading ? "Loading..." : restoredTime > 0 ? "Continue Solving" : "Start Solving"}
           </button>
           <button style={{marginTop: 5}} onClick={() => {
-            // setModalOpen(false);
             setArchiveOpen(true);
           }}>
             Archive

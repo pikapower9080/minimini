@@ -66,6 +66,11 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
 .dark button {
   border-color: rgb(178, 178, 178);
 }
@@ -166,7 +171,7 @@ ol li {
   background-color: var(--clue-highlight);
 }
 
-.react-responsive-modal-modal * {
+.react-responsive-modal-modal:not(.archive-modal) * {
   text-align: center;
   display: block;
 }
@@ -374,8 +379,32 @@ input[type="password"] {
   padding-right: 5px;
 }
 
+.archive-modal h2,
+.archive-modal h4 {
+  text-align: center;
+}
+.archive-modal .archive-action-button {
+  text-align: center;
+  display: block;
+}
+
 .archive-modal {
   width: 400px;
+}
+
+.archive-calendar {
+  height: 358px;
+}
+
+.archive-badge {
+  margin-top: 4px;
+}
+
+.rs-loader-wrapper {
+  z-index: 2;
+}
+.react-responsive-modal-closeButton {
+  z-index: 3;
 }
 
 @media (max-width: 900px) {

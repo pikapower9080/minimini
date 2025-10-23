@@ -290,6 +290,16 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       incorrectShown.current = false;
       posthog.capture("completed_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current, autoCheck });
       setComplete(true);
+      localforage.getItem("completed").then((completed) => {
+        let completedList: number[] = [];
+        if (completed && Array.isArray(completed)) {
+          completedList = completed as number[];
+        }
+        if (!completedList.includes(data.id)) {
+          completedList.push(data.id);
+          localforage.setItem("completed", completedList);
+        }
+      });
     } else if (results.totalCells > 0 && results.totalCells === results.totalFilled && results.totalCorrect < results.totalCells) {
       if (incorrectShown.current) return;
       setModalType("incorrect");
