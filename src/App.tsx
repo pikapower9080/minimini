@@ -52,7 +52,7 @@ function App() {
       })
       .catch((err) => {
         console.error(err);
-        setError("Failed to load today's puzzle.");
+        setError(`${import.meta.env.DEV ? `Failed to access the API at ${apiURL}` : "Failed to load today's puzzle. "}`);
       });
   }, []);
 
