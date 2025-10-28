@@ -45,25 +45,10 @@ function App() {
   };
 
   useEffect(() => {
-    const cached = localStorage.getItem("mini-cache");
-    const cachedDate = localStorage.getItem("mini-cache-date");
-
-    if (cached && cachedDate) {
-      const cachedTime = new Date(cachedDate).getTime();
-      const now = new Date().getTime();
-      const tenMinutes = 10 * 60 * 1000;
-
-      if (now - cachedTime < tenMinutes) {
-        setData(JSON.parse(cached));
-        return;
-      }
-    }
     fetch(apiURL + "/api/today")
       .then((res) => res.json())
       .then((json) => {
         setData(json);
-        localStorage.setItem("mini-cache", JSON.stringify(json));
-        localStorage.setItem("mini-cache-date", new Date().toISOString());
       })
       .catch((err) => {
         console.error(err);
