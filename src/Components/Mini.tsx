@@ -496,8 +496,6 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
             icon={faRotateLeft}
             onClick={() => {
               clearLocalPuzzleData().then(() => {
-                localStorage.removeItem("mini-cache");
-                localStorage.removeItem("mini-cache-date");
                 if (user) {
                   pb.collection("puzzle_state")
                     .delete(generateStateDocId(user, data))
