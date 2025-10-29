@@ -343,7 +343,10 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
   async function cloudSave() {
     if (!user) return;
-    const puzzleState = pb.collection("puzzle_state");
+    const batch = pb.createBatch();
+    const puzzleState = batch.collection("puzzle_state");
+    const stats = batch.collection("stats");
+    let wasUpdated = false;
     console.log("Running cloud save");
     const record = new FormData();
     Promise.all([
@@ -359,26 +362,32 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       record.set("time", saved[1].toString());
       record.set("autocheck", saved[2].toString());
       record.set("selected", JSON.stringify(saved[3]));
+      // TODO: Make this an upsert
       if (cloudSaveLoaded.current) {
         puzzleState
           .update(generateStateDocId(user, data), record)
-          .then(() => {
-            posthog.capture("cloud_save_update", { puzzle: data.id, puzzleDate: data.publicationDate });
-          })
-          .catch((err) => {
-            console.error(err);
-          });
+        wasUpdated = true;
       } else {
         puzzleState
           .create(record)
-          .then(() => {
-            posthog.capture("cloud_save", { puzzle: data.id, puzzleDate: data.publicationDate });
-          })
-          .catch((err) => {
-            console.error(err);
-          });
+        wasUpdated = false;
         cloudSaveLoaded.current = true;
       }
+      const statsRecord = new FormData();
+      statsRecord.set("id", user.id);
+      statsRecord.set("user", user.id);
+      statsRecord.set("puzzles", JSON.stringify({test: true}));
+      stats.upsert(statsRecord);
+      batch.send().then(() => {
+        if (wasUpdated) {
+          posthog.capture("cloud_save_update", { puzzle: data.id, puzzleDate: data.publicationDate });
+        } else {
+          posthog.capture("cloud_save", { puzzle: data.id, puzzleDate: data.publicationDate });
+        }
+      }).catch((err) => {
+        console.error(err);
+        posthog.capture("cloud_save_error", { puzzle: data.id, puzzleDate: data.publicationDate, error: err.toString() });
+      })
     });
   }
 
