@@ -187,9 +187,6 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     }
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (modalOpen || signInOpen) return;
-    if (e.key === "Escape") {
-      setSelected(null);
-    }
     if (letters.includes(e.key) && selected !== null) {
       typeLetter(e.key, selected);
       const highlightedCells = getCellsInDirection(selected, direction);
