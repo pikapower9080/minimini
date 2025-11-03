@@ -288,7 +288,9 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       incorrectShown.current = false;
       posthog.capture("completed_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current, autoCheck });
       setComplete(true);
-      localforage.setItem(`complete-${data.id}`, true);
+      localforage.setItem(`complete-${data.id}`, true).then(() => {
+        cloudSave(); // Force a cloud save upon completion
+      });
     } else if (results.totalCells > 0 && results.totalCells === results.totalFilled && results.totalCorrect < results.totalCells) {
       if (incorrectShown.current) return;
       setModalType("incorrect");
