@@ -172,12 +172,16 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       setDirection(nextClue.direction.toLowerCase() === "across" ? "across" : "down");
     }
   }
-  function previous() {
+  function previous(start: boolean = false) {
     if (selected === null) return;
     const currentClue = body.clues.findIndex((clue) => clue.cells.includes(selected) && clue.direction.toLowerCase() === direction);
     const prevClue = body.clues[(currentClue - 1 + body.clues.length) % body.clues.length];
     if (prevClue) {
-      setSelected(prevClue.cells[prevClue.cells.length - 1]);
+      if (start) {
+        setSelected(prevClue.cells[0]);
+      } else {
+        setSelected(prevClue.cells[prevClue.cells.length - 1]);
+      }
       setDirection(prevClue.direction.toLowerCase() === "across" ? "across" : "down");
     }
   }
@@ -255,7 +259,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     if (e.key === "Tab" && selected !== null) {
       e.preventDefault();
       if (e.shiftKey) {
-        previous();
+        previous(true);
       } else {
         next();
       }
@@ -510,7 +514,12 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         {keyboardOpen && selected !== null && selectedClue > -1 ? (
           <>
             <div className="clue-bar">
-              <div className="clue-bar-back" onClick={previous}>
+              <div
+                className="clue-bar-back"
+                onClick={() => {
+                  previous(true);
+                }}
+              >
                 <FontAwesomeIcon icon={faChevronLeft} />
               </div>
               {globalSelectedClue !== null ? (
@@ -518,7 +527,12 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
               ) : (
                 ""
               )}
-              <div className="clue-bar-forward" onClick={next}>
+              <div
+                className="clue-bar-forward"
+                onClick={() => {
+                  next();
+                }}
+              >
                 <FontAwesomeIcon icon={faChevronRight} />
               </div>
             </div>
