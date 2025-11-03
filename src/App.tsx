@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { MiniCrossword, StatsRecord } from "./lib/types";
+import type { MiniCrossword } from "./lib/types";
 import Mini from "./Components/Mini";
 import Timer from "./Components/Timer";
 import Modal from "react-responsive-modal";
@@ -36,7 +36,6 @@ function App() {
   const timeRef = useRef<number[]>([]);
   const startTouched = useRef(false);
   const cloudSaveLoaded = useRef(false);
-  const savedStatsRef = useRef<StatsRecord | null>(null);
 
   const [user, setUser] = useState<AuthRecord | null>(pb.authStore.isValid ? pb.authStore.record : null);
 
@@ -62,20 +61,16 @@ function App() {
       if (!pb?.authStore?.record || !data?.id) return;
       setCloudLoading(true);
       const puzzleState = pb.collection("puzzle_state");
-      const stats = pb.collection("stats");
-      Promise.all([
-        stats.getOne<StatsRecord>(pb.authStore.record.id),
-        puzzleState.getOne(generateStateDocId(pb.authStore.record, data))
-      ]).then(([statsRecord, puzzleStateRecord]) => {
-          setRestoredTime(puzzleStateRecord.time);
-          savedStatsRef.current = statsRecord;
-          console.log(savedStatsRef.current);
-          console.log("Restored cloud time: " + puzzleStateRecord.time);
+      puzzleState
+        .getOne(generateStateDocId(pb.authStore.record, data))
+        .then((record) => {
+          setRestoredTime(record.time);
+          console.log("Restored cloud time: " + record.time);
           Promise.all([
-            localforage.setItem(`autocheck-${data.id}`, puzzleStateRecord.autocheck),
-            localforage.setItem(`state-${data.id}`, puzzleStateRecord.board_state),
-            localforage.setItem(`time-${data.id}`, puzzleStateRecord.time),
-            localforage.setItem(`selected-${data.id}`, puzzleStateRecord.selected)
+            localforage.setItem(`autocheck-${data.id}`, record.autocheck),
+            localforage.setItem(`state-${data.id}`, record.board_state),
+            localforage.setItem(`time-${data.id}`, record.time),
+            localforage.setItem(`selected-${data.id}`, record.selected)
           ]).finally(() => {
             cloudSaveLoaded.current = true;
             setCloudLoading(false);
@@ -217,7 +212,7 @@ function App() {
           timeRef={timeRef}
           complete={complete}
           setComplete={setComplete}
-          statsRecord={savedStatsRef.current || undefined}
+          cloudSaveLoaded={cloudSaveLoaded}
         />
       ) : (
         !data && !error && <div className="loading">Loading...</div>

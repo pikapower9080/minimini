@@ -1,5 +1,3 @@
-import type { RecordModel } from "pocketbase";
-
 export interface MiniCrossword {
   body: MiniCrosswordBody[];
   constructors: string[];
@@ -47,17 +45,4 @@ export interface MiniCrosswordClueText {
 export interface MiniCrosswordDimensions {
   height: number;
   width: number;
-}
-
-export interface StatEntry {
-  time: number;
-  cheats: boolean;
-  complete: boolean;
-}
-
-export interface StatsRecord extends RecordModel {
-  id: string;
-  created: string;
-  updated: string;
-  puzzles: Record<number, StatEntry>;
 }

@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import type { MiniCrossword, MiniCrosswordClue, StatsRecord } from "../lib/types";
+import type { MiniCrossword, MiniCrosswordClue } from "../lib/types";
 import { fireworks } from "../lib/confetti";
 import { Modal } from "react-responsive-modal";
 import Keyboard from "react-simple-keyboard";
@@ -21,12 +21,12 @@ interface MiniProps {
   timeRef: React.RefObject<number[]>;
   complete: boolean;
   setComplete: (paused: boolean) => void;
-  statsRecord?: StatsRecord;
+  cloudSaveLoaded: React.RefObject<boolean>;
 }
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890=+-?.,/".split("");
 
-export default function Mini({ data, startTouched, timeRef, complete, setComplete, statsRecord }: MiniProps) {
+export default function Mini({ data, startTouched, timeRef, complete, setComplete, cloudSaveLoaded }: MiniProps) {
   const body = data.body[0];
 
   const [selected, setSelected] = useState<number | null>(null);
@@ -40,8 +40,6 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   const [signInOpen, setSignInOpen] = useState(false);
   const boardRef = useRef<HTMLDivElement>(null);
   const incorrectShown = useRef<boolean>(false);
-  const completeStateRef = useRef<boolean>(complete);
-  const cheatedRef = useRef<boolean>(false);
 
   const { user } = useContext(GlobalState);
 
@@ -158,7 +156,6 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   useEffect(() => {
     if (autoCheck) {
       posthog.capture("enabled_autocheck", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current });
-      cheatedRef.current = true;
     } else {
       posthog.capture("disabled_autocheck", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current });
     }
@@ -349,53 +346,54 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     const batch = pb.createBatch();
     const puzzleState = batch.collection("puzzle_state");
     const stats = batch.collection("stats");
+    let wasUpdated = false;
     console.log("Running cloud save");
     const record = new FormData();
-    try {
-      const saved = await Promise.all([
-        localforage.getItem(`state-${data.id}`),
-        localforage.getItem(`time-${data.id}`),
-        localforage.getItem(`autocheck-${data.id}`),
-        localforage.getItem(`selected-${data.id}`)
-      ] as any[]);
-
+    Promise.all([
+      localforage.getItem(`state-${data.id}`),
+      localforage.getItem(`time-${data.id}`),
+      localforage.getItem(`autocheck-${data.id}`),
+      localforage.getItem(`selected-${data.id}`)
+    ] as any[]).then((saved) => {
       record.set("id", generateStateDocId(user, data));
       record.set("user", user.id);
       record.set("puzzle_id", data.id.toString());
       record.set("board_state", JSON.stringify(saved[0]));
-      record.set("time", saved[1]?.toString() || "");
-      record.set("autocheck", saved[2]?.toString() || "");
-      record.set("cheated", cheatedRef.current.toString());
+      record.set("time", saved[1].toString());
+      record.set("autocheck", saved[2].toString());
       record.set("selected", JSON.stringify(saved[3]));
-
-      puzzleState.upsert(record);
-
-      const puzzlesStats = statsRecord ?? { puzzles: {} } as StatsRecord;
-      puzzlesStats.puzzles[data.id] = {
-        time: saved[1],
-        cheats: (statsRecord?.puzzles[data.id]?.cheats || 0 + (cheatedRef.current ? 1 : 0)) == 0 ? false : true,
-        complete: completeStateRef.current
+      // TODO: Make this an upsert
+      if (cloudSaveLoaded.current) {
+        puzzleState
+          .update(generateStateDocId(user, data), record)
+        wasUpdated = true;
+      } else {
+        puzzleState
+          .create(record)
+        wasUpdated = false;
+        cloudSaveLoaded.current = true;
       }
-      const statsRecordData = new FormData();
-      statsRecordData.set("id", user.id);
-      statsRecordData.set("user", user.id);
-      statsRecordData.set("puzzles", JSON.stringify(puzzlesStats.puzzles));
-      stats.upsert(statsRecordData);
+      const statsRecord = new FormData();
+      statsRecord.set("id", user.id);
+      statsRecord.set("user", user.id);
+      statsRecord.set("puzzles", JSON.stringify({test: true}));
+      stats.upsert(statsRecord);
       batch.send().then(() => {
-        posthog.capture("cloud_save", { puzzle: data.id, puzzleDate: data.publicationDate });
+        if (wasUpdated) {
+          posthog.capture("cloud_save_update", { puzzle: data.id, puzzleDate: data.publicationDate });
+        } else {
+          posthog.capture("cloud_save", { puzzle: data.id, puzzleDate: data.publicationDate });
+        }
       }).catch((err) => {
         console.error(err);
         posthog.capture("cloud_save_error", { puzzle: data.id, puzzleDate: data.publicationDate, error: err.toString() });
       })
-    } catch (error) {
-      console.error("Error during cloud save:", error);
-    }
+    });
   }
 
   const throttledCloudSave = useMemo(() => throttle(cloudSave, 4000), []);
 
   useEffect(() => {
-    completeStateRef.current = complete;
     throttledCloudSave();
   }, [boardState, autoCheck, complete, selected, direction, user]);
 
