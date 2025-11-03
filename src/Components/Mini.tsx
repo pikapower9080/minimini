@@ -155,6 +155,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
   useEffect(() => {
     if (autoCheck) {
+      localforage.setItem(`cheated-${data.id}`, true);
       posthog.capture("enabled_autocheck", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current });
     } else {
       posthog.capture("disabled_autocheck", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current });
@@ -287,6 +288,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       incorrectShown.current = false;
       posthog.capture("completed_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current, autoCheck });
       setComplete(true);
+      localforage.setItem(`complete-${data.id}`, true);
     } else if (results.totalCells > 0 && results.totalCells === results.totalFilled && results.totalCorrect < results.totalCells) {
       if (incorrectShown.current) return;
       setModalType("incorrect");
@@ -344,21 +346,24 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   async function cloudSave() {
     if (!user) return;
     const puzzleState = pb.collection("puzzle_state");
-    console.log("Running cloud save");
     const record = new FormData();
     Promise.all([
       localforage.getItem(`state-${data.id}`),
       localforage.getItem(`time-${data.id}`),
       localforage.getItem(`autocheck-${data.id}`),
-      localforage.getItem(`selected-${data.id}`)
+      localforage.getItem(`selected-${data.id}`),
+      localforage.getItem(`complete-${data.id}`),
+      localforage.getItem(`cheated-${data.id}`)
     ] as any[]).then((saved) => {
       record.set("id", generateStateDocId(user, data));
       record.set("user", user.id);
       record.set("puzzle_id", data.id.toString());
       record.set("board_state", JSON.stringify(saved[0]));
-      record.set("time", saved[1].toString());
-      record.set("autocheck", saved[2].toString());
       record.set("selected", JSON.stringify(saved[3]));
+      record.set("time", saved[1]?.toString() ?? "0");
+      record.set("autocheck", saved[2]?.toString() ?? "false");
+      record.set("complete", saved[4]?.toString() ?? "false");
+      record.set("cheated", saved[5]?.toString() ?? "false");
       if (cloudSaveLoaded.current) {
         puzzleState
           .update(generateStateDocId(user, data), record)
@@ -393,7 +398,9 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       localforage.removeItem(`state-${id}`),
       localforage.removeItem(`time-${id}`),
       localforage.removeItem(`selected-${id}`),
-      localforage.removeItem(`autocheck-${id}`)
+      localforage.removeItem(`autocheck-${id}`),
+      localforage.removeItem(`complete-${id}`),
+      localforage.removeItem(`cheated-${id}`)
     ]);
   }
 
