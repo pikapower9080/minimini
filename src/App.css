@@ -167,9 +167,18 @@ ol li {
   background-color: var(--clue-highlight);
 }
 
-.react-responsive-modal-modal * {
-  text-align: center;
-  display: block;
+.react-responsive-modal-modal {
+  & h1,
+  & h2,
+  & h3,
+  & h4,
+  & p,
+  & button,
+  & input,
+  & a {
+    text-align: center;
+    display: block;
+  }
 }
 .react-responsive-modal-modal h2,
 .react-responsive-modal-modal h3 {
@@ -373,6 +382,15 @@ input[type="password"] {
 .szh-menu-container svg {
   color: inherit;
   padding-right: 5px;
+}
+
+.rs-rate {
+  width: 100%;
+  justify-content: center;
+}
+
+.rating-container {
+  margin-top: 15px;
 }
 
 @media (max-width: 900px) {

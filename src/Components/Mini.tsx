@@ -14,6 +14,7 @@ import { pb } from "../main";
 import throttle from "throttleit";
 import { generateStateDocId } from "../lib/storage";
 import { Toggle } from "rsuite";
+import Rating from "./Rating";
 
 interface MiniProps {
   data: MiniCrossword;
@@ -453,15 +454,17 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       </div>
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} center showCloseIcon={false}>
         <h2>{modalType == "victory" ? "Congratulations!" : "Not Quite..."}</h2>
-        <h3>
+        <h3 style={{ marginBottom: 0 }}>
           {modalType == "victory" && timeRef.current.length > 0
             ? `You solved the Mini Crossword in ${timeRef.current[0]}:${timeRef.current[1].toString().padStart(2, "0")}`
             : "One or more squares are filled incorrectly."}
         </h3>
+        {modalType == "victory" && <Rating id={data.id} />}
         <button
           onClick={() => {
             setModalOpen(false);
           }}
+          style={{ marginTop: 15 }}
         >
           {modalType == "victory" ? "Admire Puzzle" : "Keep Trying"}
         </button>
