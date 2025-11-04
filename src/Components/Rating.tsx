@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import { Loader, Rate, Text } from "rsuite";
 import { pb } from "../main";
 import localforage from "localforage";
@@ -8,6 +8,9 @@ export default function Rating({ id }: { id: number }) {
   const [count, setCount] = useState(0);
   const [voted, setVoted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [hovered, setHovered] = useState(0);
+
+  const descriptors = ["Rate this puzzle's difficulty", "Very Easy", "Easy", "Medium", "Hard", "Very Hard"];
 
   function fetchRating() {
     fetch(`${import.meta.env.VITE_POCKETBASE_URL}/ratings/${id}`).then((res) => {
@@ -18,6 +21,21 @@ export default function Rating({ id }: { id: number }) {
         }
       });
     });
+  }
+
+  function rate(e: number) {
+    setLoading(true);
+    const formData = new FormData();
+    formData.set("puzzle_id", id.toString());
+    formData.set("rating", e.toString());
+    pb.collection("ratings")
+      .create(formData)
+      .finally(() => {
+        setLoading(false);
+        setVoted(true);
+        localforage.setItem(`rating-${id}`, e);
+        fetchRating();
+      });
   }
 
   useEffect(() => {
@@ -41,25 +59,16 @@ export default function Rating({ id }: { id: number }) {
   } else {
     return (
       <div className="rating-container">
-        <Text>Rate this puzzle's difficulty</Text>
         <Rate
           color="yellow"
           size="sm"
-          onChange={(e) => {
-            setLoading(true);
-            const formData = new FormData();
-            formData.set("puzzle_id", id.toString());
-            formData.set("rating", e.toString());
-            pb.collection("ratings")
-              .create(formData)
-              .finally(() => {
-                setLoading(false);
-                setVoted(true);
-                localforage.setItem(`rating-${id}`, e);
-                fetchRating();
-              });
+          onChange={rate}
+          onChangeActive={setHovered}
+          onTouchEndCapture={() => {
+            rate(hovered);
           }}
         />
+        <Text>{descriptors[hovered]}</Text>
         {loading && <Loader backdrop />}
       </div>
     );
