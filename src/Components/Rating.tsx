@@ -1,4 +1,4 @@
-import { useEffect, useState, type ChangeEvent } from "react";
+import { useEffect, useState } from "react";
 import { Loader, Rate, Text } from "rsuite";
 import { pb } from "../main";
 import localforage from "localforage";
