@@ -41,7 +41,8 @@ function App() {
 
   const globalState = {
     user,
-    setUser
+    setUser,
+    paused
   };
 
   useEffect(() => {

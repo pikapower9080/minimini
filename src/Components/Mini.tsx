@@ -42,7 +42,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   const boardRef = useRef<HTMLDivElement>(null);
   const incorrectShown = useRef<boolean>(false);
 
-  const { user } = useContext(GlobalState);
+  const { user, paused } = useContext(GlobalState);
 
   function typeLetter(letter: string, cellIndex: number) {
     if (!boardRef.current) return;
@@ -192,7 +192,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       setKeyboardOpen(false);
     }
     if (e.metaKey || e.ctrlKey || e.altKey) return;
-    if (modalOpen || signInOpen) return;
+    if (modalOpen || signInOpen || paused) return;
     if (letters.includes(e.key) && selected !== null) {
       typeLetter(e.key, selected);
       const highlightedCells = getCellsInDirection(selected, direction);
@@ -282,7 +282,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       document.removeEventListener("keydown", handlePhysicalKeydown);
       document.removeEventListener("touchstart", handleTouchStart);
     };
-  }, [selected, direction, boardState, complete, modalOpen, autoCheck, signInOpen]);
+  }, [selected, direction, boardState, complete, modalOpen, autoCheck, signInOpen, paused]);
 
   useEffect(() => {
     const results = checkBoard();
