@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Loader, Rate, Text } from "rsuite";
 import { pb } from "../main";
 import localforage from "localforage";
+import posthog from "posthog-js";
 
 export default function Rating({ id }: { id: number }) {
   const [average, setAverage] = useState(0);
@@ -36,6 +37,7 @@ export default function Rating({ id }: { id: number }) {
         localforage.setItem(`rating-${id}`, e);
         fetchRating();
       });
+    posthog.capture("difficulty_rating", { puzzle_id: id, rating: e });
   }
 
   useEffect(() => {
