@@ -175,11 +175,17 @@ ol li {
   & p,
   & button,
   & input,
-  & a {
+  & a,
+  & strong {
     text-align: center;
     display: block;
   }
 }
+
+.rating-container strong {
+  display: unset;
+}
+
 .react-responsive-modal-modal h2,
 .react-responsive-modal-modal h3 {
   margin-top: 0;
