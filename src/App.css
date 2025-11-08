@@ -152,6 +152,7 @@ ol li {
   display: flex;
   border-left: transparent solid 10px;
   padding-right: 10px;
+  cursor: pointer;
 }
 
 .clue-label {

@@ -440,6 +440,11 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
                       <li
                         key={clueIndex}
                         className={`clue ${activeClues.includes(clueIndex) ? "active-clue" : ""} ${activeClues[selectedClue] === clueIndex ? "selected-clue" : ""}`}
+                        onClick={() => {
+                          const targetCell = clue.cells[0];
+                          setSelected(targetCell);
+                          setDirection(clue.direction.toLowerCase() === "across" ? "across" : "down");
+                        }}
                       >
                         <span className="clue-label">{clue.label}</span>{" "}
                         <span className="clue-text">{clue.text.map((t) => t.plain).join(" ")}</span>
