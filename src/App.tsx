@@ -44,7 +44,9 @@ function App() {
   const globalState = {
     user,
     setUser,
-    paused
+    paused,
+    data,
+    setData
   };
 
   useEffect(() => {
@@ -166,9 +168,12 @@ function App() {
           >
             {cloudLoading ? "Loading..." : restoredTime > 0 ? "Continue Solving" : "Start Solving"}
           </button>
-          <button style={{marginTop: 5}} onClick={() => {
-            setArchiveOpen(true);
-          }}>
+          <button
+            style={{ marginTop: 5 }}
+            onClick={() => {
+              setArchiveOpen(true);
+            }}
+          >
             Archive
           </button>
         </Modal>

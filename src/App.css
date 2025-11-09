@@ -422,8 +422,13 @@ input[type="password"] {
   height: 358px;
 }
 
-.archive-badge {
+.archive-badge,
+.archive-badge-icon {
   margin-top: 4px;
+}
+
+.archive-badge-icon-completed {
+  color: var(--rs-green-500);
 }
 
 .rs-loader-wrapper {

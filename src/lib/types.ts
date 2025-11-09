@@ -66,3 +66,10 @@ export interface BasicArchiveRecord {
   puzzleId: number;
   id: string;
 }
+
+export interface ArchiveStateRecord extends BaseRecord {
+  puzzle_id: number;
+  complete: boolean;
+  cheated: boolean;
+  time: number;
+}

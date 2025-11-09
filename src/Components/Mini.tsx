@@ -387,7 +387,8 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
   async function cloudSave() {
     if (!user) return;
-    const puzzleState = pb.collection("puzzle_state");
+    const batch = pb.createBatch();
+    const puzzleState = batch.collection("puzzle_state");
     const record = new FormData();
     Promise.all([
       localforage.getItem(`state-${data.id}`),
@@ -406,26 +407,18 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       record.set("autocheck", saved[2]?.toString() ?? "false");
       record.set("complete", saved[4]?.toString() ?? "false");
       record.set("cheated", saved[5]?.toString() ?? "false");
-      if (cloudSaveLoaded.current) {
-        puzzleState
-          .update(generateStateDocId(user, data), record)
-          .then(() => {
-            posthog.capture("cloud_save_update", { puzzle: data.id, puzzleDate: data.publicationDate });
-          })
-          .catch((err) => {
-            console.error(err);
-          });
-      } else {
-        puzzleState
-          .create(record)
-          .then(() => {
-            posthog.capture("cloud_save", { puzzle: data.id, puzzleDate: data.publicationDate });
-          })
-          .catch((err) => {
-            console.error(err);
-          });
-        cloudSaveLoaded.current = true;
-      }
+
+      puzzleState.upsert(record);
+
+      batch
+        .send()
+        .then(() => {
+          posthog.capture("cloud_save", { puzzle: data.id, puzzleDate: data.publicationDate });
+        })
+        .catch((err) => {
+          console.error(err);
+          posthog.capture("cloud_save_error", { puzzle: data.id, puzzleDate: data.publicationDate, error: err.message });
+        });
     });
   }
 
