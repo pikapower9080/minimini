@@ -189,10 +189,13 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
   const handleKeyDown = (e: KeyboardEvent, virtual: boolean) => {
     if (!virtual) {
+      // close the virtual keyboard when a physical key is pressed
       setKeyboardOpen(false);
     }
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (modalOpen || signInOpen || paused) return;
+
+    // Typing logic
     if (letters.includes(e.key) && selected !== null) {
       typeLetter(e.key, selected);
       const highlightedCells = getCellsInDirection(selected, direction);
@@ -200,24 +203,46 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       if (localIndex >= 0 && localIndex < highlightedCells.length - 1) {
         setSelected(highlightedCells[localIndex + 1]);
       } else if (localIndex === highlightedCells.length - 1) {
+        // jump to the next clue if at the end of the current one
         next();
       }
     }
+
     if (e.key === "Backspace" && selected !== null) {
+      // Delete logic
       const highlightedCells = getCellsInDirection(selected, direction);
       const localIndex = highlightedCells.indexOf(selected);
       if (localIndex > 0) {
+        // clear the cell and jump back
         typeLetter("", selected);
         const lastSelected = selected;
         setSelected(highlightedCells[localIndex - 1]);
         if (!boardState[lastSelected]) {
+          // jump back and clear previous only if current cell was already empty
           typeLetter("", highlightedCells[localIndex - 1]);
         }
       } else if (localIndex === 0) {
-        typeLetter("", highlightedCells[localIndex]);
-        previous();
+        // first cell of the clue
+        const empty = boardState[highlightedCells[localIndex]] === undefined;
+        if (autoCheck) {
+          const correct =
+            boardState[highlightedCells[localIndex]]?.toUpperCase() === body.cells[highlightedCells[localIndex]].answer?.toUpperCase();
+          if (correct || empty) {
+            previous();
+          } else {
+            typeLetter("", highlightedCells[localIndex]);
+          }
+        } else {
+          if (empty || complete) {
+            previous();
+          } else {
+            // clear box without moving
+            typeLetter("", highlightedCells[localIndex]);
+          }
+        }
       }
     }
+
     function arrowKey(key: string, dir: "across" | "down") {
       if (selected === null) return;
       if (direction !== dir) {
