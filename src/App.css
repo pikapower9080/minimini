@@ -173,7 +173,7 @@ ol li {
   background-color: var(--clue-highlight);
 }
 
-.react-responsive-modal-modal {
+.react-responsive-modal-modal:not(.archive-modal) {
   & h1,
   & h2,
   & h3,
