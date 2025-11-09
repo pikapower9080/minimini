@@ -43,7 +43,8 @@ function App() {
 
   const globalState = {
     user,
-    setUser
+    setUser,
+    paused
   };
 
   useEffect(() => {
@@ -72,7 +73,9 @@ function App() {
             localforage.setItem(`autocheck-${data.id}`, record.autocheck),
             localforage.setItem(`state-${data.id}`, record.board_state),
             localforage.setItem(`time-${data.id}`, record.time),
-            localforage.setItem(`selected-${data.id}`, record.selected)
+            localforage.setItem(`selected-${data.id}`, record.selected),
+            localforage.setItem(`complete-${data.id}`, record.complete),
+            localforage.setItem(`cheated-${data.id}`, record.cheated)
           ]).finally(() => {
             cloudSaveLoaded.current = true;
             setCloudLoading(false);

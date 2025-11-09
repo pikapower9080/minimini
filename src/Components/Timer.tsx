@@ -2,7 +2,7 @@ import { faPause } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import localforage from "localforage";
 import posthog from "posthog-js";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useStopwatch } from "react-timer-hook";
 import type { MiniCrossword } from "../lib/types";
 
@@ -23,6 +23,8 @@ export default function Timer({ onPause, running, setTime, puzzle, restoredTime 
     offsetTimestamp: restoredTimeDate
   });
 
+  const [justPaused, setJustPaused] = useState(false);
+
   useEffect(() => {
     if (running) {
       start();
@@ -36,6 +38,26 @@ export default function Timer({ onPause, running, setTime, puzzle, restoredTime 
     localforage.setItem(`time-${puzzle.id}`, totalSeconds);
   }, [minutes, seconds]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (justPaused) {
+          setJustPaused(false);
+          return;
+        }
+        if (e.repeat) return;
+        e.preventDefault();
+        onPause();
+        setJustPaused(true);
+      }
+  };
+
+  window.addEventListener("keydown", handleKeyDown);
+  return () => {
+    window.removeEventListener("keydown", handleKeyDown);
+  };
+}, [onPause, justPaused]);
+
   return (
     <div className="timer">
       <span className="timer-text">
@@ -45,7 +67,7 @@ export default function Timer({ onPause, running, setTime, puzzle, restoredTime 
         icon={faPause}
         className="timer-icon"
         onClick={() => {
-          posthog.capture("manual_pause", { time: `${minutes}:${seconds.toString().padStart(2, "0")}`, puzzle: puzzle.id });
+          posthog.capture("manual_pause", { time: `${minutes}:${seconds.toString().padStart(2, "0")}`, puzzle: puzzle.id, keyboardActivated: false });
           onPause();
         }}
       />

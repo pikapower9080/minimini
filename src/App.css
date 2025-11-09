@@ -156,6 +156,8 @@ ol li {
 .clue {
   display: flex;
   border-left: transparent solid 10px;
+  padding-right: 10px;
+  cursor: pointer;
 }
 
 .clue-label {
@@ -171,10 +173,25 @@ ol li {
   background-color: var(--clue-highlight);
 }
 
-.react-responsive-modal-modal:not(.archive-modal) * {
-  text-align: center;
-  display: block;
+.react-responsive-modal-modal {
+  & h1,
+  & h2,
+  & h3,
+  & h4,
+  & p,
+  & button,
+  & input,
+  & a,
+  & strong {
+    text-align: center;
+    display: block;
+  }
 }
+
+.rating-container strong {
+  display: unset;
+}
+
 .react-responsive-modal-modal h2,
 .react-responsive-modal-modal h3 {
   margin-top: 0;
@@ -377,6 +394,15 @@ input[type="password"] {
 .szh-menu-container svg {
   color: inherit;
   padding-right: 5px;
+}
+
+.rs-rate {
+  width: 100%;
+  justify-content: center;
+}
+
+.rating-container {
+  margin-top: 15px;
 }
 
 .archive-modal h2,

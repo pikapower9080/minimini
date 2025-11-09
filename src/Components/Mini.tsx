@@ -14,6 +14,7 @@ import { pb } from "../main";
 import throttle from "throttleit";
 import { generateStateDocId } from "../lib/storage";
 import { Toggle } from "rsuite";
+import Rating from "./Rating";
 
 interface MiniProps {
   data: MiniCrossword;
@@ -41,7 +42,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   const boardRef = useRef<HTMLDivElement>(null);
   const incorrectShown = useRef<boolean>(false);
 
-  const { user } = useContext(GlobalState);
+  const { user, paused } = useContext(GlobalState);
 
   function typeLetter(letter: string, cellIndex: number) {
     if (!boardRef.current) return;
@@ -155,6 +156,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
   useEffect(() => {
     if (autoCheck) {
+      localforage.setItem(`cheated-${data.id}`, true);
       posthog.capture("enabled_autocheck", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current });
     } else {
       posthog.capture("disabled_autocheck", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current });
@@ -162,34 +164,48 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     localforage.setItem(`autocheck-${data.id}`, autoCheck);
   }, [autoCheck]);
 
+  function getFirstEmptyCell(clue: MiniCrosswordClue) {
+    for (let i = 0; i < clue.cells.length; i++) {
+      const cellIndex = clue.cells[i];
+      if (!boardState[cellIndex]) {
+        return cellIndex;
+      }
+    }
+    return clue.cells[0];
+  }
+
   function next() {
     if (selected === null) return;
     const currentClue = body.clues.findIndex((clue) => clue.cells.includes(selected) && clue.direction.toLowerCase() === direction);
     const nextClue = body.clues[(currentClue + 1) % body.clues.length];
     if (nextClue) {
-      setSelected(nextClue.cells[0]);
+      setSelected(getFirstEmptyCell(nextClue));
       setDirection(nextClue.direction.toLowerCase() === "across" ? "across" : "down");
     }
   }
-  function previous() {
+  function previous(start: boolean = false) {
     if (selected === null) return;
     const currentClue = body.clues.findIndex((clue) => clue.cells.includes(selected) && clue.direction.toLowerCase() === direction);
     const prevClue = body.clues[(currentClue - 1 + body.clues.length) % body.clues.length];
     if (prevClue) {
-      setSelected(prevClue.cells[prevClue.cells.length - 1]);
+      if (start) {
+        setSelected(getFirstEmptyCell(prevClue));
+      } else {
+        setSelected(prevClue.cells[prevClue.cells.length - 1]);
+      }
       setDirection(prevClue.direction.toLowerCase() === "across" ? "across" : "down");
     }
   }
 
   const handleKeyDown = (e: KeyboardEvent, virtual: boolean) => {
     if (!virtual) {
+      // close the virtual keyboard when a physical key is pressed
       setKeyboardOpen(false);
     }
     if (e.metaKey || e.ctrlKey || e.altKey) return;
-    if (modalOpen || signInOpen) return;
-    if (e.key === "Escape") {
-      setSelected(null);
-    }
+    if (modalOpen || signInOpen || paused) return;
+
+    // Typing logic
     if (letters.includes(e.key) && selected !== null) {
       typeLetter(e.key, selected);
       const highlightedCells = getCellsInDirection(selected, direction);
@@ -197,24 +213,46 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       if (localIndex >= 0 && localIndex < highlightedCells.length - 1) {
         setSelected(highlightedCells[localIndex + 1]);
       } else if (localIndex === highlightedCells.length - 1) {
+        // jump to the next clue if at the end of the current one
         next();
       }
     }
+
     if (e.key === "Backspace" && selected !== null) {
+      // Delete logic
       const highlightedCells = getCellsInDirection(selected, direction);
       const localIndex = highlightedCells.indexOf(selected);
       if (localIndex > 0) {
+        // clear the cell and jump back
         typeLetter("", selected);
         const lastSelected = selected;
         setSelected(highlightedCells[localIndex - 1]);
         if (!boardState[lastSelected]) {
+          // jump back and clear previous only if current cell was already empty
           typeLetter("", highlightedCells[localIndex - 1]);
         }
       } else if (localIndex === 0) {
-        typeLetter("", highlightedCells[localIndex]);
-        previous();
+        // first cell of the clue
+        const empty = boardState[highlightedCells[localIndex]] === undefined;
+        if (autoCheck) {
+          const correct =
+            boardState[highlightedCells[localIndex]]?.toUpperCase() === body.cells[highlightedCells[localIndex]].answer?.toUpperCase();
+          if (correct || empty) {
+            previous();
+          } else {
+            typeLetter("", highlightedCells[localIndex]);
+          }
+        } else {
+          if (empty || complete) {
+            previous();
+          } else {
+            // clear box without moving
+            typeLetter("", highlightedCells[localIndex]);
+          }
+        }
       }
     }
+
     function arrowKey(key: string, dir: "across" | "down") {
       if (selected === null) return;
       if (direction !== dir) {
@@ -257,7 +295,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     if (e.key === "Tab" && selected !== null) {
       e.preventDefault();
       if (e.shiftKey) {
-        previous();
+        previous(true);
       } else {
         next();
       }
@@ -279,7 +317,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       document.removeEventListener("keydown", handlePhysicalKeydown);
       document.removeEventListener("touchstart", handleTouchStart);
     };
-  }, [selected, direction, boardState, complete, modalOpen, autoCheck, signInOpen]);
+  }, [selected, direction, boardState, complete, modalOpen, autoCheck, signInOpen, paused]);
 
   useEffect(() => {
     const results = checkBoard();
@@ -290,15 +328,8 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       incorrectShown.current = false;
       posthog.capture("completed_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current, autoCheck });
       setComplete(true);
-      localforage.getItem("completed").then((completed) => {
-        let completedList: number[] = [];
-        if (completed && Array.isArray(completed)) {
-          completedList = completed as number[];
-        }
-        if (!completedList.includes(data.id)) {
-          completedList.push(data.id);
-          localforage.setItem("completed", completedList);
-        }
+      localforage.setItem(`complete-${data.id}`, true).then(() => {
+        cloudSave(); // Force a cloud save upon completion
       });
     } else if (results.totalCells > 0 && results.totalCells === results.totalFilled && results.totalCorrect < results.totalCells) {
       if (incorrectShown.current) return;
@@ -357,21 +388,24 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   async function cloudSave() {
     if (!user) return;
     const puzzleState = pb.collection("puzzle_state");
-    console.log("Running cloud save");
     const record = new FormData();
     Promise.all([
       localforage.getItem(`state-${data.id}`),
       localforage.getItem(`time-${data.id}`),
       localforage.getItem(`autocheck-${data.id}`),
-      localforage.getItem(`selected-${data.id}`)
+      localforage.getItem(`selected-${data.id}`),
+      localforage.getItem(`complete-${data.id}`),
+      localforage.getItem(`cheated-${data.id}`)
     ] as any[]).then((saved) => {
       record.set("id", generateStateDocId(user, data));
       record.set("user", user.id);
       record.set("puzzle_id", data.id.toString());
       record.set("board_state", JSON.stringify(saved[0]));
-      record.set("time", saved[1].toString());
-      record.set("autocheck", saved[2].toString());
       record.set("selected", JSON.stringify(saved[3]));
+      record.set("time", saved[1]?.toString() ?? "0");
+      record.set("autocheck", saved[2]?.toString() ?? "false");
+      record.set("complete", saved[4]?.toString() ?? "false");
+      record.set("cheated", saved[5]?.toString() ?? "false");
       if (cloudSaveLoaded.current) {
         puzzleState
           .update(generateStateDocId(user, data), record)
@@ -406,7 +440,9 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       localforage.removeItem(`state-${id}`),
       localforage.removeItem(`time-${id}`),
       localforage.removeItem(`selected-${id}`),
-      localforage.removeItem(`autocheck-${id}`)
+      localforage.removeItem(`autocheck-${id}`),
+      localforage.removeItem(`complete-${id}`),
+      localforage.removeItem(`cheated-${id}`)
     ]);
   }
 
@@ -439,6 +475,11 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
                       <li
                         key={clueIndex}
                         className={`clue ${activeClues.includes(clueIndex) ? "active-clue" : ""} ${activeClues[selectedClue] === clueIndex ? "selected-clue" : ""}`}
+                        onClick={() => {
+                          const targetCell = clue.cells[0];
+                          setSelected(targetCell);
+                          setDirection(clue.direction.toLowerCase() === "across" ? "across" : "down");
+                        }}
                       >
                         <span className="clue-label">{clue.label}</span>{" "}
                         <span className="clue-text">{clue.text.map((t) => t.plain).join(" ")}</span>
@@ -453,15 +494,17 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       </div>
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} center showCloseIcon={false}>
         <h2>{modalType == "victory" ? "Congratulations!" : "Not Quite..."}</h2>
-        <h3>
+        <h3 style={{ marginBottom: 0 }}>
           {modalType == "victory" && timeRef.current.length > 0
             ? `You solved the Mini Crossword in ${timeRef.current[0]}:${timeRef.current[1].toString().padStart(2, "0")}`
             : "One or more squares are filled incorrectly."}
         </h3>
+        {modalType == "victory" && <Rating id={data.id} />}
         <button
           onClick={() => {
             setModalOpen(false);
           }}
+          style={{ marginTop: 15 }}
         >
           {modalType == "victory" ? "Admire Puzzle" : "Keep Trying"}
         </button>
@@ -514,7 +557,12 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         {keyboardOpen && selected !== null && selectedClue > -1 ? (
           <>
             <div className="clue-bar">
-              <div className="clue-bar-back" onClick={previous}>
+              <div
+                className="clue-bar-back"
+                onClick={() => {
+                  previous(true);
+                }}
+              >
                 <FontAwesomeIcon icon={faChevronLeft} />
               </div>
               {globalSelectedClue !== null ? (
@@ -522,7 +570,12 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
               ) : (
                 ""
               )}
-              <div className="clue-bar-forward" onClick={next}>
+              <div
+                className="clue-bar-forward"
+                onClick={() => {
+                  next();
+                }}
+              >
                 <FontAwesomeIcon icon={faChevronRight} />
               </div>
             </div>
