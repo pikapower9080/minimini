@@ -164,12 +164,22 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     localforage.setItem(`autocheck-${data.id}`, autoCheck);
   }, [autoCheck]);
 
+  function getFirstEmptyCell(clue: MiniCrosswordClue) {
+    for (let i = 0; i < clue.cells.length; i++) {
+      const cellIndex = clue.cells[i];
+      if (!boardState[cellIndex]) {
+        return cellIndex;
+      }
+    }
+    return clue.cells[0];
+  }
+
   function next() {
     if (selected === null) return;
     const currentClue = body.clues.findIndex((clue) => clue.cells.includes(selected) && clue.direction.toLowerCase() === direction);
     const nextClue = body.clues[(currentClue + 1) % body.clues.length];
     if (nextClue) {
-      setSelected(nextClue.cells[0]);
+      setSelected(getFirstEmptyCell(nextClue));
       setDirection(nextClue.direction.toLowerCase() === "across" ? "across" : "down");
     }
   }
@@ -179,7 +189,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     const prevClue = body.clues[(currentClue - 1 + body.clues.length) % body.clues.length];
     if (prevClue) {
       if (start) {
-        setSelected(prevClue.cells[0]);
+        setSelected(getFirstEmptyCell(prevClue));
       } else {
         setSelected(prevClue.cells[prevClue.cells.length - 1]);
       }
