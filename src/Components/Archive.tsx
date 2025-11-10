@@ -11,7 +11,11 @@ import { formatDuration } from "../lib/formatDate";
 export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
   const [data, setData] = useState<BasicArchiveRecord[] | null>(null);
   const [puzzleStates, setPuzzleStates] = useState<ArchiveStateRecord[] | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today.toISOString().split("T")[0];
+  });
   const [selectedPuzzleState, setSelectedPuzzleState] = useState<string>("unset");
   const [buttonLoading, setButtonLoading] = useState(false);
   const [selectedPuzzleTime, setSelectedPuzzleTime] = useState<number>(0);
@@ -34,7 +38,6 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
         ]);
         setData(list);
         setPuzzleStates(completed || []);
-        onSelectionChange();
       }
       fetchData();
     }
@@ -64,6 +67,7 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
   }
 
   useEffect(onSelectionChange, [selectedDate]);
+  useEffect(onSelectionChange, [data, puzzleStates]);
 
   function getButtonText(state: string) {
     if (state === "completed") {
