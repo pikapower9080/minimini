@@ -477,7 +477,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
                         key={clueIndex}
                         className={`clue ${activeClues.includes(clueIndex) ? "active-clue" : ""} ${activeClues[selectedClue] === clueIndex ? "selected-clue" : ""}`}
                         onClick={() => {
-                          const targetCell = clue.cells[0];
+                          const targetCell = getFirstEmptyCell(clue);
                           setSelected(targetCell);
                           setDirection(clue.direction.toLowerCase() === "across" ? "across" : "down");
                         }}
