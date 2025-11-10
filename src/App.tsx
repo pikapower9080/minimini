@@ -154,7 +154,7 @@ function App() {
               loading={cloudLoading}
               disabled={cloudLoading}
             >
-              {cloudLoading ? "Loading..." : restoredTime > 0 ? "Continue Solving" : "Start Solving"}
+              {restoredTime > 0 ? "Continue Solving" : "Start Solving"}
             </Button>
             <Button
               onClick={() => {
