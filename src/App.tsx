@@ -10,6 +10,8 @@ import { pb } from "./main";
 import { GlobalState } from "./lib/GlobalState";
 import { generateStateDocId } from "./lib/storage";
 import { Archive } from "./Components/Archive";
+import { Button, ButtonGroup } from "rsuite";
+import formatDate from "./lib/formatDate";
 
 let apiURL = "";
 let apiURLSource = "production";
@@ -144,38 +146,33 @@ function App() {
       {data && restoredTime > -1 && (
         <Modal open={modalOpen} onClose={() => {}} showCloseIcon={false} center classNames={{ modal: "welcome-modal" }}>
           <h2>{restoredTime > 0 ? "Welcome back!" : "Welcome to minimini"}</h2>
-          <h4>
-            {new Date(data.publicationDate + "T00:00:00")
-              .toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })
-              .replace(/\b(\d{1,2})\b/, (match) => {
-                const suffix = ["th", "st", "nd", "rd"];
-                const day = parseInt(match, 10);
-                const value = day % 100;
-                return day + (suffix[(value - 20) % 10] || suffix[value] || suffix[0]);
-              })}
-          </h4>
-          <h4>by {data.constructors.join(", ")}</h4>
-          <button
-            onClick={() => {
-              setModalOpen(false);
-              posthog.capture(restoredTime > 0 ? "continue_puzzle" : "start_puzzle", { puzzle: data.id });
-            }}
-            onTouchStart={() => {
-              startTouched.current = true;
-              console.log("touch input detected");
-            }}
-            disabled={cloudLoading}
-          >
-            {cloudLoading ? "Loading..." : restoredTime > 0 ? "Continue Solving" : "Start Solving"}
-          </button>
-          <button
-            style={{ marginTop: 5 }}
-            onClick={() => {
-              setArchiveOpen(true);
-            }}
-          >
-            Archive
-          </button>
+          <h4>{formatDate(data.publicationDate)}</h4>
+          <h4 style={{ marginBottom: 10 }}>by {data.constructors.join(", ")}</h4>
+          <ButtonGroup vertical block>
+            <Button
+              onClick={() => {
+                setModalOpen(false);
+                posthog.capture(restoredTime > 0 ? "continue_puzzle" : "start_puzzle", { puzzle: data.id });
+              }}
+              onTouchStart={() => {
+                startTouched.current = true;
+                console.log("touch input detected");
+              }}
+              appearance="primary"
+              loading={cloudLoading}
+              disabled={cloudLoading}
+            >
+              {cloudLoading ? "Loading..." : restoredTime > 0 ? "Continue Solving" : "Start Solving"}
+            </Button>
+            <Button
+              onClick={() => {
+                setArchiveOpen(true);
+              }}
+              appearance="default"
+            >
+              Archive
+            </Button>
+          </ButtonGroup>
         </Modal>
       )}
       <Archive open={archiveOpen} setOpen={setArchiveOpen} />

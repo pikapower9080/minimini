@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import Modal from "react-responsive-modal";
-import { Badge, Calendar, Loader } from "rsuite";
+import { Badge, Button, Calendar, Loader } from "rsuite";
 import { pb } from "../main";
 import type { ArchiveRecord, ArchiveStateRecord, BasicArchiveRecord } from "../lib/types";
 import { GlobalState } from "../lib/GlobalState";
@@ -12,6 +12,7 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
   const [puzzleStates, setPuzzleStates] = useState<ArchiveStateRecord[] | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedPuzzleState, setSelectedPuzzleState] = useState<string>("unset");
+  const [buttonLoading, setButtonLoading] = useState(false);
 
   const archive = pb.collection("archive");
   const puzzleState = pb.collection("puzzle_state");
@@ -91,21 +92,32 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
           }
           return <Badge className="archive-badge" />;
         }}
+        defaultValue={
+          selectedDate ? new Date(new Date(selectedDate).getTime() + new Date(selectedDate).getTimezoneOffset() * 60000) : undefined
+        }
       />
-      <button
+      <Button
         className="archive-action-button"
-        disabled={selectedPuzzleState === "not-found"}
+        disabled={selectedPuzzleState === "not-found" || buttonLoading}
+        loading={buttonLoading}
+        appearance="primary"
         onClick={() => {
           if (!data || !selectedDate) return;
-          archive.getOne(data.find((r) => r.publicationDate === selectedDate)!.id).then((record) => {
-            const archiveRecord = record as ArchiveRecord;
-            setPuzzleData(archiveRecord.mini);
-            setOpen(false);
-          });
+          setButtonLoading(true);
+          archive
+            .getOne(data.find((r) => r.publicationDate === selectedDate)!.id)
+            .then((record) => {
+              const archiveRecord = record as ArchiveRecord;
+              setPuzzleData(archiveRecord.mini);
+              setOpen(false);
+            })
+            .finally(() => {
+              setButtonLoading(false);
+            });
         }}
       >
         {getButtonText(selectedPuzzleState)}
-      </button>
+      </Button>
       {(!data || !puzzleStates) && <Loader center backdrop />}
     </Modal>
   );

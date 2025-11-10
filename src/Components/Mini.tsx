@@ -13,8 +13,9 @@ import { Menu, MenuItem } from "@szhsin/react-menu";
 import { pb } from "../main";
 import throttle from "throttleit";
 import { generateStateDocId } from "../lib/storage";
-import { Toggle } from "rsuite";
+import { Button, Toggle } from "rsuite";
 import Rating from "./Rating";
+import formatDate from "../lib/formatDate";
 
 interface MiniProps {
   data: MiniCrossword;
@@ -492,15 +493,17 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
             ? `You solved the Mini Crossword in ${timeRef.current[0]}:${timeRef.current[1].toString().padStart(2, "0")}`
             : "One or more squares are filled incorrectly."}
         </h3>
+        <h4 style={{ marginBottom: 0 }}>{formatDate(data.publicationDate)}</h4>
         {modalType == "victory" && <Rating id={data.id} />}
-        <button
+        <Button
           onClick={() => {
             setModalOpen(false);
           }}
           style={{ marginTop: 15 }}
+          appearance="primary"
         >
           {modalType == "victory" ? "Admire Puzzle" : "Keep Trying"}
-        </button>
+        </Button>
       </Modal>
       <SignIn open={signInOpen} setOpen={setSignInOpen} />
       <div className="keyboard-container">
@@ -511,7 +514,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
               <MenuItem
                 onClick={() => {
                   pb.authStore.clear();
-                  clearLocalPuzzleData().then(() => {
+                  localforage.clear().then(() => {
                     window.location.reload();
                   });
                 }}
