@@ -544,7 +544,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
               clearLocalPuzzleData().then(() => {
                 if (user) {
                   pb.collection("puzzle_state")
-                    .delete(generateStateDocId(user, data))
+                    .delete(stateDocId.current)
                     .finally(() => {
                       posthog.capture("reset_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate });
                       location.reload();
