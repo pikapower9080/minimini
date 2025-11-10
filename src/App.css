@@ -392,12 +392,16 @@ input[type="password"] {
 }
 
 .archive-calendar {
-  height: 358px;
+  min-height: 358px;
 }
 
 .archive-badge,
 .archive-badge-icon {
   margin-top: 4px;
+}
+
+.archive-badge-icon-incomplete {
+  color: var(--rs-yellow-600);
 }
 
 .archive-badge-icon-completed {
@@ -416,7 +420,7 @@ input[type="password"] {
 }
 
 .rs-btn-default {
-  outline: 1px solid #cccccc;
+  outline: 1px solid var(--rs-border-primary);
 }
 
 @media (max-width: 900px) {

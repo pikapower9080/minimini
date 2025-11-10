@@ -23,12 +23,11 @@ interface MiniProps {
   timeRef: React.RefObject<number[]>;
   complete: boolean;
   setComplete: (paused: boolean) => void;
-  cloudSaveLoaded: React.RefObject<boolean>;
 }
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890=+-?.,/".split("");
 
-export default function Mini({ data, startTouched, timeRef, complete, setComplete, cloudSaveLoaded }: MiniProps) {
+export default function Mini({ data, startTouched, timeRef, complete, setComplete }: MiniProps) {
   const body = data.body[0];
 
   const [selected, setSelected] = useState<number | null>(null);

@@ -1,11 +1,12 @@
 import { useContext, useEffect, useState } from "react";
 import Modal from "react-responsive-modal";
-import { Badge, Button, Calendar, Loader } from "rsuite";
+import { Badge, Button, Calendar, Loader, Text } from "rsuite";
 import { pb } from "../main";
 import type { ArchiveRecord, ArchiveStateRecord, BasicArchiveRecord } from "../lib/types";
 import { GlobalState } from "../lib/GlobalState";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
+import { faCheckCircle, faHourglassHalf } from "@fortawesome/free-solid-svg-icons";
+import { formatDuration } from "../lib/formatDate";
 
 export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
   const [data, setData] = useState<BasicArchiveRecord[] | null>(null);
@@ -13,6 +14,7 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedPuzzleState, setSelectedPuzzleState] = useState<string>("unset");
   const [buttonLoading, setButtonLoading] = useState(false);
+  const [selectedPuzzleTime, setSelectedPuzzleTime] = useState<number>(0);
 
   const archive = pb.collection("archive");
   const puzzleState = pb.collection("puzzle_state");
@@ -32,21 +34,23 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
         ]);
         setData(list);
         setPuzzleStates(completed || []);
-        console.log(completed);
+        onSelectionChange();
       }
       fetchData();
     }
   }, [open]);
 
-  useEffect(() => {
+  function onSelectionChange() {
     if (selectedDate && data) {
       const puzzle = data.find((r) => r.publicationDate === selectedDate);
       if (!puzzle) {
         setSelectedPuzzleState("not-found");
+        setSelectedPuzzleTime(0);
         return;
       }
       const puzzleState = puzzleStates?.find((ps) => ps.puzzle_id === puzzle?.puzzleId);
       if (puzzleState) {
+        setSelectedPuzzleTime(puzzleState.time || 0);
         if (puzzleState.complete) {
           setSelectedPuzzleState("completed");
         } else {
@@ -54,9 +58,12 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
         }
       } else {
         setSelectedPuzzleState("not-started");
+        setSelectedPuzzleTime(0);
       }
     }
-  }, [selectedDate]);
+  }
+
+  useEffect(onSelectionChange, [selectedDate]);
 
   function getButtonText(state: string) {
     if (state === "completed") {
@@ -77,7 +84,9 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
         compact
         className="archive-calendar"
         onChange={(date) => {
-          const day = date.toISOString().split("T")[0];
+          const adjustedDate = new Date(date);
+          adjustedDate.setHours(0, 0, 0, 0);
+          const day = adjustedDate.toISOString().split("T")[0];
           setSelectedDate(day);
         }}
         renderCell={(date) => {
@@ -90,12 +99,21 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
           if (puzzleState?.complete) {
             return <FontAwesomeIcon icon={faCheckCircle} className="archive-badge-icon archive-badge-icon-completed" />;
           }
+          if (puzzleState) {
+            return <FontAwesomeIcon icon={faHourglassHalf} className="archive-badge-icon archive-badge-icon-incomplete" />;
+          }
           return <Badge className="archive-badge" />;
         }}
         defaultValue={
           selectedDate ? new Date(new Date(selectedDate).getTime() + new Date(selectedDate).getTimezoneOffset() * 60000) : undefined
         }
+        weekStart={0}
       />
+      {pb.authStore.isValid && (
+        <Text weight="bold" style={{ display: "block", textAlign: "center", marginBottom: 10 }}>
+          {formatDuration(selectedPuzzleTime || 0)}
+        </Text>
+      )}
       <Button
         className="archive-action-button"
         disabled={selectedPuzzleState === "not-found" || buttonLoading}

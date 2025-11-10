@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { MiniCrossword } from "./lib/types";
 import Mini from "./Components/Mini";
 import Timer from "./Components/Timer";
@@ -39,17 +39,19 @@ function App() {
   const [archiveOpen, setArchiveOpen] = useState(false);
   const timeRef = useRef<number[]>([]);
   const startTouched = useRef(false);
-  const cloudSaveLoaded = useRef(false);
 
   const [user, setUser] = useState<AuthRecord | null>(pb.authStore.isValid ? pb.authStore.record : null);
 
-  const globalState = {
-    user,
-    setUser,
-    paused,
-    data,
-    setData
-  };
+  const globalState = useMemo(
+    () => ({
+      user,
+      setUser,
+      paused,
+      data,
+      setData
+    }),
+    [user, paused, data]
+  );
 
   useEffect(() => {
     fetch(apiURL + "/api/today")
@@ -64,39 +66,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (pb.authStore.isValid) {
-      if (!pb?.authStore?.record || !data?.id) return;
-      setCloudLoading(true);
-      const puzzleState = pb.collection("puzzle_state");
-      puzzleState
-        .getOne(generateStateDocId(pb.authStore.record, data))
-        .then((record) => {
-          setRestoredTime(record.time);
-          console.log("Restored cloud time: " + record.time);
-          Promise.all([
-            localforage.setItem(`autocheck-${data.id}`, record.autocheck),
-            localforage.setItem(`state-${data.id}`, record.board_state),
-            localforage.setItem(`time-${data.id}`, record.time),
-            localforage.setItem(`selected-${data.id}`, record.selected),
-            localforage.setItem(`complete-${data.id}`, record.complete),
-            localforage.setItem(`cheated-${data.id}`, record.cheated)
-          ]).finally(() => {
-            cloudSaveLoaded.current = true;
-            setCloudLoading(false);
-          });
-        })
-        .catch((err) => {
-          if (err.toString().includes("404")) {
-            console.log("No cloud save found for this puzzle.");
-          } else {
-            console.error(err);
-          }
-          setCloudLoading(false);
-        });
-    }
-  }, [user, data]);
-
-  useEffect(() => {
     if (user) {
       posthog.identify(user.id, {
         username: user.username
@@ -105,22 +74,45 @@ function App() {
   }, [user]);
 
   useEffect(() => {
-    if (data && data.id && !cloudSaveLoaded.current) {
-      localforage
-        .getItem(`time-${data.id}`)
-        .then((value) => {
-          if (value && typeof value === "number") {
-            setRestoredTime(value);
-          } else {
-            setRestoredTime(0);
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-          setRestoredTime(0);
-        });
-    }
-  }, [data]);
+    if (!data?.id) return;
+
+    const restoreSave = async () => {
+      setCloudLoading(true);
+
+      if (pb.authStore.isValid && pb.authStore.record) {
+        try {
+          const record = await pb.collection("puzzle_state").getOne(generateStateDocId(pb.authStore.record, data));
+          console.log("Restored cloud time:", record.time);
+          await Promise.all([
+            localforage.setItem(`autocheck-${data.id}`, record.autocheck),
+            localforage.setItem(`state-${data.id}`, record.board_state),
+            localforage.setItem(`time-${data.id}`, record.time),
+            localforage.setItem(`selected-${data.id}`, record.selected),
+            localforage.setItem(`complete-${data.id}`, record.complete),
+            localforage.setItem(`cheated-${data.id}`, record.cheated)
+          ]);
+          setRestoredTime(record.time ?? 0);
+          setCloudLoading(false);
+          return;
+        } catch (err: any) {
+          if (!err.toString().includes("404")) console.error(err);
+        }
+      }
+
+      try {
+        const localTime = await localforage.getItem<number>(`time-${data.id}`);
+        setRestoredTime(typeof localTime === "number" ? localTime : 0);
+        console.log("Restored local time:", localTime);
+      } catch (err) {
+        console.error(err);
+        setRestoredTime(0);
+      } finally {
+        setCloudLoading(false);
+      }
+    };
+
+    restoreSave();
+  }, [data, user]);
 
   useEffect(() => {
     const handleBlur = () => {
@@ -187,20 +179,21 @@ function App() {
       >
         <h2>Paused</h2>
         {timeRef.current.length === 2 ? (
-          <strong>
+          <strong style={{ display: "block", textAlign: "center" }}>
             {timeRef.current[0]}:{timeRef.current[1].toString().padStart(2, "0")}
           </strong>
         ) : (
           ""
         )}
-        <button
+        <Button
+          appearance="primary"
           onClick={() => {
             setPaused(false);
             posthog.capture("resume");
           }}
         >
           Resume
-        </button>
+        </Button>
       </Modal>
       {data && restoredTime > -1 && !modalOpen ? (
         <Timer
@@ -219,14 +212,7 @@ function App() {
         ""
       )}
       {data && restoredTime > -1 && !modalOpen ? (
-        <Mini
-          data={data}
-          startTouched={startTouched.current}
-          timeRef={timeRef}
-          complete={complete}
-          setComplete={setComplete}
-          cloudSaveLoaded={cloudSaveLoaded}
-        />
+        <Mini data={data} startTouched={startTouched.current} timeRef={timeRef} complete={complete} setComplete={setComplete} />
       ) : (
         !data && !error && <div className="loading">Loading...</div>
       )}

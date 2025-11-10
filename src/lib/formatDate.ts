@@ -8,3 +8,9 @@ export default function formatDate(publicationDate: string): string {
       return day + (suffix[(value - 20) % 10] || suffix[value] || suffix[0]);
     });
 }
+
+export function formatDuration(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
