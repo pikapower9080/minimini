@@ -388,7 +388,7 @@ input[type="password"] {
 }
 
 .archive-modal {
-  width: 400px;
+  max-width: 420px;
 }
 
 .archive-calendar {
