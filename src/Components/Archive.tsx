@@ -113,11 +113,9 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
         }
         weekStart={0}
       />
-      {pb.authStore.isValid && (
-        <Text weight="bold" style={{ display: "block", textAlign: "center", marginBottom: 10 }}>
-          {formatDuration(selectedPuzzleTime || 0)}
-        </Text>
-      )}
+      <Text weight="bold" style={{ display: "block", textAlign: "center", marginBottom: 10 }}>
+        {pb.authStore.isValid ? formatDuration(selectedPuzzleTime || 0) : "Sign in to track your progress"}
+      </Text>
       <Button
         className="archive-action-button"
         disabled={selectedPuzzleState === "not-found" || buttonLoading}
