@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import type { MiniCrossword, MiniCrosswordClue } from "../lib/types";
 import { fireworks } from "../lib/confetti";
 import { Modal } from "react-responsive-modal";
@@ -12,7 +12,6 @@ import { GlobalState } from "../lib/GlobalState";
 import { Menu, MenuItem } from "@szhsin/react-menu";
 import { pb } from "../main";
 import throttle from "throttleit";
-import { generateStateDocId } from "../lib/storage";
 import { Button, Toggle } from "rsuite";
 import Rating from "./Rating";
 import formatDate from "../lib/formatDate";
@@ -23,11 +22,12 @@ interface MiniProps {
   timeRef: React.RefObject<number[]>;
   complete: boolean;
   setComplete: (paused: boolean) => void;
+  stateDocId: RefObject<string>;
 }
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890=+-?.,/".split("");
 
-export default function Mini({ data, startTouched, timeRef, complete, setComplete }: MiniProps) {
+export default function Mini({ data, startTouched, timeRef, complete, setComplete, stateDocId }: MiniProps) {
   const body = data.body[0];
 
   const [selected, setSelected] = useState<number | null>(null);
@@ -387,8 +387,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
   async function cloudSave() {
     if (!user) return;
-    const batch = pb.createBatch();
-    const puzzleState = batch.collection("puzzle_state");
+    const puzzleState = pb.collection("puzzle_state");
     const record = new FormData();
     Promise.all([
       localforage.getItem(`state-${data.id}`),
@@ -398,7 +397,6 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       localforage.getItem(`complete-${data.id}`),
       localforage.getItem(`cheated-${data.id}`)
     ] as any[]).then((saved) => {
-      record.set("id", generateStateDocId(user, data));
       record.set("user", user.id);
       record.set("puzzle_id", data.id.toString());
       record.set("board_state", JSON.stringify(saved[0]));
@@ -408,17 +406,27 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       record.set("complete", saved[4]?.toString() ?? "false");
       record.set("cheated", saved[5]?.toString() ?? "false");
 
-      puzzleState.upsert(record);
+      function onSaveError(err: any) {
+        console.error(err);
+        posthog.capture("cloud_save_error", { puzzle: data.id, puzzleDate: data.publicationDate, error: err.message });
+      }
 
-      batch
-        .send()
-        .then(() => {
-          posthog.capture("cloud_save", { puzzle: data.id, puzzleDate: data.publicationDate });
-        })
-        .catch((err) => {
-          console.error(err);
-          posthog.capture("cloud_save_error", { puzzle: data.id, puzzleDate: data.publicationDate, error: err.message });
-        });
+      if (stateDocId.current) {
+        puzzleState
+          .update(stateDocId.current, record)
+          .then(() => {
+            posthog.capture("cloud_save_update", { puzzle: data.id, puzzleDate: data.publicationDate, stateDocId: stateDocId.current });
+          })
+          .catch(onSaveError);
+      } else {
+        puzzleState
+          .create(record)
+          .then((createdRecord) => {
+            stateDocId.current = createdRecord.id;
+            posthog.capture("cloud_save_create", { puzzle: data.id, puzzleDate: data.publicationDate, stateDocId: stateDocId.current });
+          })
+          .catch(onSaveError);
+      }
     });
   }
 

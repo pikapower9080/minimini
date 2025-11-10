@@ -8,7 +8,6 @@ import localforage from "localforage";
 import type { AuthRecord } from "pocketbase";
 import { pb } from "./main";
 import { GlobalState } from "./lib/GlobalState";
-import { generateStateDocId } from "./lib/storage";
 import { Archive } from "./Components/Archive";
 import { Button, ButtonGroup } from "rsuite";
 import formatDate from "./lib/formatDate";
@@ -39,6 +38,7 @@ function App() {
   const [archiveOpen, setArchiveOpen] = useState(false);
   const timeRef = useRef<number[]>([]);
   const startTouched = useRef(false);
+  const stateDocId = useRef<string>("");
 
   const [user, setUser] = useState<AuthRecord | null>(pb.authStore.isValid ? pb.authStore.record : null);
 
@@ -81,8 +81,10 @@ function App() {
 
       if (pb.authStore.isValid && pb.authStore.record) {
         try {
-          const record = await pb.collection("puzzle_state").getOne(generateStateDocId(pb.authStore.record, data));
+          const record = await pb.collection("puzzle_state").getFirstListItem(`puzzle_id="${data.id}"`);
+          console.log("Found cloud save:", record.id);
           console.log("Restored cloud time:", record.time);
+          stateDocId.current = record.id;
           await Promise.all([
             localforage.setItem(`autocheck-${data.id}`, record.autocheck),
             localforage.setItem(`state-${data.id}`, record.board_state),
@@ -212,7 +214,14 @@ function App() {
         ""
       )}
       {data && restoredTime > -1 && !modalOpen ? (
-        <Mini data={data} startTouched={startTouched.current} timeRef={timeRef} complete={complete} setComplete={setComplete} />
+        <Mini
+          data={data}
+          startTouched={startTouched.current}
+          timeRef={timeRef}
+          complete={complete}
+          setComplete={setComplete}
+          stateDocId={stateDocId}
+        />
       ) : (
         !data && !error && <div className="loading">Loading...</div>
       )}
