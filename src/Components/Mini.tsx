@@ -492,7 +492,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
             ? `You solved the Mini Crossword in ${timeRef.current[0]}:${timeRef.current[1].toString().padStart(2, "0")}`
             : "One or more squares are filled incorrectly."}
         </h3>
-        <h4 style={{ marginBottom: 0 }}>{formatDate(data.publicationDate)}</h4>
+        {modalType == "victory" && <h4 style={{ marginBottom: 0 }}>{formatDate(data.publicationDate)}</h4>}
         {modalType == "victory" && <Rating id={data.id} />}
         <Button
           onClick={() => {
