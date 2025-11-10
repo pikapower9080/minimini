@@ -2,6 +2,7 @@ import { useContext, useRef, useState } from "react";
 import Modal from "react-responsive-modal";
 import { pb } from "../main";
 import { GlobalState } from "../lib/GlobalState";
+import { Button } from "rsuite";
 
 interface SignInProps {
   open: boolean;
@@ -47,6 +48,7 @@ export default function SignIn({ open, setOpen }: SignInProps) {
       <form
         onSubmit={async (e) => {
           e.preventDefault();
+          if (loading) return;
           const username = usernameRef.current as HTMLInputElement;
           const password = passwordRef.current as HTMLInputElement;
           if (!username || !password) return;
@@ -127,15 +129,15 @@ export default function SignIn({ open, setOpen }: SignInProps) {
         />
         <label style={{ color: "red", fontSize: "0.8em" }}>{passwordValidation}</label>
         <label style={{ color: "red", fontSize: "0.8em" }}>{error}</label>
-        <button type="submit" style={{ marginTop: "16px" }}>
-          {loading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
-        </button>
+        <Button type="submit" style={{ marginTop: "16px" }} loading={loading}>
+          {isSignUp ? "Sign Up" : "Sign In"}
+        </Button>
         <a
           onClick={() => {
             setIsSignUp(!isSignUp);
           }}
           className="action-link"
-          style={{ marginTop: 5 }}
+          style={{ marginTop: 5, display: "block", textAlign: "center" }}
         >
           {isSignUp ? "Sign In" : "Sign Up"}
         </a>

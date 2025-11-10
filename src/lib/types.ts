@@ -46,3 +46,30 @@ export interface MiniCrosswordDimensions {
   height: number;
   width: number;
 }
+
+export interface BaseRecord {
+  collectionId: string;
+  collectionName: string;
+  created: string;
+  id: string;
+  updated: string;
+}
+
+export interface ArchiveRecord extends BaseRecord {
+  mini: MiniCrossword;
+  publicationDate: string;
+  puzzleId: number;
+}
+
+export interface BasicArchiveRecord {
+  publicationDate: string;
+  puzzleId: number;
+  id: string;
+}
+
+export interface ArchiveStateRecord extends BaseRecord {
+  puzzle_id: number;
+  complete: boolean;
+  cheated: boolean;
+  time: number;
+}

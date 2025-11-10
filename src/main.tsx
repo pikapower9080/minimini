@@ -11,6 +11,10 @@ import "rsuite/Toggle/styles/index.css";
 import "rsuite/Rate/styles/index.css";
 import "rsuite/Text/styles/index.css";
 import "rsuite/Loader/styles/index.css";
+import "rsuite/Calendar/styles/index.css";
+import "rsuite/Badge/styles/index.css";
+import "rsuite/ButtonGroup/styles/index.css";
+import "rsuite/Button/styles/index.css";
 import "react-responsive-modal/styles.css";
 import "react-simple-keyboard/build/css/index.css";
 

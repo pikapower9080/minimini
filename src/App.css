@@ -17,6 +17,10 @@
   --correct: #2860d8;
   --incorrect: #e63333;
   --icon-button: #b7b7b7;
+
+  --rs-btn-primary-bg: black !important;
+  --rs-btn-primary-hover-bg: black !important;
+  --rs-btn-primary-active-bg: black !important;
 }
 
 :root.dark {
@@ -47,27 +51,6 @@ body {
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-  color: white;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-.dark button {
-  border-color: rgb(178, 178, 178);
 }
 
 #root {
@@ -168,16 +151,14 @@ ol li {
   background-color: var(--clue-highlight);
 }
 
-.react-responsive-modal-modal {
+.react-responsive-modal-modal:not(.archive-modal) {
   & h1,
   & h2,
   & h3,
   & h4,
   & p,
   & button,
-  & input,
-  & a,
-  & strong {
+  & input {
     text-align: center;
     display: block;
   }
@@ -248,9 +229,6 @@ canvas {
 }
 .welcome-modal h3 {
   margin-bottom: 10px;
-}
-.welcome-modal button {
-  margin-top: 15px;
 }
 
 .timer {
@@ -398,6 +376,51 @@ input[type="password"] {
 
 .rating-container {
   margin-top: 15px;
+}
+
+.archive-modal h2,
+.archive-modal h4 {
+  text-align: center;
+}
+.archive-modal .archive-action-button {
+  text-align: center;
+  display: block;
+}
+
+.archive-modal {
+  width: 400px;
+}
+
+.archive-calendar {
+  min-height: 358px;
+}
+
+.archive-badge,
+.archive-badge-icon {
+  margin-top: 4px;
+}
+
+.archive-badge-icon-incomplete {
+  color: var(--rs-yellow-600);
+}
+
+.archive-badge-icon-completed {
+  color: var(--rs-green-500);
+}
+
+.rs-loader-wrapper {
+  z-index: 2;
+}
+.react-responsive-modal-closeButton {
+  z-index: 3;
+}
+
+.rs-btn-group-block {
+  display: block;
+}
+
+.rs-btn-default {
+  outline: 1px solid var(--rs-border-primary);
 }
 
 @media (max-width: 900px) {

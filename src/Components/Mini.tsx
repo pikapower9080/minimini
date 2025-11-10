@@ -13,8 +13,9 @@ import { Menu, MenuItem } from "@szhsin/react-menu";
 import { pb } from "../main";
 import throttle from "throttleit";
 import { generateStateDocId } from "../lib/storage";
-import { Toggle } from "rsuite";
+import { Button, Toggle } from "rsuite";
 import Rating from "./Rating";
+import formatDate from "../lib/formatDate";
 
 interface MiniProps {
   data: MiniCrossword;
@@ -22,12 +23,11 @@ interface MiniProps {
   timeRef: React.RefObject<number[]>;
   complete: boolean;
   setComplete: (paused: boolean) => void;
-  cloudSaveLoaded: React.RefObject<boolean>;
 }
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890=+-?.,/".split("");
 
-export default function Mini({ data, startTouched, timeRef, complete, setComplete, cloudSaveLoaded }: MiniProps) {
+export default function Mini({ data, startTouched, timeRef, complete, setComplete }: MiniProps) {
   const body = data.body[0];
 
   const [selected, setSelected] = useState<number | null>(null);
@@ -387,7 +387,8 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
   async function cloudSave() {
     if (!user) return;
-    const puzzleState = pb.collection("puzzle_state");
+    const batch = pb.createBatch();
+    const puzzleState = batch.collection("puzzle_state");
     const record = new FormData();
     Promise.all([
       localforage.getItem(`state-${data.id}`),
@@ -406,26 +407,18 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       record.set("autocheck", saved[2]?.toString() ?? "false");
       record.set("complete", saved[4]?.toString() ?? "false");
       record.set("cheated", saved[5]?.toString() ?? "false");
-      if (cloudSaveLoaded.current) {
-        puzzleState
-          .update(generateStateDocId(user, data), record)
-          .then(() => {
-            posthog.capture("cloud_save_update", { puzzle: data.id, puzzleDate: data.publicationDate });
-          })
-          .catch((err) => {
-            console.error(err);
-          });
-      } else {
-        puzzleState
-          .create(record)
-          .then(() => {
-            posthog.capture("cloud_save", { puzzle: data.id, puzzleDate: data.publicationDate });
-          })
-          .catch((err) => {
-            console.error(err);
-          });
-        cloudSaveLoaded.current = true;
-      }
+
+      puzzleState.upsert(record);
+
+      batch
+        .send()
+        .then(() => {
+          posthog.capture("cloud_save", { puzzle: data.id, puzzleDate: data.publicationDate });
+        })
+        .catch((err) => {
+          console.error(err);
+          posthog.capture("cloud_save_error", { puzzle: data.id, puzzleDate: data.publicationDate, error: err.message });
+        });
     });
   }
 
@@ -499,15 +492,17 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
             ? `You solved the Mini Crossword in ${timeRef.current[0]}:${timeRef.current[1].toString().padStart(2, "0")}`
             : "One or more squares are filled incorrectly."}
         </h3>
+        <h4 style={{ marginBottom: 0 }}>{formatDate(data.publicationDate)}</h4>
         {modalType == "victory" && <Rating id={data.id} />}
-        <button
+        <Button
           onClick={() => {
             setModalOpen(false);
           }}
           style={{ marginTop: 15 }}
+          appearance="primary"
         >
           {modalType == "victory" ? "Admire Puzzle" : "Keep Trying"}
-        </button>
+        </Button>
       </Modal>
       <SignIn open={signInOpen} setOpen={setSignInOpen} />
       <div className="keyboard-container">
@@ -518,7 +513,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
               <MenuItem
                 onClick={() => {
                   pb.authStore.clear();
-                  clearLocalPuzzleData().then(() => {
+                  localforage.clear().then(() => {
                     window.location.reload();
                   });
                 }}
