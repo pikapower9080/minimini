@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"vite --host --port 3000\" \"bun api/index.ts\" --names \"vite,api\" --kill-others --success first",
+    "dev": "concurrently \"vite --host --port 3000\" \"./scripts/pb_dev.sh\" --names \"vite,pb\" --kill-others --success first",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -19,9 +19,7 @@
     "@types/memory-cache": "^0.2.6",
     "@types/react-toggle": "^4.0.5",
     "canvas-confetti": "^1.9.3",
-    "express": "^5.1.0",
     "localforage": "^1.10.0",
-    "memory-cache": "^0.2.0",
     "pocketbase": "^0.26.2",
     "posthog-js": "^1.268.9",
     "react": "^19.1.1",

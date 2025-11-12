@@ -6,26 +6,11 @@ import Modal from "react-responsive-modal";
 import posthog from "posthog-js";
 import localforage from "localforage";
 import type { AuthRecord } from "pocketbase";
-import { pb } from "./main";
+import { pb, pb_url } from "./main";
 import { GlobalState } from "./lib/GlobalState";
 import { Archive } from "./Components/Archive";
 import { Button, ButtonGroup } from "rsuite";
 import formatDate from "./lib/formatDate";
-
-let apiURL = "";
-let apiURLSource = "production";
-
-if (!import.meta.env.PROD) {
-  apiURL = "http://localhost:3000";
-  apiURLSource = "development default";
-}
-if (import.meta.env.VITE_API_URL) {
-  apiURL = import.meta.env.VITE_API_URL;
-  apiURLSource = "environment variable";
-}
-if (apiURL !== "") {
-  console.log(`API URL (from ${apiURLSource}): ${apiURL}`);
-}
 
 function App() {
   const [data, setData] = useState<MiniCrossword | null>(null);
@@ -54,14 +39,14 @@ function App() {
   );
 
   useEffect(() => {
-    fetch(apiURL + "/api/today")
+    fetch(pb_url + "/api/today")
       .then((res) => res.json())
       .then((json) => {
         setData(json);
       })
       .catch((err) => {
         console.error(err);
-        setError(`${import.meta.env.DEV ? `Failed to access the API at ${apiURL}` : "Failed to load today's puzzle. "}`);
+        setError(`${import.meta.env.DEV ? `Failed to access the Pocketbase API at ${pb_url}` : "Failed to load today's puzzle. "}`);
       });
   }, []);
 

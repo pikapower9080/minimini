@@ -26,3 +26,8 @@ dist-ssr
 .env
 mini.json
 .vercel
+
+# pocketbase
+pb_data/
+pb_public/
+pocketbase.bin
