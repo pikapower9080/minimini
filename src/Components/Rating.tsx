@@ -14,7 +14,7 @@ export default function Rating({ id }: { id: number }) {
   const descriptors = ["Rate this puzzle's difficulty", "Very Easy", "Easy", "Medium", "Hard", "Very Hard"];
 
   function fetchRating() {
-    fetch(`${import.meta.env.VITE_POCKETBASE_URL}/ratings/${id}`).then((res) => {
+    fetch(`${import.meta.env.VITE_POCKETBASE_URL}/api/ratings/${id}`).then((res) => {
       res.json().then((ratingData) => {
         if (ratingData && ratingData.average && ratingData.count) {
           setAverage(ratingData.average);
