@@ -20,7 +20,9 @@ import "react-simple-keyboard/build/css/index.css";
 
 import "./App.css";
 
-export const pb = new PocketBase(import.meta.env.VITE_POCKETBASE_URL);
+export const pb_url = import.meta.env.VITE_POCKETBASE_URL || location.origin;
+
+export const pb = new PocketBase(pb_url);
 
 posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
   api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
