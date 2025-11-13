@@ -33,7 +33,8 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
             fields: "puzzleId,publicationDate,id"
           }) as Promise<BasicArchiveRecord[]>,
           puzzleState.getFullList({
-            fields: "puzzle_id,complete,cheated,time"
+            fields: "puzzle_id,complete,cheated,time",
+            filter: `user="${pb.authStore?.record?.id}"`
           }) as Promise<any[]>
         ]);
         setData(list);
