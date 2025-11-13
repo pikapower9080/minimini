@@ -73,14 +73,14 @@ export default function PuzzleMenu({
         <FontAwesomeIcon icon={faRotateLeft} onClick={() => {}} />
         Reset Puzzle
       </MenuItem>
-      <MenuItem
+      {/*      <MenuItem
         onClick={() => {
           setModalState("archive");
         }}
       >
         <FontAwesomeIcon icon={faBoxArchive} />
         Archive
-      </MenuItem>
+      </MenuItem>*/}
     </Menu>
   );
 }
