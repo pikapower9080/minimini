@@ -12,7 +12,7 @@ import { Archive } from "./Components/Archive";
 import { Button, ButtonGroup } from "rsuite";
 import formatDate from "./lib/formatDate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBoxArchive, faRightToBracket } from "@fortawesome/free-solid-svg-icons";
+import { faBoxArchive, faDoorOpen, faRightToBracket, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import SignIn from "./Components/SignIn";
 import AddFriends from "./Components/AddFriends";
 
@@ -159,18 +159,42 @@ function App() {
               Archive
             </Button>
           </ButtonGroup>
-          {!pb.authStore.isValid && (
-            <Button
-              style={{ marginTop: 5 }}
-              appearance="subtle"
-              onClick={() => {
-                setModalState("sign-in");
-              }}
-            >
-              {" "}
-              <FontAwesomeIcon icon={faRightToBracket} /> Sign in
-            </Button>
-          )}
+          <div style={{ marginTop: 5 }}>
+            <ButtonGroup style={{ marginTop: 5 }} justified>
+              {!pb.authStore.isValid ? (
+                <Button
+                  appearance="subtle"
+                  onClick={() => {
+                    setModalState("sign-in");
+                  }}
+                >
+                  {" "}
+                  <FontAwesomeIcon icon={faRightToBracket} /> Sign in
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    appearance="subtle"
+                    onClick={() => {
+                      pb.authStore.clear();
+                      setUser(null);
+                    }}
+                  >
+                    <FontAwesomeIcon icon={faDoorOpen} /> Sign Out
+                  </Button>
+                  <Button
+                    appearance="subtle"
+                    onClick={() => {
+                      setModalState("add-friends");
+                    }}
+                    style={{ flexGrow: 1.2 }}
+                  >
+                    <FontAwesomeIcon icon={faUserPlus} /> Add Friends
+                  </Button>
+                </>
+              )}
+            </ButtonGroup>
+          </div>
         </Modal>
       )}
       <Archive

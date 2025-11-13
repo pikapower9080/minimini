@@ -34,14 +34,14 @@ export default function PuzzleMenu({
           >
             <FontAwesomeIcon icon={faDoorOpen}></FontAwesomeIcon>Sign out
           </MenuItem>
-          <MenuItem
+          {/* <MenuItem
             onClick={() => {
               setModalState("add-friends");
             }}
           >
             <FontAwesomeIcon icon={faUserPlus} />
             Add Friends
-          </MenuItem>
+          </MenuItem> */}
           <MenuDivider />
         </>
       ) : (

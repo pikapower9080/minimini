@@ -99,7 +99,6 @@ export default function SignIn({ open, setOpen }: SignInProps) {
             .then(() => {
               setIsLoading(false);
               if (pb.authStore.isValid) {
-                setOpen(false);
                 setError("");
                 setUser(pb.authStore.record);
               }
