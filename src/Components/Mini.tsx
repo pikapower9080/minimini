@@ -7,11 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronLeft,
   faChevronRight,
-  faDoorOpen,
-  faRightToBracket,
-  faRotateLeft,
-  faTrophy,
-  faUser
+  faTrophy
 } from "@fortawesome/free-solid-svg-icons";
 import posthog from "posthog-js";
 import localforage from "localforage";
