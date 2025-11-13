@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Modal from "react-responsive-modal";
-import { Button, Form, MaskedInput } from "rsuite";
+import { Button, Form, MaskedInput, Text } from "rsuite";
 import { pb, pb_url } from "../main";
 
 export default function AddFriends({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
@@ -49,6 +49,9 @@ export default function AddFriends({ open, setOpen }: { open: boolean; setOpen: 
           }
         }}
       >
+        <Text weight="bold" style={{ marginBottom: 10 }}>
+          Your friend code: {pb.authStore.record?.friend_code}
+        </Text>
         <Form.Group controlId="code">
           <Form.Control
             name="code"
@@ -60,9 +63,8 @@ export default function AddFriends({ open, setOpen }: { open: boolean; setOpen: 
           />
           {result && <Form.HelpText>{result}</Form.HelpText>}
         </Form.Group>
-        <strong>Your friend code: {pb.authStore.record?.friend_code}</strong>
         <Button appearance="primary" type="submit" style={{ marginTop: "10px" }} loading={loading}>
-          Done
+          Add Friend
         </Button>
       </Form>
     </Modal>
