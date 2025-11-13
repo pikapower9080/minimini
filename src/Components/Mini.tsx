@@ -4,11 +4,7 @@ import { fireworks } from "../lib/confetti";
 import { Modal } from "react-responsive-modal";
 import Keyboard from "react-simple-keyboard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faChevronLeft,
-  faChevronRight,
-  faTrophy
-} from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft, faChevronRight, faTrophy } from "@fortawesome/free-solid-svg-icons";
 import posthog from "posthog-js";
 import localforage from "localforage";
 import { GlobalState } from "../lib/GlobalState";
@@ -512,13 +508,15 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
           >
             Admire Puzzle
           </Button>
-          <Button
-            onClick={() => {
-              setModalType("leaderboard");
-            }}
-          >
-            <FontAwesomeIcon icon={faTrophy} /> Leaderboard
-          </Button>
+          {pb.authStore.isValid && (
+            <Button
+              onClick={() => {
+                setModalType("leaderboard");
+              }}
+            >
+              <FontAwesomeIcon icon={faTrophy} /> Leaderboard
+            </Button>
+          )}
         </ButtonGroup>
       </Modal>
       <Leaderboard
