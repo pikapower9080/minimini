@@ -16,7 +16,7 @@
   --select: #ffda00;
   --correct: #2860d8;
   --incorrect: #e63333;
-  --icon-button: #b7b7b7;
+  --icon-button: #9f9f9f;
 
   --rs-btn-primary-bg: black !important;
   --rs-btn-primary-hover-bg: black !important;
@@ -439,6 +439,12 @@ input[type="password"] {
 
 .rs-btn-default {
   outline: 1px solid var(--rs-border-primary);
+}
+
+.leaderboard-container {
+  .rs-checkbox {
+    transform: translate(0px, -8px);
+  }
 }
 
 @media (max-width: 900px) {

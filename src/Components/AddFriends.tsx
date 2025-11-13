@@ -32,15 +32,12 @@ export default function AddFriends({ open, setOpen }: { open: boolean; setOpen: 
             console.log(json);
             if (json.id) {
               if (json.id === pb.authStore.record?.id) {
-                setResult("You cannot add yourself as a friend");
+                setResult("You can't add yourself as a friend");
                 return;
               }
-              const newData = new FormData();
-              newData.append(
-                "friends",
-                pb.authStore.record.friends ? JSON.stringify([...pb.authStore.record.friends, json.id]) : JSON.stringify([json.id])
-              );
-              await pb.collection("users").update(pb.authStore.record.id, newData);
+              await pb.collection("users").update(pb.authStore.record.id, {
+                "friends+": [json.id]
+              });
               setResult(`Added ${json.username} as a friend`);
             } else {
               setResult(json.error ?? "An unexpected error occurred");
@@ -54,7 +51,6 @@ export default function AddFriends({ open, setOpen }: { open: boolean; setOpen: 
         }}
       >
         <Form.Group controlId="code">
-          <Form.ControlLabel>Friend Code</Form.ControlLabel>
           <Form.Control
             name="code"
             accepter={MaskedInput}
@@ -65,6 +61,7 @@ export default function AddFriends({ open, setOpen }: { open: boolean; setOpen: 
           />
           {result && <Form.HelpText>{result}</Form.HelpText>}
         </Form.Group>
+        <strong>Your friend code: {pb.authStore.record?.friend_code}</strong>
         <Button appearance="primary" type="submit" style={{ marginTop: "10px" }} loading={loading}>
           Done
         </Button>

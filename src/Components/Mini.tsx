@@ -4,16 +4,25 @@ import { fireworks } from "../lib/confetti";
 import { Modal } from "react-responsive-modal";
 import Keyboard from "react-simple-keyboard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft, faChevronRight, faDoorOpen, faRightToBracket, faRotateLeft, faUser } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronLeft,
+  faChevronRight,
+  faDoorOpen,
+  faRightToBracket,
+  faRotateLeft,
+  faTrophy,
+  faUser
+} from "@fortawesome/free-solid-svg-icons";
 import posthog from "posthog-js";
 import localforage from "localforage";
 import { GlobalState } from "../lib/GlobalState";
 import { pb } from "../main";
 import throttle from "throttleit";
-import { Button, Toggle } from "rsuite";
+import { Button, ButtonGroup, Toggle } from "rsuite";
 import Rating from "./Rating";
 import formatDate from "../lib/formatDate";
 import PuzzleMenu from "./PuzzleMenu";
+import Leaderboard from "./Leaderboard";
 
 interface MiniProps {
   data: MiniCrossword;
@@ -32,8 +41,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   const [selected, setSelected] = useState<number | null>(null);
   const [direction, setDirection] = useState<"across" | "down">("across");
   const [boardState, setBoardState] = useState<{ [key: number]: string }>({});
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [modalType, setModalType] = useState<"victory" | "incorrect">("victory");
+  const [modalType, setModalType] = useState<"victory" | "incorrect" | "leaderboard" | null>(null);
   const [keyboardLayout, setKeyboardLayout] = useState<"default" | "numeric">("default");
   const [keyboardOpen, setKeyboardOpen] = useState<boolean>(startTouched);
   const [autoCheck, setAutoCheck] = useState(false);
@@ -201,7 +209,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       setKeyboardOpen(false);
     }
     if (e.metaKey || e.ctrlKey || e.altKey) return;
-    if (modalOpen || paused) return;
+    if (modalType !== null || paused) return;
 
     // Typing logic
     if (letters.includes(e.key) && selected !== null) {
@@ -315,13 +323,12 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       document.removeEventListener("keydown", handlePhysicalKeydown);
       document.removeEventListener("touchstart", handleTouchStart);
     };
-  }, [selected, direction, boardState, complete, modalOpen, autoCheck, paused]);
+  }, [selected, direction, boardState, complete, modalType, autoCheck, paused]);
 
   useEffect(() => {
     const results = checkBoard();
     if (results.totalCells > 0 && results.totalCells === results.totalCorrect) {
       setModalType("victory");
-      setModalOpen(true);
       fireworks();
       incorrectShown.current = false;
       posthog.capture("completed_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current, autoCheck });
@@ -332,7 +339,6 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     } else if (results.totalCells > 0 && results.totalCells === results.totalFilled && results.totalCorrect < results.totalCells) {
       if (incorrectShown.current) return;
       setModalType("incorrect");
-      setModalOpen(true);
       incorrectShown.current = true;
       posthog.capture("incorrect_solution", { puzzle: data.id, puddleDate: data.publicationDate, time: timeRef.current, autoCheck });
     }
@@ -492,23 +498,51 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
           })}
         </div>
       </div>
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} center showCloseIcon={false}>
-        <h2>{modalType == "victory" ? "Congratulations!" : "Not Quite..."}</h2>
-        <h3 style={{ marginBottom: 0 }}>
-          {modalType == "victory" && timeRef.current.length > 0
-            ? `You solved the Mini Crossword in ${timeRef.current[0]}:${timeRef.current[1].toString().padStart(2, "0")}`
-            : "One or more squares are filled incorrectly."}
-        </h3>
-        {modalType == "victory" && <h4 style={{ marginBottom: 0 }}>{formatDate(data.publicationDate)}</h4>}
-        {modalType == "victory" && <Rating id={data.id} />}
+      <Modal open={modalType === "victory"} onClose={() => setModalType(null)} center showCloseIcon={false}>
+        <h2>Congratulations!</h2>
+        {timeRef.current.length === 2 && (
+          <h3 style={{ marginBottom: 0 }}>
+            You solved the Mini Crossword in {timeRef.current[0]}:{timeRef.current[1].toString().padStart(2, "0")}
+          </h3>
+        )}
+        <h4 style={{ marginBottom: 0 }}>{formatDate(data.publicationDate)}</h4>
+        <Rating id={data.id} />
+        <ButtonGroup vertical style={{ marginTop: 15 }} block>
+          <Button
+            onClick={() => {
+              setModalType(null);
+            }}
+            appearance="primary"
+          >
+            Admire Puzzle
+          </Button>
+          <Button
+            onClick={() => {
+              setModalType("leaderboard");
+            }}
+          >
+            <FontAwesomeIcon icon={faTrophy} /> Leaderboard
+          </Button>
+        </ButtonGroup>
+      </Modal>
+      <Leaderboard
+        open={modalType === "leaderboard"}
+        setOpen={() => {
+          setModalType("victory");
+        }}
+        puzzleData={data}
+      />
+      <Modal open={modalType === "incorrect"} onClose={() => setModalType(null)} center showCloseIcon={false}>
+        <h2>Not Quite...</h2>
+        <h3 style={{ marginBottom: 0 }}>One or more squares are filled incorrectly.</h3>
         <Button
           onClick={() => {
-            setModalOpen(false);
+            setModalType(null);
           }}
           style={{ marginTop: 15 }}
           appearance="primary"
         >
-          {modalType == "victory" ? "Admire Puzzle" : "Keep Trying"}
+          Keep Trying
         </Button>
       </Modal>
       <div className="keyboard-container">

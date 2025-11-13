@@ -8,6 +8,7 @@ import "@szhsin/react-menu/dist/core.css";
 import "@szhsin/react-menu/dist/index.css";
 import "@szhsin/react-menu/dist/transitions/zoom.css";
 import "react-simple-keyboard/build/css/index.css";
+import "react-responsive-modal/styles.css";
 
 import "rsuite/Toggle/styles/index.css";
 import "rsuite/Rate/styles/index.css";
@@ -18,7 +19,8 @@ import "rsuite/Badge/styles/index.css";
 import "rsuite/ButtonGroup/styles/index.css";
 import "rsuite/Button/styles/index.css";
 import "rsuite/Input/styles/index.css";
-import "react-responsive-modal/styles.css";
+import "rsuite/Table/styles/index.css";
+import "rsuite/Checkbox/styles/index.css";
 
 import "./App.css";
 
