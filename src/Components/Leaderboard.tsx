@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import Modal from "react-responsive-modal";
-import { pb, pb_url } from "../main";
+import { pb } from "../main";
 import { Checkbox, Loader, Table, Text } from "rsuite";
 import type { LeaderboardRecord, MiniCrossword, StateRecord } from "../lib/types";
 import { formatDuration } from "../lib/formatDate";
