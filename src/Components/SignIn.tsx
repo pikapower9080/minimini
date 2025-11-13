@@ -40,11 +40,16 @@ export default function SignIn({ open, setOpen }: SignInProps) {
       onClose={() => {
         setOpen(false);
       }}
-      showCloseIcon={false}
       center
     >
-      <h2 style={{ marginBottom: 0 }}>{isSignUp ? "Sign Up" : "Sign In"}</h2>
-      <p>Sync your progress between your devices</p>
+      <div className="modal-title">
+        <h2 style={{ marginBottom: 0 }}>{isSignUp ? "Sign Up" : "Sign In"}</h2>
+        <p>
+          Compete with friends and track
+          <br />
+          your progress
+        </p>
+      </div>
       <form
         onSubmit={async (e) => {
           e.preventDefault();
@@ -129,7 +134,7 @@ export default function SignIn({ open, setOpen }: SignInProps) {
         />
         <label style={{ color: "red", fontSize: "0.8em" }}>{passwordValidation}</label>
         <label style={{ color: "red", fontSize: "0.8em" }}>{error}</label>
-        <Button type="submit" style={{ marginTop: "16px" }} loading={loading}>
+        <Button type="submit" appearance="primary" style={{ marginTop: "16px" }} loading={loading}>
           {isSignUp ? "Sign Up" : "Sign In"}
         </Button>
         <a

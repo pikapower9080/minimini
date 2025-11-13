@@ -11,16 +11,19 @@ import { GlobalState } from "./lib/GlobalState";
 import { Archive } from "./Components/Archive";
 import { Button, ButtonGroup } from "rsuite";
 import formatDate from "./lib/formatDate";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBoxArchive, faRightToBracket } from "@fortawesome/free-solid-svg-icons";
+import SignIn from "./Components/SignIn";
+import AddFriends from "./Components/AddFriends";
 
 function App() {
   const [data, setData] = useState<MiniCrossword | null>(null);
   const [restoredTime, setRestoredTime] = useState<number>(-1);
   const [error, setError] = useState<string | null>(null);
-  const [modalOpen, setModalOpen] = useState(true);
   const [paused, setPaused] = useState(false);
   const [complete, setComplete] = useState(false);
   const [cloudLoading, setCloudLoading] = useState(false);
-  const [archiveOpen, setArchiveOpen] = useState(false);
+  const [modalState, setModalState] = useState<"welcome" | "archive" | "sign-in" | "add-friends" | null>("welcome");
   const timeRef = useRef<number[]>([]);
   const startTouched = useRef(false);
   const stateDocId = useRef<string>("");
@@ -33,9 +36,11 @@ function App() {
       setUser,
       paused,
       data,
-      setData
+      setData,
+      modalState,
+      setModalState
     }),
-    [user, paused, data]
+    [user, paused, data, modalState]
   );
 
   useEffect(() => {
@@ -66,7 +71,9 @@ function App() {
 
       if (pb.authStore.isValid && pb.authStore.record) {
         try {
-          const record = await pb.collection("puzzle_state").getFirstListItem(`puzzle_id="${data.id}"`);
+          await pb.collection("users").authRefresh();
+          console.log("Refreshed auth store");
+          const record = await pb.collection("puzzle_state").getFirstListItem(`puzzle_id="${data.id}" && user="${pb.authStore.record.id}"`);
           console.log("Found cloud save:", record.id);
           console.log("Restored cloud time:", record.time);
           stateDocId.current = record.id;
@@ -103,8 +110,7 @@ function App() {
 
   useEffect(() => {
     const handleBlur = () => {
-      console.log("focus lost");
-      if (data && !modalOpen && !paused) {
+      if (data && !(modalState === "welcome") && !paused) {
         if (complete) return;
         if (import.meta.env.VITE_AUTO_PAUSE === "false") return;
         posthog.capture("auto_pause", {
@@ -123,14 +129,14 @@ function App() {
   return (
     <GlobalState.Provider value={globalState}>
       {data && restoredTime > -1 && (
-        <Modal open={modalOpen} onClose={() => {}} showCloseIcon={false} center classNames={{ modal: "welcome-modal" }}>
+        <Modal open={modalState === "welcome"} onClose={() => {}} showCloseIcon={false} center classNames={{ modal: "welcome-modal" }}>
           <h2>{restoredTime > 0 ? "Welcome back!" : "Welcome to minimini"}</h2>
           <h4>{formatDate(data.publicationDate)}</h4>
           <h4 style={{ marginBottom: 10 }}>by {data.constructors.join(", ")}</h4>
           <ButtonGroup vertical block>
             <Button
               onClick={() => {
-                setModalOpen(false);
+                setModalState(null);
                 posthog.capture(restoredTime > 0 ? "continue_puzzle" : "start_puzzle", { puzzle: data.id });
               }}
               onTouchStart={() => {
@@ -145,16 +151,34 @@ function App() {
             </Button>
             <Button
               onClick={() => {
-                setArchiveOpen(true);
+                setModalState("archive");
               }}
               appearance="default"
             >
+              <FontAwesomeIcon icon={faBoxArchive} />
               Archive
             </Button>
           </ButtonGroup>
+          {!pb.authStore.isValid && (
+            <Button
+              style={{ marginTop: 5 }}
+              appearance="subtle"
+              onClick={() => {
+                setModalState("sign-in");
+              }}
+            >
+              {" "}
+              <FontAwesomeIcon icon={faRightToBracket} /> Sign in
+            </Button>
+          )}
         </Modal>
       )}
-      <Archive open={archiveOpen} setOpen={setArchiveOpen} />
+      <Archive
+        open={modalState === "archive"}
+        setOpen={() => {
+          setModalState("welcome");
+        }}
+      />
       <Modal
         open={paused}
         onClose={() => {
@@ -182,7 +206,19 @@ function App() {
           Resume
         </Button>
       </Modal>
-      {data && restoredTime > -1 && !modalOpen ? (
+      <SignIn
+        open={modalState === "sign-in"}
+        setOpen={() => {
+          setModalState("welcome");
+        }}
+      />
+      <AddFriends
+        open={modalState === "add-friends"}
+        setOpen={() => {
+          setModalState("welcome");
+        }}
+      />
+      {data && restoredTime > -1 && modalState === null ? (
         <Timer
           onPause={() => {
             if (complete) return;
@@ -198,7 +234,7 @@ function App() {
       ) : (
         ""
       )}
-      {data && restoredTime > -1 && !modalOpen ? (
+      {data && restoredTime > -1 && modalState === null ? (
         <Mini
           data={data}
           startTouched={startTouched.current}

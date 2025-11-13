@@ -73,3 +73,21 @@ export interface ArchiveStateRecord extends BaseRecord {
   cheated: boolean;
   time: number;
 }
+
+export interface StateRecord extends ArchiveStateRecord {
+  id: string;
+  user: string;
+  board_state: Record<string, string>;
+  autocheck: boolean;
+  selected: [number, string];
+}
+
+export interface LeaderboardRecord extends StateRecord {
+  rank: number;
+  expand: {
+    user: {
+      id: string;
+      username: string;
+    };
+  };
+}

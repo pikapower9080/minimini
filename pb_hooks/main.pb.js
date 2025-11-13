@@ -33,6 +33,21 @@ routerAdd("GET", "/api/today", (e) => {
   }
 });
 
+routerAdd("GET", "/api/friends/from_code/{code}", (e) => {
+  const friendCode = e.request.pathValue("code");
+
+  try {
+    const record = $app.findFirstRecordByData("users", "friend_code", friendCode);
+    if (!record) {
+      return e.json(404, { error: "Invalid friend code" });
+    }
+
+    return e.json(200, { id: record.id, username: record.get("username") });
+  } catch (err) {
+    return e.json(404, { error: "Invalid friend code" });
+  }
+});
+
 cronAdd("archive", "0 4 * * *", () => {
   try {
     const res = $http.send({
