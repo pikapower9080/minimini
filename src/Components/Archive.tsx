@@ -5,7 +5,7 @@ import { pb } from "../main";
 import type { ArchiveRecord, ArchiveStateRecord, BasicArchiveRecord } from "../lib/types";
 import { GlobalState } from "../lib/GlobalState";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheckCircle, faHourglassHalf } from "@fortawesome/free-solid-svg-icons";
+import { faBoxArchive, faCheckCircle, faHourglassHalf } from "@fortawesome/free-solid-svg-icons";
 import { formatDuration } from "../lib/formatDate";
 
 export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
@@ -81,8 +81,12 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
 
   return (
     <Modal open={open} onClose={() => setOpen(false)} classNames={{ modal: "archive-modal" }} center>
-      <h2>Archive</h2>
-      <h4>Play past puzzles</h4>
+      <div className="modal-title">
+        <h2>
+          <FontAwesomeIcon icon={faBoxArchive} /> Archive
+        </h2>
+        <h4 style={{ marginBottom: 0 }}>Play past puzzles</h4>
+      </div>
       <Calendar
         bordered
         compact

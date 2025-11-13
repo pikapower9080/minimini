@@ -364,9 +364,14 @@ input[type="password"] {
   color: var(--icon-button);
 }
 
-.szh-menu-container svg {
+.szh-menu-container svg,
+.rs-btn svg {
   color: inherit;
   padding-right: 5px;
+}
+
+.szh-menu__header {
+  text-transform: none !important;
 }
 
 .rs-rate {
@@ -413,6 +418,19 @@ input[type="password"] {
 }
 .react-responsive-modal-closeButton {
   z-index: 3;
+}
+
+.modal-title {
+  margin-bottom: 15px;
+}
+
+.modal-title * {
+  /* text-align: left !important; */
+}
+
+.modal-title h2 {
+  font-size: 21px;
+  line-height: 1em;
 }
 
 .rs-btn-group-block {

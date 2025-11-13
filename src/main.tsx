@@ -7,6 +7,8 @@ import PocketBase from "pocketbase";
 import "@szhsin/react-menu/dist/core.css";
 import "@szhsin/react-menu/dist/index.css";
 import "@szhsin/react-menu/dist/transitions/zoom.css";
+import "react-simple-keyboard/build/css/index.css";
+
 import "rsuite/Toggle/styles/index.css";
 import "rsuite/Rate/styles/index.css";
 import "rsuite/Text/styles/index.css";
@@ -15,14 +17,19 @@ import "rsuite/Calendar/styles/index.css";
 import "rsuite/Badge/styles/index.css";
 import "rsuite/ButtonGroup/styles/index.css";
 import "rsuite/Button/styles/index.css";
+import "rsuite/Input/styles/index.css";
 import "react-responsive-modal/styles.css";
-import "react-simple-keyboard/build/css/index.css";
 
 import "./App.css";
 
 export const pb_url = import.meta.env.VITE_POCKETBASE_URL || location.origin;
 
 export const pb = new PocketBase(pb_url);
+
+if (import.meta.env.DEV) {
+  // @ts-ignore
+  window.pb = pb;
+}
 
 posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
   api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,

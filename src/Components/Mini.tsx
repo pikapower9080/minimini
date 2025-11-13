@@ -7,14 +7,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faChevronRight, faDoorOpen, faRightToBracket, faRotateLeft, faUser } from "@fortawesome/free-solid-svg-icons";
 import posthog from "posthog-js";
 import localforage from "localforage";
-import SignIn from "./SignIn";
 import { GlobalState } from "../lib/GlobalState";
-import { Menu, MenuItem } from "@szhsin/react-menu";
 import { pb } from "../main";
 import throttle from "throttleit";
 import { Button, Toggle } from "rsuite";
 import Rating from "./Rating";
 import formatDate from "../lib/formatDate";
+import PuzzleMenu from "./PuzzleMenu";
 
 interface MiniProps {
   data: MiniCrossword;
@@ -38,11 +37,10 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   const [keyboardLayout, setKeyboardLayout] = useState<"default" | "numeric">("default");
   const [keyboardOpen, setKeyboardOpen] = useState<boolean>(startTouched);
   const [autoCheck, setAutoCheck] = useState(false);
-  const [signInOpen, setSignInOpen] = useState(false);
   const boardRef = useRef<HTMLDivElement>(null);
   const incorrectShown = useRef<boolean>(false);
 
-  const { user, paused } = useContext(GlobalState);
+  const { user, paused, setModalState } = useContext(GlobalState);
 
   function typeLetter(letter: string, cellIndex: number) {
     if (!boardRef.current) return;
@@ -203,7 +201,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       setKeyboardOpen(false);
     }
     if (e.metaKey || e.ctrlKey || e.altKey) return;
-    if (modalOpen || signInOpen || paused) return;
+    if (modalOpen || paused) return;
 
     // Typing logic
     if (letters.includes(e.key) && selected !== null) {
@@ -317,7 +315,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       document.removeEventListener("keydown", handlePhysicalKeydown);
       document.removeEventListener("touchstart", handleTouchStart);
     };
-  }, [selected, direction, boardState, complete, modalOpen, autoCheck, signInOpen, paused]);
+  }, [selected, direction, boardState, complete, modalOpen, autoCheck, paused]);
 
   useEffect(() => {
     const results = checkBoard();
@@ -436,8 +434,8 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     throttledCloudSave();
   }, [boardState, autoCheck, complete, selected, direction, user]);
 
-  function clearLocalPuzzleData(id = data.id) {
-    return Promise.all([
+  async function clearLocalPuzzleData(id = data.id): Promise<void> {
+    await Promise.all([
       localforage.removeItem(`state-${id}`),
       localforage.removeItem(`time-${id}`),
       localforage.removeItem(`selected-${id}`),
@@ -445,6 +443,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       localforage.removeItem(`complete-${id}`),
       localforage.removeItem(`cheated-${id}`)
     ]);
+    return;
   }
 
   return (
@@ -512,50 +511,9 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
           {modalType == "victory" ? "Admire Puzzle" : "Keep Trying"}
         </Button>
       </Modal>
-      <SignIn open={signInOpen} setOpen={setSignInOpen} />
       <div className="keyboard-container">
         <div className="bottom-icons">
-          <label className="secondary-text">{user ? user?.username || "Unknown User" : "Guest"}</label>
-          <Menu transition align="end" menuButton={<FontAwesomeIcon icon={faUser} />}>
-            {user ? (
-              <MenuItem
-                onClick={() => {
-                  pb.authStore.clear();
-                  localforage.clear().then(() => {
-                    window.location.reload();
-                  });
-                }}
-              >
-                <FontAwesomeIcon icon={faDoorOpen}></FontAwesomeIcon>Sign out
-              </MenuItem>
-            ) : (
-              <MenuItem
-                onClick={() => {
-                  setSignInOpen(true);
-                }}
-              >
-                <FontAwesomeIcon icon={faRightToBracket}></FontAwesomeIcon>Sign in
-              </MenuItem>
-            )}
-          </Menu>
-          <FontAwesomeIcon
-            icon={faRotateLeft}
-            onClick={() => {
-              clearLocalPuzzleData().then(() => {
-                if (user) {
-                  pb.collection("puzzle_state")
-                    .delete(stateDocId.current)
-                    .finally(() => {
-                      posthog.capture("reset_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate });
-                      location.reload();
-                    });
-                } else {
-                  posthog.capture("reset_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate });
-                  location.reload();
-                }
-              });
-            }}
-          />
+          <PuzzleMenu data={data} clearLocalPuzzleData={clearLocalPuzzleData} stateDocId={stateDocId} />
         </div>
         {keyboardOpen && selected !== null && selectedClue > -1 ? (
           <>
