@@ -1,4 +1,3 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import Modal from "react-responsive-modal";
 import { Button, Form, MaskedInput } from "rsuite";
