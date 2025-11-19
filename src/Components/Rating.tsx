@@ -13,15 +13,13 @@ export default function Rating({ id }: { id: number }) {
 
   const descriptors = ["Rate this puzzle's difficulty", "Very Easy", "Easy", "Medium", "Hard", "Very Hard"];
 
-  function fetchRating() {
-    fetch(`${import.meta.env.VITE_POCKETBASE_URL}/api/ratings/${id}`).then((res) => {
-      res.json().then((ratingData) => {
-        if (ratingData && ratingData.average && ratingData.count) {
-          setAverage(ratingData.average);
-          setCount(ratingData.count);
-        }
-      });
-    });
+  async function fetchRating() {
+    const averageRatings = pb.collection("average_ratings");
+    const ratingData = await averageRatings.getFirstListItem(`puzzle_id='${id}'`);
+    if (ratingData && ratingData.rating && ratingData.count) {
+      setAverage(ratingData.rating);
+      setCount(ratingData.count);
+    }
   }
 
   function rate(e: number) {

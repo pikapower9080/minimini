@@ -1,20 +1,5 @@
 /// <reference path="../pb_data/types.d.ts" />
 
-routerAdd("GET", "/api/ratings/{id}", (e) => {
-  let id = e.request.pathValue("id");
-
-  const result = arrayOf(
-    new DynamicModel({
-      rating: -0,
-      cnt: 0
-    })
-  );
-
-  $app.db().newQuery("SELECT COALESCE(AVG(rating), 0) rating, COUNT(*) cnt FROM ratings WHERE puzzle_id = {:id}").bind({ id }).all(result);
-
-  return e.json(200, { average: result[0]?.rating ?? -1, count: result[0]?.cnt ?? 0 });
-});
-
 routerAdd("GET", "/api/today", (e) => {
   try {
     const res = $http.send({
