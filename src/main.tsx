@@ -22,7 +22,7 @@ import "rsuite/Input/styles/index.css";
 import "rsuite/Table/styles/index.css";
 import "rsuite/Checkbox/styles/index.css";
 
-import "./App.css";
+import "./css/App.css";
 
 export const pb_url = import.meta.env.VITE_POCKETBASE_URL || location.origin;
 
