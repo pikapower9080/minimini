@@ -110,7 +110,7 @@ function App() {
 
   useEffect(() => {
     const handleBlur = () => {
-      if (data && !(modalState === "welcome") && !paused) {
+      if (modalState == null && !paused) {
         if (complete) return;
         if (import.meta.env.VITE_AUTO_PAUSE === "false") return;
         posthog.capture("auto_pause", {
