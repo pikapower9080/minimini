@@ -31,9 +31,9 @@ export default function Leaderboard({
     let cancelled = false;
     async function fetchData() {
       try {
-        const puzzleState = pb.collection("puzzle_state");
-        const filter = `complete = true && puzzle_id = "${puzzleData.id}"`;
-        const leaderboardData = await puzzleState.getList(1, 50, {
+        const leaderboard = pb.collection("leaderboard");
+        const filter = `puzzle_id = "${puzzleData.id}"`;
+        const leaderboardData = await leaderboard.getList(1, 50, {
           sort: "+time",
           filter,
           expand: "user"

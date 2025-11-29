@@ -327,6 +327,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       setComplete(true);
       localforage.setItem(`complete-${data.id}`, true).then(() => {
         cloudSave(); // Force a cloud save upon completion
+        submitScore();
       });
     } else if (results.totalCells > 0 && results.totalCells === results.totalFilled && results.totalCorrect < results.totalCells) {
       if (incorrectShown.current) return;
@@ -423,6 +424,32 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
           })
           .catch(onSaveError);
       }
+    });
+  }
+
+  async function submitScore() {
+    if (!user) return;
+    const leaderboard = pb.collection("leaderboard");
+    const record = new FormData();
+    Promise.all([
+      localforage.getItem(`time-${data.id}`),
+      localforage.getItem(`complete-${data.id}`),
+      localforage.getItem(`cheated-${data.id}`)
+    ] as any[]).then((saved) => {
+      if (!saved[1]) return; // only submit if complete
+      record.set("user", user.id);
+      record.set("puzzle_id", data.id.toString());
+      record.set("time", saved[0]?.toString() ?? "0");
+      record.set("cheated", saved[2]?.toString() ?? "false");
+
+      leaderboard
+        .create(record)
+        .catch((err) => {
+          console.warn("Leaderboard submit error, this may be intentional:", err);
+        })
+        .then(() => {
+          posthog.capture("leaderboard_submission", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current });
+        });
     });
   }
 
