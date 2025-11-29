@@ -275,7 +275,7 @@ function App() {
           stateDocId={stateDocId}
         />
       ) : (
-        !data && !error && <div className="loading">Loading...</div>
+        !data && !error && <Text className="loading centered block">Loading...</Text>
       )}
       {error && <div className="error">{error}</div>}
     </GlobalState.Provider>
