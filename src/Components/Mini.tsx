@@ -585,7 +585,13 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
       <div className="keyboard-container">
         <div className="bottom-icons">
-          <PuzzleMenu data={data} clearLocalPuzzleData={clearLocalPuzzleData} stateDocId={stateDocId} />
+          <PuzzleMenu
+            data={data}
+            clearLocalPuzzleData={clearLocalPuzzleData}
+            stateDocId={stateDocId}
+            setPuzzleModalState={setModalType}
+            complete={complete}
+          />
         </div>
         {keyboardOpen && selected !== null && selectedClue > -1 ? (
           <>

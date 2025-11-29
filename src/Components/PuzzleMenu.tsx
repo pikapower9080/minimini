@@ -2,7 +2,7 @@ import { useContext, type RefObject } from "react";
 import { GlobalState } from "../lib/GlobalState";
 import { Menu, MenuDivider, MenuHeader, MenuItem } from "@szhsin/react-menu";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faBoxArchive, faDoorOpen, faRightToBracket, faRotateLeft, faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faBoxArchive, faDoorOpen, faRightToBracket, faRotateLeft, faTrophy, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import localforage from "localforage";
 import { pb } from "../main";
 import posthog from "posthog-js";
@@ -11,11 +11,15 @@ import type { MiniCrossword } from "../lib/types";
 export default function PuzzleMenu({
   data,
   clearLocalPuzzleData,
-  stateDocId
+  stateDocId,
+  setPuzzleModalState,
+  complete
 }: {
   data: MiniCrossword;
   clearLocalPuzzleData: () => Promise<void>;
   stateDocId: RefObject<string>;
+  setPuzzleModalState: (state: any) => void;
+  complete: boolean;
 }) {
   const { user, setModalState } = useContext(GlobalState);
 
@@ -34,14 +38,6 @@ export default function PuzzleMenu({
           >
             <FontAwesomeIcon icon={faDoorOpen}></FontAwesomeIcon>Sign out
           </MenuItem>
-          {/* <MenuItem
-            onClick={() => {
-              setModalState("add-friends");
-            }}
-          >
-            <FontAwesomeIcon icon={faUserPlus} />
-            Add Friends
-          </MenuItem> */}
           <MenuDivider />
         </>
       ) : (
@@ -73,14 +69,15 @@ export default function PuzzleMenu({
         <FontAwesomeIcon icon={faRotateLeft} onClick={() => {}} />
         Reset Puzzle
       </MenuItem>
-      {/*      <MenuItem
+      <MenuItem
         onClick={() => {
-          setModalState("archive");
+          setPuzzleModalState("leaderboard");
         }}
+        disabled={!complete}
       >
-        <FontAwesomeIcon icon={faBoxArchive} />
-        Archive
-      </MenuItem>*/}
+        <FontAwesomeIcon icon={faTrophy} />
+        Leaderboard
+      </MenuItem>
     </Menu>
   );
 }
