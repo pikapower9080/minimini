@@ -1,3 +1,8 @@
+.friends-list {
+  max-height: 205px;
+  overflow-y: auto;
+}
+
 .friend-list-name {
   flex: 1;
   min-width: 0;

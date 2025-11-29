@@ -44,7 +44,7 @@ export default function Friends({ open, setOpen }: { open: boolean; setOpen: (op
         <h2>Friends</h2>
       </div>
       <VStack spacing={friends.length > 0 ? 10 : 0}>
-        <List bordered style={{ maxHeight: "205px", overflowY: "auto" }} hover>
+        <List bordered className="friends-list" hover>
           {friends.map((friend) => {
             return (
               <List.Item key={friend.id}>
