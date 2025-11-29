@@ -21,6 +21,8 @@ import "rsuite/Button/styles/index.css";
 import "rsuite/Input/styles/index.css";
 import "rsuite/Table/styles/index.css";
 import "rsuite/Checkbox/styles/index.css";
+import "rsuite/List/styles/index.css";
+import "rsuite/Stack/styles/index.css";
 
 import "./css/App.css";
 

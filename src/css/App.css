@@ -370,7 +370,7 @@ input[type="password"] {
 }
 
 .szh-menu-container svg,
-.rs-btn svg {
+.rs-btn svg:not(.no-space) {
   color: inherit;
   padding-right: 5px;
 }
@@ -450,6 +450,16 @@ input[type="password"] {
   .rs-checkbox {
     transform: translate(0px, -8px);
   }
+}
+
+.rs-list-item {
+  padding-inline: 15px;
+  padding-block: 8px;
+}
+
+.rs-form-help-text {
+  display: block;
+  text-align: center;
 }
 
 @media (max-width: 900px) {

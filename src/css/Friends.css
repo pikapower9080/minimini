@@ -1,0 +1,25 @@
+.friend-list-name {
+  flex: 1;
+  min-width: 0;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left !important;
+}
+
+.friend-list-code {
+  margin-left: auto;
+}
+
+.friend-list-remove {
+  margin: 0;
+}
+
+.add-friend-form {
+  width: 100%;
+}
+
+.add-friend-form .rs-stack-item {
+  width: 100%;
+}

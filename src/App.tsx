@@ -12,9 +12,9 @@ import { Archive } from "./Components/Archive";
 import { Button, ButtonGroup } from "rsuite";
 import formatDate from "./lib/formatDate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBoxArchive, faDoorOpen, faRightToBracket, faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import { faBoxArchive, faDoorOpen, faRightToBracket, faUserPlus, faUsers } from "@fortawesome/free-solid-svg-icons";
 import SignIn from "./Components/SignIn";
-import AddFriends from "./Components/AddFriends";
+import Friends from "./Components/Friends";
 
 function App() {
   const [data, setData] = useState<MiniCrossword | null>(null);
@@ -71,7 +71,7 @@ function App() {
 
       if (pb.authStore.isValid && pb.authStore.record) {
         try {
-          await pb.collection("users").authRefresh();
+          await pb.collection("users");
           console.log("Refreshed auth store");
           const record = await pb.collection("puzzle_state").getFirstListItem(`puzzle_id="${data.id}" && user="${pb.authStore.record.id}"`);
           console.log("Found cloud save:", record.id);
@@ -189,7 +189,7 @@ function App() {
                     }}
                     style={{ flexGrow: 1.2 }}
                   >
-                    <FontAwesomeIcon icon={faUserPlus} /> Add Friends
+                    <FontAwesomeIcon icon={faUsers} /> Friends
                   </Button>
                 </>
               )}
@@ -236,7 +236,7 @@ function App() {
           setModalState("welcome");
         }}
       />
-      <AddFriends
+      <Friends
         open={modalState === "add-friends"}
         setOpen={() => {
           setModalState("welcome");

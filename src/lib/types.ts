@@ -1,3 +1,5 @@
+import type { AuthRecord } from "pocketbase";
+
 export interface MiniCrossword {
   body: MiniCrosswordBody[];
   constructors: string[];
@@ -90,4 +92,11 @@ export interface LeaderboardRecord extends StateRecord {
       username: string;
     };
   };
+}
+
+export interface UserRecord extends BaseRecord {
+  username: string;
+  friends: string[];
+  friend_code: string;
+  avatar?: string;
 }
