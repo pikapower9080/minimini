@@ -1,0 +1,28 @@
+.archive-modal {
+  max-width: 420px;
+}
+
+.archive-calendar {
+  min-height: 358px;
+}
+
+.archive-badge,
+.archive-badge-icon {
+  margin-top: 4px;
+}
+
+.archive-badge-icon-incomplete {
+  color: var(--rs-yellow-600);
+}
+
+.archive-badge-icon-completed {
+  color: var(--rs-green-500);
+}
+
+.archive-selected-info {
+  font-size: 16px;
+}
+
+.archive-action-button {
+  margin-inline: auto;
+}

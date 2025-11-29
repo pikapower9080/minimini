@@ -10,7 +10,7 @@ import localforage from "localforage";
 import { GlobalState } from "../lib/GlobalState";
 import { pb } from "../main";
 import throttle from "throttleit";
-import { Button, ButtonGroup, Toggle } from "rsuite";
+import { Button, ButtonGroup, HStack, VStack, Toggle, Heading } from "rsuite";
 import Rating from "./Rating";
 import formatDate from "../lib/formatDate";
 import PuzzleMenu from "./PuzzleMenu";
@@ -446,10 +446,14 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
   return (
     <>
-      <div className={`mini-container${!(keyboardOpen && selected !== null) ? "" : " keyboard-open"}`}>
-        <div className="board-container">
+      <HStack
+        alignItems={"stretch"}
+        spacing={0}
+        className={`mini-container${!(keyboardOpen && selected !== null) ? "" : " keyboard-open"}`}
+      >
+        <VStack className="board-container">
           <div ref={boardRef} className="board" dangerouslySetInnerHTML={{ __html: body.board }}></div>
-          <div className="toggle-container">
+          <HStack justifyContent={"center"} className="toggle-container">
             <Toggle
               checked={autoCheck}
               name="autoCheck"
@@ -458,13 +462,16 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
               }}
             />
             <label>Autocheck</label>
-          </div>
-        </div>
+          </HStack>
+        </VStack>
+
         <div className="clues">
           {body.clueLists.map((list, index) => {
             return (
               <div key={index}>
-                <h4 className="clue-set">{list.name}</h4>
+                <Heading level={4} style={{ textAlign: "left" }} className="clue-set">
+                  {list.name}
+                </Heading>
                 <ol>
                   {list.clues.map((clueIndex) => {
                     const clue = body.clues[clueIndex];
@@ -489,36 +496,42 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
             );
           })}
         </div>
-      </div>
+      </HStack>
+
       <Modal open={modalType === "victory"} onClose={() => setModalType(null)} center showCloseIcon={false}>
-        <h2>Congratulations!</h2>
-        {timeRef.current.length === 2 && (
-          <h3 style={{ marginBottom: 0 }}>
-            You solved the Mini Crossword in {timeRef.current[0]}:{timeRef.current[1].toString().padStart(2, "0")}
-          </h3>
-        )}
-        <h4 style={{ marginBottom: 0 }}>{formatDate(data.publicationDate)}</h4>
-        <Rating id={data.id} />
-        <ButtonGroup vertical style={{ marginTop: 15 }} block>
-          <Button
-            onClick={() => {
-              setModalType(null);
-            }}
-            appearance="primary"
-          >
-            Admire Puzzle
-          </Button>
-          {pb.authStore.isValid && (
+        <VStack spacing={15}>
+          <VStack spacing={5}>
+            <Heading level={2}>Congratulations!</Heading>
+            {timeRef.current.length === 2 && (
+              <Heading level={3}>
+                You solved the Mini Crossword in {timeRef.current[0]}:{timeRef.current[1].toString().padStart(2, "0")}
+              </Heading>
+            )}
+            <Heading level={4}>{formatDate(data.publicationDate)}</Heading>
+          </VStack>
+          <Rating id={data.id} />
+          <ButtonGroup vertical block>
             <Button
               onClick={() => {
-                setModalType("leaderboard");
+                setModalType(null);
               }}
+              appearance="primary"
             >
-              <FontAwesomeIcon icon={faTrophy} /> Leaderboard
+              Admire Puzzle
             </Button>
-          )}
-        </ButtonGroup>
+            {pb.authStore.isValid && (
+              <Button
+                onClick={() => {
+                  setModalType("leaderboard");
+                }}
+              >
+                <FontAwesomeIcon icon={faTrophy} /> Leaderboard
+              </Button>
+            )}
+          </ButtonGroup>
+        </VStack>
       </Modal>
+
       <Leaderboard
         open={modalType === "leaderboard"}
         setOpen={() => {
@@ -526,19 +539,23 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         }}
         puzzleData={data}
       />
+
       <Modal open={modalType === "incorrect"} onClose={() => setModalType(null)} center showCloseIcon={false}>
-        <h2>Not Quite...</h2>
-        <h3 style={{ marginBottom: 0 }}>One or more squares are filled incorrectly.</h3>
-        <Button
-          onClick={() => {
-            setModalType(null);
-          }}
-          style={{ marginTop: 15 }}
-          appearance="primary"
-        >
-          Keep Trying
-        </Button>
+        <VStack spacing={10}>
+          <Heading level={2}>Not Quite...</Heading>
+          <Heading level={3}>One or more squares are filled incorrectly.</Heading>
+          <Button
+            onClick={() => {
+              setModalType(null);
+            }}
+            appearance="primary"
+            className="auto-center"
+          >
+            Keep Trying
+          </Button>
+        </VStack>
       </Modal>
+
       <div className="keyboard-container">
         <div className="bottom-icons">
           <PuzzleMenu data={data} clearLocalPuzzleData={clearLocalPuzzleData} stateDocId={stateDocId} />
@@ -572,6 +589,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         ) : (
           ""
         )}
+
         <Keyboard
           onKeyPress={(key) => {
             if (key === "{numbers}" || key === "{abc}") {

@@ -53,14 +53,14 @@ export default function Rating({ id }: { id: number }) {
         <Text>
           Today's Difficulty: <strong>{average.toFixed(1)}/5</strong> ({count} {count === 1 ? "vote" : "votes"})
         </Text>
-        <Rate value={Math.round(average * 2) / 2} readOnly allowHalf color="yellow" size="sm" />
+        <Rate value={average} readOnly color="#FF9800" size="sm" />
       </div>
     );
   } else {
     return (
       <div className="rating-container">
         <Rate
-          color="yellow"
+          color="#FF9800"
           size="sm"
           onChange={rate}
           onChangeActive={setHovered}

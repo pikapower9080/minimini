@@ -5,6 +5,7 @@ import posthog from "posthog-js";
 import { useEffect, useState } from "react";
 import { useStopwatch } from "react-timer-hook";
 import type { MiniCrossword } from "../lib/types";
+import { HStack, Text } from "rsuite";
 
 interface TimerProps {
   onPause: () => void;
@@ -50,27 +51,31 @@ export default function Timer({ onPause, running, setTime, puzzle, restoredTime 
         onPause();
         setJustPaused(true);
       }
-  };
+    };
 
-  window.addEventListener("keydown", handleKeyDown);
-  return () => {
-    window.removeEventListener("keydown", handleKeyDown);
-  };
-}, [onPause, justPaused]);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onPause, justPaused]);
 
   return (
-    <div className="timer">
-      <span className="timer-text">
+    <HStack className="timer" justifyContent={"center"} spacing={0}>
+      <Text className="timer-text">
         {minutes}:{seconds.toString().padStart(2, "0")}
-      </span>
+      </Text>
       <FontAwesomeIcon
         icon={faPause}
         className="timer-icon"
         onClick={() => {
-          posthog.capture("manual_pause", { time: `${minutes}:${seconds.toString().padStart(2, "0")}`, puzzle: puzzle.id, keyboardActivated: false });
+          posthog.capture("manual_pause", {
+            time: `${minutes}:${seconds.toString().padStart(2, "0")}`,
+            puzzle: puzzle.id,
+            keyboardActivated: false
+          });
           onPause();
         }}
       />
-    </div>
+    </HStack>
   );
 }

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import Modal from "react-responsive-modal";
-import { Button, Form, HStack, VStack, List, MaskedInput, Text } from "rsuite";
+import { Button, Form, HStack, VStack, List, Text, Heading, PinInput } from "rsuite";
 import { pb, pb_url } from "../main";
 import type { UserRecord } from "../lib/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faUsers } from "@fortawesome/free-solid-svg-icons";
 
 import "../css/Friends.css";
 
@@ -39,91 +39,97 @@ export default function Friends({ open, setOpen }: { open: boolean; setOpen: (op
       onClose={() => {
         setOpen(false);
       }}
+      onAnimationEnd={() => {
+        if (!open) {
+          setResult("");
+        }
+      }}
     >
-      <div className="modal-title">
-        <h2>Friends</h2>
-      </div>
-      <VStack spacing={friends.length > 0 ? 10 : 0}>
-        <List bordered className="friends-list" hover>
-          {friends.map((friend) => {
-            return (
-              <List.Item key={friend.id}>
-                <HStack justifyContent="space-between" spacing={10}>
-                  <Text className="friend-list-name" title={friend.username}>
-                    {friend.username}
-                  </Text>
-                  <Text className="friend-list-code" muted>
-                    {friend.friend_code}
-                  </Text>
-                  <Button
-                    className="friend-list-remove"
-                    size="xs"
-                    onClick={async () => {
-                      if (!pb.authStore.isValid || !pb.authStore.record) return;
-                      await pb.collection("users").update(pb.authStore.record.id, {
-                        "friends-": [friend.id]
-                      });
-                      await fetchFriends();
-                    }}
-                  >
-                    <FontAwesomeIcon icon={faTrash} className="no-space" />
-                  </Button>
-                </HStack>
-              </List.Item>
-            );
-          })}
-        </List>
-        <Form
-          className="add-friend-form"
-          onSubmit={async (e) => {
-            if (!e || !e.code || e.code.length < 6) return;
-            setLoading(true);
-            try {
-              if (!pb.authStore.isValid || !pb.authStore.record?.id) return;
-              const response = await fetch(pb_url + "/api/friends/from_code/" + e.code, {
-                method: "GET"
-              });
-              const json = await response.json();
-              console.log(json);
-              if (json.id) {
-                if (json.id === pb.authStore.record?.id) {
-                  setResult("You can't add yourself as a friend");
-                  return;
-                }
-                await pb.collection("users").update(pb.authStore.record.id, {
-                  "friends+": [json.id]
+      <VStack spacing={10}>
+        <Heading className="modal-title" level={2}>
+          <FontAwesomeIcon icon={faUsers} /> Friends
+        </Heading>
+        <VStack spacing={friends.length > 0 ? 10 : 0}>
+          <List bordered={friends.length > 0} className="friends-list" hover>
+            {friends.map((friend) => {
+              return (
+                <List.Item key={friend.id}>
+                  <HStack justifyContent="space-between" spacing={10}>
+                    <Text className="friend-list-name" title={friend.username}>
+                      {friend.username}
+                    </Text>
+                    <Text className="friend-list-code" muted>
+                      {friend.friend_code}
+                    </Text>
+                    <Button
+                      className="friend-list-remove"
+                      size="xs"
+                      onClick={async () => {
+                        if (!pb.authStore.isValid || !pb.authStore.record) return;
+                        await pb.collection("users").update(pb.authStore.record.id, {
+                          "friends-": [friend.id]
+                        });
+                        await fetchFriends();
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faTrash} className="no-space" />
+                    </Button>
+                  </HStack>
+                </List.Item>
+              );
+            })}
+          </List>
+          <Form
+            className="add-friend-form"
+            onSubmit={async (e) => {
+              if (!e || !e.code || e.code.length < 6) return;
+              setLoading(true);
+              try {
+                if (!pb.authStore.isValid || !pb.authStore.record?.id) return;
+                const response = await fetch(pb_url + "/api/friends/from_code/" + e.code, {
+                  method: "GET"
                 });
-                setResult(`Added ${json.username} as a friend`);
-                fetchFriends();
-              } else {
-                setResult(json.error ?? "An unexpected error occurred");
+                const json = await response.json();
+                console.log(json);
+                if (json.id) {
+                  if (json.id === pb.authStore.record?.id) {
+                    setResult("You can't add yourself as a friend");
+                    return;
+                  }
+                  await pb.collection("users").update(pb.authStore.record.id, {
+                    "friends+": [json.id]
+                  });
+                  setResult(`Added ${json.username} as a friend`);
+                  fetchFriends();
+                } else {
+                  setResult(json.error ?? "An unexpected error occurred");
+                }
+              } catch (err) {
+                console.error(err);
+                setResult("An unexpected error occurred");
+              } finally {
+                setLoading(false);
               }
-            } catch (err) {
-              console.error(err);
-              setResult("An unexpected error occurred");
-            } finally {
-              setLoading(false);
-            }
-          }}
-        >
-          <VStack spacing={10}>
-            <Text weight="bold">Your friend code: {pb.authStore.record?.friend_code}</Text>
-            <Form.Group controlId="code">
-              <Form.Control
-                name="code"
-                accepter={MaskedInput}
-                mask={[/\d/, /\d/, /\d/, /\d/, /\d/, /\d/]}
-                placeholder="123456"
-                keepCharPositions={true}
-                guide={false}
-              />
-              {result && <Form.HelpText>{result}</Form.HelpText>}
-            </Form.Group>
-            <Button appearance="primary" type="submit" loading={loading}>
-              Add Friend
-            </Button>
-          </VStack>
-        </Form>
+            }}
+          >
+            <VStack spacing={10}>
+              <Text weight="bold" className="block centered">
+                Your friend code: {pb.authStore.record?.friend_code}
+              </Text>
+              <Form.Group controlId="code">
+                <Form.Control className="friend-code-input" name="code" accepter={PinInput} length={6} size="sm" />
+                {result && (
+                  <Text className="block centered" style={{ marginTop: 5 }}>
+                    {result}
+                  </Text>
+                )}
+              </Form.Group>
+              <Button className="auto-center" appearance="primary" type="submit" loading={loading}>
+                Add Friend
+              </Button>
+            </VStack>
+          </Form>
+        </VStack>
       </VStack>
     </Modal>
   );

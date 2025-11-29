@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import Modal from "react-responsive-modal";
-import { Badge, Button, Calendar, Loader, Text } from "rsuite";
+import { Badge, Button, Calendar, Loader, Text, Heading, VStack } from "rsuite";
 import { pb } from "../main";
 import type { ArchiveRecord, ArchiveStateRecord, BasicArchiveRecord } from "../lib/types";
 import { GlobalState } from "../lib/GlobalState";
@@ -82,67 +82,69 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
 
   return (
     <Modal open={open} onClose={() => setOpen(false)} classNames={{ modal: "archive-modal" }} center>
-      <div className="modal-title">
-        <h2>
-          <FontAwesomeIcon icon={faBoxArchive} /> Archive
-        </h2>
-        <h4 style={{ marginBottom: 0 }}>Play past puzzles</h4>
-      </div>
-      <Calendar
-        bordered
-        compact
-        className="archive-calendar"
-        onChange={(date) => {
-          const adjustedDate = new Date(date);
-          adjustedDate.setHours(0, 0, 0, 0);
-          const day = adjustedDate.toISOString().split("T")[0];
-          setSelectedDate(day);
-        }}
-        renderCell={(date) => {
-          const day = date.toISOString().split("T")[0];
-          const puzzle = data?.find((r) => r.publicationDate === day);
-          const puzzleState = puzzleStates?.find((ps) => ps.puzzle_id === puzzle?.puzzleId);
-          if (!puzzle) {
-            return <Badge className="archive-badge" style={{ visibility: "hidden" }} />;
+      <VStack spacing={10}>
+        <div className="modal-title block">
+          <Heading level={2}>
+            <FontAwesomeIcon icon={faBoxArchive} /> Archive
+          </Heading>
+          <Heading level={4}>Play past puzzles</Heading>
+        </div>
+        <Calendar
+          bordered
+          compact
+          className="archive-calendar"
+          onChange={(date) => {
+            const adjustedDate = new Date(date);
+            adjustedDate.setHours(0, 0, 0, 0);
+            const day = adjustedDate.toISOString().split("T")[0];
+            setSelectedDate(day);
+          }}
+          renderCell={(date) => {
+            const day = date.toISOString().split("T")[0];
+            const puzzle = data?.find((r) => r.publicationDate === day);
+            const puzzleState = puzzleStates?.find((ps) => ps.puzzle_id === puzzle?.puzzleId);
+            if (!puzzle) {
+              return <Badge className="archive-badge" style={{ visibility: "hidden" }} />;
+            }
+            if (puzzleState?.complete) {
+              return <FontAwesomeIcon icon={faCheckCircle} className="archive-badge-icon archive-badge-icon-completed" />;
+            }
+            if (puzzleState) {
+              return <FontAwesomeIcon icon={faHourglassHalf} className="archive-badge-icon archive-badge-icon-incomplete" />;
+            }
+            return <Badge className="archive-badge" />;
+          }}
+          defaultValue={
+            selectedDate ? new Date(new Date(selectedDate).getTime() + new Date(selectedDate).getTimezoneOffset() * 60000) : undefined
           }
-          if (puzzleState?.complete) {
-            return <FontAwesomeIcon icon={faCheckCircle} className="archive-badge-icon archive-badge-icon-completed" />;
-          }
-          if (puzzleState) {
-            return <FontAwesomeIcon icon={faHourglassHalf} className="archive-badge-icon archive-badge-icon-incomplete" />;
-          }
-          return <Badge className="archive-badge" />;
-        }}
-        defaultValue={
-          selectedDate ? new Date(new Date(selectedDate).getTime() + new Date(selectedDate).getTimezoneOffset() * 60000) : undefined
-        }
-        weekStart={0}
-      />
-      <Text weight="bold" style={{ display: "block", textAlign: "center", marginBottom: 10 }}>
-        {pb.authStore.isValid ? formatDuration(selectedPuzzleTime || 0) : "Sign in to track your progress"}
-      </Text>
-      <Button
-        className="archive-action-button"
-        disabled={selectedPuzzleState === "not-found" || buttonLoading}
-        loading={buttonLoading}
-        appearance="primary"
-        onClick={() => {
-          if (!data || !selectedDate) return;
-          setButtonLoading(true);
-          archive
-            .getOne(data.find((r) => r.publicationDate === selectedDate)!.id)
-            .then((record) => {
-              const archiveRecord = record as ArchiveRecord;
-              setPuzzleData(archiveRecord.mini);
-              setOpen(false);
-            })
-            .finally(() => {
-              setButtonLoading(false);
-            });
-        }}
-      >
-        {getButtonText(selectedPuzzleState)}
-      </Button>
+          weekStart={0}
+        />
+        <Text weight="bold" className="block centered archive-selected-info">
+          {pb.authStore.isValid ? formatDuration(selectedPuzzleTime || 0) : "Sign in to track your progress"}
+        </Text>
+        <Button
+          className="archive-action-button"
+          disabled={selectedPuzzleState === "not-found" || buttonLoading}
+          loading={buttonLoading}
+          appearance="primary"
+          onClick={() => {
+            if (!data || !selectedDate) return;
+            setButtonLoading(true);
+            archive
+              .getOne(data.find((r) => r.publicationDate === selectedDate)!.id)
+              .then((record) => {
+                const archiveRecord = record as ArchiveRecord;
+                setPuzzleData(archiveRecord.mini);
+                setOpen(false);
+              })
+              .finally(() => {
+                setButtonLoading(false);
+              });
+          }}
+        >
+          {getButtonText(selectedPuzzleState)}
+        </Button>
+      </VStack>
       {(!data || !puzzleStates) && <Loader center backdrop />}
     </Modal>
   );

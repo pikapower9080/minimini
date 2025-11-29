@@ -1,0 +1,194 @@
+.mini-container {
+  margin-inline: auto;
+}
+
+.board-container,
+.toggle-container {
+  width: 50%;
+}
+.toggle-container {
+  width: 100%;
+  max-width: 400px;
+  margin-left: auto;
+}
+
+.board {
+  width: 100%;
+  max-width: 400px;
+  user-select: none;
+  display: block;
+  margin-left: auto;
+}
+
+.clues {
+  margin-left: 18px;
+  max-width: 50%;
+}
+.clues h4 {
+  margin-top: 0;
+}
+
+.guess {
+  font-family: Helvetica, Arial, sans-serif !important;
+}
+
+.dark .guess,
+.dark .label {
+  fill: white;
+}
+
+.dark .board svg .grid path.lines {
+  stroke: rgb(170, 170, 170);
+}
+
+.dark .board svg .grid .frame {
+  stroke: rgb(187, 187, 187);
+}
+
+ol {
+  list-style: none;
+  text-align: left;
+  padding: 0;
+  margin-top: 0;
+}
+
+ol li {
+  margin-block: 5px;
+}
+
+.clue-set {
+  text-align: left;
+  margin-bottom: 0;
+  font-size: 16px;
+}
+
+.highlighted {
+  fill: var(--highlight);
+}
+
+.selected {
+  fill: var(--select);
+}
+
+.clue {
+  display: flex;
+  border-left: transparent solid 10px;
+  padding-right: 10px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.clue-label {
+  font-weight: bold;
+  padding-inline: 5px;
+}
+
+.active-clue {
+  border-left: var(--clue-highlight) solid 10px;
+}
+
+.selected-clue {
+  background-color: var(--clue-highlight);
+}
+
+.keyboard-container {
+  position: fixed;
+  width: 100vw;
+  bottom: 0;
+  left: 0;
+}
+
+.hg-functionBtn {
+  background-color: #c8d1d9 !important;
+}
+
+.clue-bar {
+  background-color: #a7d8ff;
+  width: 100vw;
+  height: 2.8em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.clue-bar-back {
+  padding-inline: 5px;
+  margin-right: auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.clue-bar-forward {
+  padding-inline: 5px;
+  margin-left: auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.clue-bar-text {
+  flex: 1;
+  text-align: center;
+  line-height: 1;
+}
+
+.timer {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.timer-icon {
+  color: var(--icon-button);
+  transition: color 250ms;
+}
+
+.timer-icon:hover {
+  cursor: pointer;
+  color: black;
+}
+
+.dark .timer-icon:hover {
+  color: white;
+}
+
+.correct,
+.dark .correct {
+  fill: var(--correct);
+}
+
+.incorrect,
+.dark .incorrect {
+  fill: var(--incorrect);
+}
+
+@media (max-width: 900px) {
+  .mini-container {
+    flex-direction: column;
+  }
+  .board-container {
+    width: 100%;
+  }
+  .board {
+    margin-inline: auto;
+  }
+  .toggle-container {
+    margin-inline: auto;
+  }
+  .clues {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+  }
+  body:has(.keyboard-open) {
+    place-items: unset;
+  }
+  #root:has(.keyboard-open) {
+    width: 100vw;
+    margin: 0;
+  }
+  .keyboard-open .mini-container {
+    display: block;
+  }
+  .keyboard-open .clues {
+    display: none;
+  }
+}

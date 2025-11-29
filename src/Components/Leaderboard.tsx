@@ -1,7 +1,8 @@
 import { useContext, useEffect, useState } from "react";
 import Modal from "react-responsive-modal";
 import { pb } from "../main";
-import { Checkbox, Loader, Table, Text } from "rsuite";
+import { Checkbox, Loader, Text, Heading } from "rsuite";
+import { Table } from "rsuite/Table";
 import type { LeaderboardRecord, MiniCrossword, StateRecord } from "../lib/types";
 import { formatDuration } from "../lib/formatDate";
 import { GlobalState } from "../lib/GlobalState";
@@ -77,9 +78,9 @@ export default function Leaderboard({
       }}
     >
       <div className="modal-title">
-        <h2>
+        <Heading level={2}>
           <FontAwesomeIcon icon={faTrophy} /> Leaderboard
-        </h2>
+        </Heading>
       </div>
       <div className="leaderboard-container" style={{ minWidth: "300px" }}>
         {data && !loading && (
@@ -103,7 +104,7 @@ export default function Leaderboard({
               </Table.Column>
             </Table>
             {user.friends.length === 0 && (
-              <Text style={{ marginTop: 10 }} weight="bold">
+              <Text style={{ marginTop: 10 }} weight="bold" className="centered block">
                 Add friends to compare scores
               </Text>
             )}

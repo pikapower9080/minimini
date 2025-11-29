@@ -2,7 +2,9 @@ import { useContext, useRef, useState } from "react";
 import Modal from "react-responsive-modal";
 import { pb } from "../main";
 import { GlobalState } from "../lib/GlobalState";
-import { Button } from "rsuite";
+import { Button, ButtonGroup, Form, Heading, VStack, PasswordInput, Text } from "rsuite";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 interface SignInProps {
   open: boolean;
@@ -10,9 +12,9 @@ interface SignInProps {
 }
 
 export default function SignIn({ open, setOpen }: SignInProps) {
-  const usernameRef = useRef<HTMLInputElement | null>(null);
-  const passwordRef = useRef<HTMLInputElement | null>(null);
-  const [isSignUp, setIsSignUp] = useState(false);
+  const usernameRef = useRef<string | null>(null);
+  const passwordRef = useRef<string | null>(null);
+
   const [loading, setIsLoading] = useState(false);
   const [usernameValidation, setUsernameValidation] = useState("");
   const [passwordValidation, setPasswordValidation] = useState("");
@@ -34,6 +36,58 @@ export default function SignIn({ open, setOpen }: SignInProps) {
     return;
   }
 
+  async function onSubmit(input: any, isSignUp: boolean = false) {
+    console.log(input);
+    if (loading || !input) return;
+    const username = input.username;
+    const password = input.password;
+    if (!username || !password) return;
+    if (username.length < 3) {
+      setUsernameValidation("Username must be between 3 and 16 characters");
+    } else if (!/^[a-zA-Z0-9\-_.]{3,16}$/.test(username)) {
+      setUsernameValidation("Username can only contain letters, numbers, hyphens, underscores, and periods");
+    } else {
+      setUsernameValidation("");
+    }
+    if (password.length < 6) {
+      setPasswordValidation("Password must be between 6 and 71 characters");
+    } else {
+      setPasswordValidation("");
+    }
+    setIsLoading(true);
+    const users = pb.collection("users");
+
+    if (isSignUp) {
+      const data = {
+        username,
+        friends: [],
+        password,
+        passwordConfirm: password
+      };
+
+      try {
+        await users.create(data);
+      } catch (err: any) {
+        handleError(err);
+        return;
+      }
+    }
+
+    users
+      .authWithPassword(username, password)
+      .then(() => {
+        setIsLoading(false);
+        if (pb.authStore.isValid) {
+          setError("");
+          setUser(pb.authStore.record);
+        }
+        location.reload();
+      })
+      .catch((err) => {
+        handleError(err);
+      });
+  }
+
   return (
     <Modal
       open={open}
@@ -42,110 +96,72 @@ export default function SignIn({ open, setOpen }: SignInProps) {
       }}
       center
     >
-      <div className="modal-title">
-        <h2 style={{ marginBottom: 0 }}>{isSignUp ? "Sign Up" : "Sign In"}</h2>
-        <p>
+      <VStack spacing={5} className="modal-title">
+        <Heading level={2}>Sign In</Heading>
+        <Text>
           Compete with friends and track
           <br />
           your progress
-        </p>
-      </div>
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          if (loading) return;
-          const username = usernameRef.current as HTMLInputElement;
-          const password = passwordRef.current as HTMLInputElement;
-          if (!username || !password) return;
-          if (!username.checkValidity()) {
-            if (username.value.length < 3) {
-              setUsernameValidation("Username must be between 3 and 16 characters");
-            } else if (!/^[a-zA-Z0-9\-_.]{3,16}$/.test(username.value)) {
-              setUsernameValidation("Username can only contain letters, numbers, hyphens, underscores, and periods");
-            }
-            return;
-          } else {
-            setUsernameValidation("");
-          }
-          if (!password.checkValidity()) {
-            if (password.value.length < 6) {
-              setPasswordValidation("Password must be between 6 and 71 characters");
-            }
-            return;
-          } else {
-            setPasswordValidation("");
-          }
-          setIsLoading(true);
-          const users = pb.collection("users");
-
-          if (isSignUp) {
-            const data = {
-              username: username.value,
-              friends: [],
-              password: password.value,
-              passwordConfirm: password.value
-            };
-
-            try {
-              await users.create(data);
-            } catch (err: any) {
-              handleError(err);
-              return;
-            }
-          }
-
-          users
-            .authWithPassword(username.value, password.value)
-            .then(() => {
-              setIsLoading(false);
-              if (pb.authStore.isValid) {
-                setError("");
-                setUser(pb.authStore.record);
-              }
-              location.reload();
-            })
-            .catch((err) => {
-              handleError(err);
-            });
+        </Text>
+      </VStack>
+      <Form
+        onSubmit={(e) => {
+          onSubmit(e);
         }}
         noValidate
       >
-        <input
-          type="text"
-          placeholder="Username"
-          name="username"
-          required
-          maxLength={16}
-          ref={usernameRef}
-          pattern="^[a-zA-Z0-9\-_.]{3,16}$"
-          className="top-input"
-        />
-        <label style={{ color: "red", fontSize: "0.8em" }}>{usernameValidation}</label>
-        <input
-          type="password"
-          placeholder="Password"
-          name="password"
-          required
-          maxLength={71}
-          ref={passwordRef}
-          pattern="^(?=.*\S).{6,71}$"
-          className="bottom-input"
-        />
-        <label style={{ color: "red", fontSize: "0.8em" }}>{passwordValidation}</label>
-        <label style={{ color: "red", fontSize: "0.8em" }}>{error}</label>
-        <Button type="submit" appearance="primary" style={{ marginTop: "16px" }} loading={loading}>
-          {isSignUp ? "Sign Up" : "Sign In"}
-        </Button>
-        <a
-          onClick={() => {
-            setIsSignUp(!isSignUp);
-          }}
-          className="action-link"
-          style={{ marginTop: 5, display: "block", textAlign: "center" }}
-        >
-          {isSignUp ? "Sign In" : "Sign Up"}
-        </a>
-      </form>
+        <Form.Group controlId="username">
+          <Form.Control
+            ref={usernameRef}
+            name="username"
+            placeholder="Username"
+            required
+            maxLength={16}
+            pattern="^[a-zA-Z0-9\-_.]{3,16}$"
+            onChange={(e) => {
+              usernameRef.current = e;
+            }}
+          ></Form.Control>
+        </Form.Group>
+        <Text style={{ color: "red", fontSize: "0.8em" }}>{usernameValidation}</Text>
+        <Form.Group controlId="password">
+          <Form.Control
+            accepter={PasswordInput}
+            name="password"
+            placeholder="Password"
+            required
+            maxLength={71}
+            pattern="^(?=.*\S).{6,71}$"
+            renderVisibilityIcon={(visible) =>
+              visible ? <FontAwesomeIcon className="no-space" icon={faEyeSlash} /> : <FontAwesomeIcon className="no-space" icon={faEye} />
+            }
+            onChange={(e) => {
+              passwordRef.current = e;
+            }}
+          ></Form.Control>
+        </Form.Group>
+        <Text style={{ color: "red", fontSize: "0.8em" }}>{passwordValidation}</Text>
+        <Text style={{ color: "red", fontSize: "0.8em" }}>{error}</Text>
+        <ButtonGroup vertical style={{ marginTop: 5 }}>
+          <Button appearance="primary" type="submit" loading={loading} disabled={loading}>
+            Sign In
+          </Button>
+          <Button
+            onClick={() => {
+              onSubmit(
+                {
+                  username: usernameRef.current,
+                  password: passwordRef.current
+                },
+                true
+              );
+            }}
+            disabled={loading}
+          >
+            Sign Up
+          </Button>
+        </ButtonGroup>
+      </Form>
     </Modal>
   );
 }

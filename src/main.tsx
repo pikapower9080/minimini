@@ -23,6 +23,10 @@ import "rsuite/Table/styles/index.css";
 import "rsuite/Checkbox/styles/index.css";
 import "rsuite/List/styles/index.css";
 import "rsuite/Stack/styles/index.css";
+import "rsuite/Heading/styles/index.css";
+import "rsuite/PinInput/styles/index.css";
+import "rsuite/PasswordInput/styles/index.css";
+import "rsuite/InputGroup/styles/index.css";
 
 import "./css/App.css";
 

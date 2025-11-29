@@ -1,4 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap");
+@import url("Mini.css");
+@import url("Archive.css");
+@import url("Overrides.css");
 
 * {
   font-family: "Noto Sans", sans-serif !important;
@@ -36,6 +39,23 @@
   --correct: #64b5f6;
 }
 
+.hidden {
+  display: none;
+}
+
+.block {
+  display: block;
+  width: 100%;
+}
+
+.centered {
+  text-align: center;
+}
+
+.auto-center {
+  margin-inline: auto;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -53,209 +73,14 @@ body {
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
 #root {
   width: 65vw;
   margin: 0 auto;
   padding: 2rem;
-  text-align: center;
-}
-
-h2 {
-  margin-bottom: 5px;
-}
-h4 {
-  margin-top: 0;
-}
-
-.mini-container {
-  /* outline: 1px solid red; */
-  display: flex;
-  align-items: stretch;
-}
-
-.board-container {
-  width: 50%;
-}
-
-.board {
-  width: 100%;
-  max-width: 400px;
-  user-select: none;
-  display: block;
-  /* margin: 0 auto; */
-  margin-left: auto;
-}
-
-.clues {
-  margin-left: 18px;
-  max-width: 50%;
-}
-.clues h4 {
-  margin-top: 0;
-}
-
-.dark .guess,
-.dark .label {
-  fill: white;
-}
-
-.dark .board svg .grid path.lines {
-  stroke: rgb(170, 170, 170);
-}
-
-.dark .board svg .grid .frame {
-  stroke: rgb(187, 187, 187);
-}
-
-ol {
-  list-style: none;
-  text-align: left;
-  padding: 0;
-  margin-top: 0;
-}
-
-ol li {
-  margin-block: 5px;
-}
-
-.clue-set {
-  text-align: left;
-  margin-bottom: 0;
-}
-
-.highlighted {
-  fill: var(--highlight);
-}
-
-.selected {
-  fill: var(--select);
-}
-
-.clue {
-  display: flex;
-  border-left: transparent solid 10px;
-  padding-right: 10px;
-  cursor: pointer;
-}
-
-.clue-label {
-  font-weight: bold;
-  padding-inline: 5px;
-}
-
-.active-clue {
-  border-left: var(--clue-highlight) solid 10px;
-}
-
-.selected-clue {
-  background-color: var(--clue-highlight);
-}
-
-.react-responsive-modal-modal:not(.archive-modal) {
-  & h1,
-  & h2,
-  & h3,
-  & h4,
-  & p,
-  & button,
-  & input {
-    text-align: center;
-    display: block;
-  }
-}
-
-.rating-container strong {
-  display: unset;
-}
-
-.react-responsive-modal-modal h2,
-.react-responsive-modal-modal h3 {
-  margin-top: 0;
-}
-.react-responsive-modal-modal button {
-  margin-inline: auto;
 }
 
 canvas {
   z-index: 999999 !important;
-}
-
-.hidden {
-  display: none;
-}
-
-.keyboard-container {
-  position: fixed;
-  width: 100vw;
-  bottom: 0;
-  left: 0;
-}
-
-.hg-functionBtn {
-  background-color: #c8d1d9 !important;
-}
-
-.clue-bar {
-  background-color: #a7d8ff;
-  width: 100vw;
-  height: 2.8em;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.clue-bar-back {
-  padding-inline: 5px;
-  margin-right: auto;
-  height: 100%;
-  display: flex;
-  align-items: center;
-}
-.clue-bar-forward {
-  padding-inline: 5px;
-  margin-left: auto;
-  height: 100%;
-  display: flex;
-  align-items: center;
-}
-.clue-bar-text {
-  flex: 1;
-  text-align: center;
-  line-height: 1;
-}
-
-.welcome-modal h4 {
-  margin-bottom: 5px;
-}
-.welcome-modal h3 {
-  margin-bottom: 10px;
-}
-
-.timer {
-  margin-bottom: 10px;
-}
-
-.timer-icon {
-  color: var(--icon-button);
-  transition: color 250ms;
-}
-
-.timer-icon:hover {
-  cursor: pointer;
-  color: black;
-}
-
-.dark .timer-icon:hover {
-  color: white;
-}
-
-.react-responsive-modal-modal strong {
-  margin-bottom: 10px;
 }
 
 .dark .react-responsive-modal-modal {
@@ -263,47 +88,11 @@ canvas {
 }
 
 .pause-modal-container {
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(8px);
 }
 
-.correct,
-.dark .correct {
-  fill: var(--correct);
-}
-
-.incorrect,
-.dark .incorrect {
-  fill: var(--incorrect);
-}
-
-.toggle-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 5px;
-  width: 100%;
-  max-width: 400px;
-  margin-left: auto;
-}
-
-.toggle-container label {
-  padding-left: 5px;
-}
-
-.react-toggle--checked .react-toggle-track {
-  background-color: var(--correct) !important;
-}
-
-.react-toggle-thumb {
-  border-color: var(--correct) !important;
-}
-
-.react-toggle--focus .react-toggle-thumb {
-  box-shadow: none !important;
-}
-
-.react-toggle:active:not(.react-toggle--disabled) .react-toggle-thumb {
-  box-shadow: none !important;
+.pause-time {
+  font-size: 16px;
 }
 
 .bottom-icons {
@@ -330,33 +119,10 @@ canvas {
   color: white;
 }
 
+/* Move bottom icons to the top when the keyboard is present */
 .keyboard-container:has(.react-simple-keyboard:not(.hidden)) .bottom-icons {
   top: 0;
   height: fit-content;
-}
-
-input[type="text"],
-input[type="password"] {
-  display: block;
-  padding: 3px 2px;
-  margin-inline: auto;
-  border: #8f8f9d 1px solid;
-  border-radius: 4px;
-
-  &:focus {
-    outline: 1px black solid;
-  }
-}
-
-.top-input {
-  border-bottom: 0 !important;
-  border-end-start-radius: 0 !important;
-  border-end-end-radius: 0 !important;
-}
-
-.bottom-input {
-  border-start-start-radius: 0 !important;
-  border-start-end-radius: 0 !important;
 }
 
 .action-link {
@@ -365,130 +131,14 @@ input[type="password"] {
   user-select: none;
 }
 
-.secondary-text {
-  color: var(--icon-button);
-}
-
-.szh-menu-container svg,
-.rs-btn svg:not(.no-space) {
-  color: inherit;
-  padding-right: 5px;
-}
-
-.szh-menu__header {
-  text-transform: none !important;
-}
-
-.rs-rate {
-  width: 100%;
-  justify-content: center;
-}
-
 .rating-container {
-  margin-top: 15px;
+  margin-inline: auto;
 }
-
-.archive-modal h2,
-.archive-modal h4 {
+.rating-container .rs-text {
   text-align: center;
-}
-.archive-modal .archive-action-button {
-  text-align: center;
-  display: block;
-}
-
-.archive-modal {
-  max-width: 420px;
-}
-
-.archive-calendar {
-  min-height: 358px;
-}
-
-.archive-badge,
-.archive-badge-icon {
-  margin-top: 4px;
-}
-
-.archive-badge-icon-incomplete {
-  color: var(--rs-yellow-600);
-}
-
-.archive-badge-icon-completed {
-  color: var(--rs-green-500);
-}
-
-.rs-loader-wrapper {
-  z-index: 2;
-}
-.react-responsive-modal-closeButton {
-  z-index: 3;
+  width: 100%;
 }
 
 .modal-title {
-  margin-bottom: 15px;
-}
-
-.modal-title * {
-  /* text-align: left !important; */
-}
-
-.modal-title h2 {
-  font-size: 21px;
-  line-height: 1em;
-}
-
-.rs-btn-group-block {
-  display: block;
-}
-
-.rs-btn-default {
-  outline: 1px solid var(--rs-border-primary);
-}
-
-.leaderboard-container {
-  .rs-checkbox {
-    transform: translate(0px, -8px);
-  }
-}
-
-.rs-list-item {
-  padding-inline: 15px;
-  padding-block: 8px;
-}
-
-.rs-form-help-text {
-  display: block;
-  text-align: center;
-}
-
-@media (max-width: 900px) {
-  .mini-container {
-    flex-direction: column;
-  }
-  .board-container {
-    width: 100%;
-  }
-  .board,
-  .toggle-container {
-    margin-inline: auto;
-  }
-  .clues {
-    width: 100%;
-    max-width: 100%;
-    margin-left: 0;
-  }
-  body:has(.keyboard-open) {
-    place-items: unset;
-  }
-  #root:has(.keyboard-open) {
-    width: 100vw;
-    margin: 0;
-  }
-  .keyboard-open .mini-container {
-    display: block;
-  }
-  .keyboard-open .clues {
-    display: none;
-  }
+  transform: translateY(-7px);
 }

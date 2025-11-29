@@ -1,0 +1,57 @@
+.szh-menu-container svg,
+.rs-btn svg:not(.no-space) {
+  color: inherit;
+  padding-right: 5px;
+}
+
+.szh-menu__header {
+  text-transform: none !important;
+}
+
+.rs-heading {
+  text-align: center;
+  display: block;
+  width: 100%;
+}
+
+.rs-rate {
+  width: 100%;
+  justify-content: center;
+}
+
+.rs-loader-wrapper {
+  z-index: 2 !important;
+}
+.react-responsive-modal-closeButton {
+  z-index: 3;
+}
+
+.rs-btn-group {
+  width: 100%;
+}
+
+.rs-btn[data-appearance="default"] {
+  outline: 1px solid var(--rs-border-primary);
+}
+.rs-password-input .rs-btn[data-appearance="default"] {
+  outline: none;
+}
+
+.leaderboard-container {
+  .rs-checkbox {
+    transform: translate(7px, 1px);
+  }
+}
+
+.rs-list-item {
+  padding: 8px !important;
+}
+
+.rs-form-help-text {
+  display: block;
+  text-align: center;
+}
+
+.rs-ripple-pond {
+  display: none;
+}

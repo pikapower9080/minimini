@@ -1,12 +1,11 @@
 .friends-list {
+  width: 256px;
   max-height: 205px;
   overflow-y: auto;
 }
 
 .friend-list-name {
-  flex: 1;
   min-width: 0;
-  max-width: 100px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -14,7 +13,7 @@
 }
 
 .friend-list-code {
-  margin-left: auto;
+  margin-inline-start: auto !important;
 }
 
 .friend-list-remove {
@@ -27,4 +26,8 @@
 
 .add-friend-form .rs-stack-item {
   width: 100%;
+}
+
+.friend-code-input {
+  width: 256px;
 }

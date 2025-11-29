@@ -9,7 +9,7 @@ import type { AuthRecord } from "pocketbase";
 import { pb, pb_url } from "./main";
 import { GlobalState } from "./lib/GlobalState";
 import { Archive } from "./Components/Archive";
-import { Button, ButtonGroup } from "rsuite";
+import { Button, ButtonGroup, Heading, VStack, Text } from "rsuite";
 import formatDate from "./lib/formatDate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBoxArchive, faDoorOpen, faRightToBracket, faUserPlus, faUsers } from "@fortawesome/free-solid-svg-icons";
@@ -130,37 +130,39 @@ function App() {
     <GlobalState.Provider value={globalState}>
       {data && restoredTime > -1 && (
         <Modal open={modalState === "welcome"} onClose={() => {}} showCloseIcon={false} center classNames={{ modal: "welcome-modal" }}>
-          <h2>{restoredTime > 0 ? "Welcome back!" : "Welcome to minimini"}</h2>
-          <h4>{formatDate(data.publicationDate)}</h4>
-          <h4 style={{ marginBottom: 10 }}>by {data.constructors.join(", ")}</h4>
-          <ButtonGroup vertical block>
-            <Button
-              onClick={() => {
-                setModalState(null);
-                posthog.capture(restoredTime > 0 ? "continue_puzzle" : "start_puzzle", { puzzle: data.id });
-              }}
-              onTouchStart={() => {
-                startTouched.current = true;
-                console.log("touch input detected");
-              }}
-              appearance="primary"
-              loading={cloudLoading}
-              disabled={cloudLoading}
-            >
-              {restoredTime > 0 ? "Continue Solving" : "Start Solving"}
-            </Button>
-            <Button
-              onClick={() => {
-                setModalState("archive");
-              }}
-              appearance="default"
-            >
-              <FontAwesomeIcon icon={faBoxArchive} />
-              Archive
-            </Button>
-          </ButtonGroup>
-          <div style={{ marginTop: 5 }}>
-            <ButtonGroup style={{ marginTop: 5 }} justified>
+          <VStack spacing={10}>
+            <VStack spacing={5}>
+              <Heading level={2}>{restoredTime > 0 ? "Welcome back!" : "Welcome to minimini"}</Heading>
+              <Heading level={3}>{formatDate(data.publicationDate)}</Heading>
+              <Heading level={4}>by {data.constructors.join(", ")}</Heading>
+            </VStack>
+            <ButtonGroup vertical block>
+              <Button
+                onClick={() => {
+                  setModalState(null);
+                  posthog.capture(restoredTime > 0 ? "continue_puzzle" : "start_puzzle", { puzzle: data.id });
+                }}
+                onTouchStart={() => {
+                  startTouched.current = true;
+                  console.log("touch input detected");
+                }}
+                appearance="primary"
+                loading={cloudLoading}
+                disabled={cloudLoading}
+              >
+                {restoredTime > 0 ? "Continue Solving" : "Start Solving"}
+              </Button>
+              <Button
+                onClick={() => {
+                  setModalState("archive");
+                }}
+                appearance="default"
+              >
+                <FontAwesomeIcon icon={faBoxArchive} />
+                Archive
+              </Button>
+            </ButtonGroup>
+            <ButtonGroup justified>
               {!pb.authStore.isValid ? (
                 <Button
                   appearance="subtle"
@@ -179,6 +181,9 @@ function App() {
                       pb.authStore.clear();
                       setUser(null);
                     }}
+                    style={{
+                      flexGrow: 1
+                    }}
                   >
                     <FontAwesomeIcon icon={faDoorOpen} /> Sign Out
                   </Button>
@@ -187,14 +192,14 @@ function App() {
                     onClick={() => {
                       setModalState("add-friends");
                     }}
-                    style={{ flexGrow: 1.2 }}
+                    style={{ flexGrow: 1 }}
                   >
                     <FontAwesomeIcon icon={faUsers} /> Friends
                   </Button>
                 </>
               )}
             </ButtonGroup>
-          </div>
+          </VStack>
         </Modal>
       )}
       <Archive
@@ -212,23 +217,25 @@ function App() {
         classNames={{ modal: "pause-modal", overlay: "pause-modal-container" }}
         showCloseIcon={false}
       >
-        <h2>Paused</h2>
-        {timeRef.current.length === 2 ? (
-          <strong style={{ display: "block", textAlign: "center" }}>
-            {timeRef.current[0]}:{timeRef.current[1].toString().padStart(2, "0")}
-          </strong>
-        ) : (
-          ""
-        )}
-        <Button
-          appearance="primary"
-          onClick={() => {
-            setPaused(false);
-            posthog.capture("resume");
-          }}
-        >
-          Resume
-        </Button>
+        <VStack spacing={8}>
+          <Heading level={2}>Paused</Heading>
+          {timeRef.current.length === 2 ? (
+            <Text weight="bold" className="pause-time block centered">
+              {timeRef.current[0]}:{timeRef.current[1].toString().padStart(2, "0")}
+            </Text>
+          ) : (
+            ""
+          )}
+          <Button
+            appearance="primary"
+            onClick={() => {
+              setPaused(false);
+              posthog.capture("resume");
+            }}
+          >
+            Resume
+          </Button>
+        </VStack>
       </Modal>
       <SignIn
         open={modalState === "sign-in"}
