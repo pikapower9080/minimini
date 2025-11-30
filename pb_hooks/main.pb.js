@@ -3,9 +3,10 @@
 routerAdd("GET", "/api/today", (e) => {
   function getTodayDateString() {
     const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
+    const estToday = new Date(today.toLocaleString("en-US", { timeZone: "America/New_York" }));
+    const year = estToday.getFullYear();
+    const month = String(estToday.getMonth() + 1).padStart(2, "0");
+    const day = String(estToday.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   }
 
