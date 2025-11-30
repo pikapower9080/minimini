@@ -38,6 +38,15 @@ export default function PuzzleMenu({
           >
             <FontAwesomeIcon icon={faDoorOpen}></FontAwesomeIcon>Sign out
           </MenuItem>
+          <MenuItem
+            onClick={() => {
+              setPuzzleModalState("leaderboard");
+            }}
+            disabled={!complete}
+          >
+            <FontAwesomeIcon icon={faTrophy} />
+            Leaderboard
+          </MenuItem>
           <MenuDivider />
         </>
       ) : (
@@ -68,15 +77,6 @@ export default function PuzzleMenu({
       >
         <FontAwesomeIcon icon={faRotateLeft} onClick={() => {}} />
         Reset Puzzle
-      </MenuItem>
-      <MenuItem
-        onClick={() => {
-          setPuzzleModalState("leaderboard");
-        }}
-        disabled={!complete || !pb.authStore.isValid}
-      >
-        <FontAwesomeIcon icon={faTrophy} />
-        Leaderboard
       </MenuItem>
     </Menu>
   );
