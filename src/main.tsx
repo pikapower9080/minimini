@@ -4,11 +4,14 @@ import posthog from "posthog-js";
 import { PostHogProvider, PostHogErrorBoundary } from "posthog-js/react";
 import { configureStorage } from "./lib/storage.ts";
 import PocketBase from "pocketbase";
+import { CustomProvider } from "rsuite";
+
 import "@szhsin/react-menu/dist/core.css";
 import "@szhsin/react-menu/dist/index.css";
 import "@szhsin/react-menu/dist/transitions/zoom.css";
 import "react-simple-keyboard/build/css/index.css";
-import "react-responsive-modal/styles.css";
+
+import "rsuite/Animation/styles/index.css";
 
 import "rsuite/Toggle/styles/index.css";
 import "rsuite/Rate/styles/index.css";
@@ -27,6 +30,9 @@ import "rsuite/Heading/styles/index.css";
 import "rsuite/PinInput/styles/index.css";
 import "rsuite/PasswordInput/styles/index.css";
 import "rsuite/InputGroup/styles/index.css";
+import "rsuite/Avatar/styles/index.css";
+import "rsuite/Box/styles/index.css";
+import "rsuite/Modal/styles/index.css";
 
 import "./css/App.css";
 
@@ -49,7 +55,9 @@ configureStorage();
 createRoot(document.getElementById("root")!).render(
   <PostHogProvider client={posthog}>
     <PostHogErrorBoundary>
-      <App />
+      <CustomProvider>
+        <App />
+      </CustomProvider>
     </PostHogErrorBoundary>
   </PostHogProvider>
 );

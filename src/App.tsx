@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { MiniCrossword } from "./lib/types";
 import Mini from "./Components/Mini";
 import Timer from "./Components/Timer";
-import Modal from "react-responsive-modal";
+import { Modal } from "rsuite";
 import posthog from "posthog-js";
 import localforage from "localforage";
 import type { AuthRecord } from "pocketbase";
@@ -12,9 +12,10 @@ import { Archive } from "./Components/Archive";
 import { Button, ButtonGroup, Heading, VStack, Text } from "rsuite";
 import formatDate from "./lib/formatDate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBoxArchive, faDoorOpen, faRightToBracket, faUserPlus, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faBoxArchive, faRightToBracket, faUserCircle, faUsers } from "@fortawesome/free-solid-svg-icons";
 import SignIn from "./Components/SignIn";
 import Friends from "./Components/Friends";
+import Account from "./Components/Account";
 
 function App() {
   const [data, setData] = useState<MiniCrossword | null>(null);
@@ -23,7 +24,7 @@ function App() {
   const [paused, setPaused] = useState(false);
   const [complete, setComplete] = useState(false);
   const [cloudLoading, setCloudLoading] = useState(false);
-  const [modalState, setModalState] = useState<"welcome" | "archive" | "sign-in" | "add-friends" | null>("welcome");
+  const [modalState, setModalState] = useState<"welcome" | "archive" | "sign-in" | "add-friends" | "account" | null>("welcome");
   const timeRef = useRef<number[]>([]);
   const startTouched = useRef(false);
   const stateDocId = useRef<string>("");
@@ -129,7 +130,7 @@ function App() {
   return (
     <GlobalState.Provider value={globalState}>
       {data && restoredTime > -1 && (
-        <Modal open={modalState === "welcome"} onClose={() => {}} showCloseIcon={false} center classNames={{ modal: "welcome-modal" }}>
+        <Modal open={modalState === "welcome"} onClose={() => {}} centered overflow={false} size={"fit-content"}>
           <VStack spacing={10}>
             <VStack spacing={5}>
               <Heading level={2}>{restoredTime > 0 ? "Welcome back!" : "Welcome to minimini"}</Heading>
@@ -157,8 +158,8 @@ function App() {
                   setModalState("archive");
                 }}
                 appearance="default"
+                startIcon={<FontAwesomeIcon icon={faBoxArchive} />}
               >
-                <FontAwesomeIcon icon={faBoxArchive} />
                 Archive
               </Button>
             </ButtonGroup>
@@ -178,14 +179,13 @@ function App() {
                   <Button
                     appearance="subtle"
                     onClick={() => {
-                      pb.authStore.clear();
-                      setUser(null);
+                      setModalState("account");
                     }}
                     style={{
                       flexGrow: 1
                     }}
                   >
-                    <FontAwesomeIcon icon={faDoorOpen} /> Sign Out
+                    <FontAwesomeIcon icon={faUserCircle} /> Account
                   </Button>
                   <Button
                     appearance="subtle"
@@ -193,8 +193,9 @@ function App() {
                       setModalState("add-friends");
                     }}
                     style={{ flexGrow: 1 }}
+                    startIcon={<FontAwesomeIcon icon={faUsers} />}
                   >
-                    <FontAwesomeIcon icon={faUsers} /> Friends
+                    Friends
                   </Button>
                 </>
               )}
@@ -202,20 +203,23 @@ function App() {
           </VStack>
         </Modal>
       )}
+
       <Archive
         open={modalState === "archive"}
         setOpen={() => {
           setModalState("welcome");
         }}
       />
+
       <Modal
         open={paused}
         onClose={() => {
           setPaused(false);
         }}
-        center
-        classNames={{ modal: "pause-modal", overlay: "pause-modal-container" }}
-        showCloseIcon={false}
+        centered
+        size="fit-content"
+        overflow={false}
+        className="pause-modal"
       >
         <VStack spacing={8}>
           <Heading level={2}>Paused</Heading>
@@ -243,12 +247,21 @@ function App() {
           setModalState("welcome");
         }}
       />
+
       <Friends
         open={modalState === "add-friends"}
         setOpen={() => {
           setModalState("welcome");
         }}
       />
+
+      <Account
+        open={modalState === "account"}
+        setOpen={() => {
+          setModalState("welcome");
+        }}
+      />
+
       {data && restoredTime > -1 && modalState === null ? (
         <Timer
           onPause={() => {

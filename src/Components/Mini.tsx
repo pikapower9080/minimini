@@ -1,7 +1,7 @@
 import { useContext, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import type { MiniCrossword, MiniCrosswordClue } from "../lib/types";
 import { fireworks } from "../lib/confetti";
-import { Modal } from "react-responsive-modal";
+import { Modal } from "rsuite";
 import Keyboard from "react-simple-keyboard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faChevronRight, faTrophy } from "@fortawesome/free-solid-svg-icons";
@@ -525,7 +525,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         </div>
       </HStack>
 
-      <Modal open={modalType === "victory"} onClose={() => setModalType(null)} center showCloseIcon={false}>
+      <Modal open={modalType === "victory"} onClose={() => setModalType(null)} centered size="fit-content" overflow={false}>
         <VStack spacing={15}>
           <VStack spacing={5}>
             <Heading level={2}>Congratulations!</Heading>
@@ -567,7 +567,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         puzzleData={data}
       />
 
-      <Modal open={modalType === "incorrect"} onClose={() => setModalType(null)} center showCloseIcon={false}>
+      <Modal open={modalType === "incorrect"} onClose={() => setModalType(null)} centered size="fit-content" overflow={false}>
         <VStack spacing={10}>
           <Heading level={2}>Not Quite...</Heading>
           <Heading level={3}>One or more squares are filled incorrectly.</Heading>

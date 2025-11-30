@@ -83,11 +83,7 @@ canvas {
   z-index: 999999 !important;
 }
 
-.dark .react-responsive-modal-modal {
-  background-color: rgb(15, 15, 15);
-}
-
-.pause-modal-container {
+.rs-modal-backdrop:has(+ .rs-modal-wrapper > .pause-modal) {
   backdrop-filter: blur(8px);
 }
 

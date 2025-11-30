@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import Modal from "react-responsive-modal";
+import { Modal } from "rsuite";
 import { Badge, Button, Calendar, Loader, Text, Heading, VStack } from "rsuite";
 import { pb } from "../main";
 import type { ArchiveRecord, ArchiveStateRecord, BasicArchiveRecord } from "../lib/types";
@@ -81,7 +81,7 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
   }
 
   return (
-    <Modal open={open} onClose={() => setOpen(false)} classNames={{ modal: "archive-modal" }} center>
+    <Modal open={open} onClose={() => setOpen(false)} centered overflow={false}>
       <VStack spacing={10}>
         <div className="modal-title block">
           <Heading level={2}>

@@ -3,6 +3,9 @@
   color: inherit;
   padding-right: 5px;
 }
+.rs-btn-start-icon > svg {
+  padding-right: 0 !important;
+}
 
 .szh-menu__header {
   text-transform: none !important;
@@ -21,9 +24,6 @@
 
 .rs-loader-wrapper {
   z-index: 2 !important;
-}
-.react-responsive-modal-closeButton {
-  z-index: 3;
 }
 
 .rs-btn-group {
@@ -54,4 +54,18 @@
 
 .rs-ripple-pond {
   display: none;
+}
+
+.rs-avatar img {
+  width: 100%;
+  height: 100%;
+}
+
+.rs-modal-body {
+  margin-block-start: 10px !important;
+  padding-block-end: 0 !important;
+}
+
+.rs-modal-footer {
+  margin-block-start: 10px;
 }

@@ -21,7 +21,6 @@
     "posthog-js": "^1.298.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-responsive-modal": "^7.1.0",
     "react-simple-keyboard": "^3.8.139",
     "react-timer-hook": "^4.0.5",
     "rsuite": "^6.0.0",

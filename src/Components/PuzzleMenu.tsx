@@ -73,7 +73,7 @@ export default function PuzzleMenu({
         onClick={() => {
           setPuzzleModalState("leaderboard");
         }}
-        disabled={!complete}
+        disabled={!complete || !pb.authStore.isValid}
       >
         <FontAwesomeIcon icon={faTrophy} />
         Leaderboard

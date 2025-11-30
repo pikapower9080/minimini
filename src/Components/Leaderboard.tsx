@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
-import Modal from "react-responsive-modal";
+import { Modal } from "rsuite";
 import { pb } from "../main";
-import { Checkbox, Loader, Text, Heading } from "rsuite";
+import { Checkbox, Loader, Text, Heading, Avatar, HStack } from "rsuite";
 import { Table } from "rsuite/Table";
 import type { LeaderboardRecord, MiniCrossword, StateRecord } from "../lib/types";
 import { formatDuration } from "../lib/formatDate";
@@ -63,18 +63,20 @@ export default function Leaderboard({
 
   return (
     <Modal
-      center
+      centered
       open={open}
+      size="fit-content"
+      overflow={false}
       onClose={() => {
         setOpen(false);
       }}
-      onAnimationEnd={() => {
-        if (open) setReady(true);
-        else {
-          setReady(false);
-          setLoading(true);
-          setData([]);
-        }
+      onEntered={() => {
+        setReady(true);
+      }}
+      onExited={() => {
+        setReady(false);
+        setLoading(true);
+        setData([]);
       }}
     >
       <div className="modal-title">

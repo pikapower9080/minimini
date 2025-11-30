@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import Modal from "react-responsive-modal";
-import { Button, Form, HStack, VStack, List, Text, Heading, PinInput } from "rsuite";
+import { Modal } from "rsuite";
+import { Button, Form, HStack, VStack, List, Text, Heading, PinInput, Avatar } from "rsuite";
 import { pb, pb_url } from "../main";
 import type { UserRecord } from "../lib/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -18,7 +18,7 @@ export default function Friends({ open, setOpen }: { open: boolean; setOpen: (op
     try {
       const friends: UserRecord[] = await pb.collection("users").getFullList({
         fields: "id,username,friend_code,avatar",
-        sort: "username",
+        sort: "username:lower",
         filter: `id != "${pb.authStore.record.id}"`
       });
       setFriends(friends);
@@ -34,27 +34,31 @@ export default function Friends({ open, setOpen }: { open: boolean; setOpen: (op
 
   return (
     <Modal
-      center
+      centered
+      size="fit-content"
+      overflow={false}
       open={open}
       onClose={() => {
         setOpen(false);
-      }}
-      onAnimationEnd={() => {
-        if (!open) {
-          setResult("");
-        }
+        setResult(null);
       }}
     >
       <VStack spacing={10}>
-        <Heading className="modal-title" level={2}>
+        <Modal.Title className="modal-title">
           <FontAwesomeIcon icon={faUsers} /> Friends
-        </Heading>
+        </Modal.Title>
         <VStack spacing={friends.length > 0 ? 10 : 0}>
           <List bordered={friends.length > 0} className="friends-list" hover>
             {friends.map((friend) => {
               return (
                 <List.Item key={friend.id}>
                   <HStack justifyContent="space-between" spacing={10}>
+                    <Avatar
+                      src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${friend.username}&backgroundColor=0a5b83&shapeColor=1c799f`}
+                      minWidth={25}
+                      width={25}
+                      height={25}
+                    />
                     <Text className="friend-list-name" title={friend.username}>
                       {friend.username}
                     </Text>

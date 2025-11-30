@@ -1,5 +1,5 @@
 import { useContext, useRef, useState } from "react";
-import Modal from "react-responsive-modal";
+import { Modal } from "rsuite";
 import { pb } from "../main";
 import { GlobalState } from "../lib/GlobalState";
 import { Button, ButtonGroup, Form, Heading, VStack, PasswordInput, Text } from "rsuite";
@@ -94,7 +94,9 @@ export default function SignIn({ open, setOpen }: SignInProps) {
       onClose={() => {
         setOpen(false);
       }}
-      center
+      centered
+      overflow={false}
+      size="fit-content"
     >
       <VStack spacing={5} className="modal-title">
         <Heading level={2}>Sign In</Heading>
