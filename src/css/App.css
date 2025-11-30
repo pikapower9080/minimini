@@ -139,6 +139,11 @@ canvas {
   width: 100%;
 }
 
+.rating-container:focus,
+.rs-rate:focus {
+  outline: none;
+}
+
 .modal-title {
   transform: translateY(-7px);
 }
