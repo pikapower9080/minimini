@@ -40,6 +40,8 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   const boardRef = useRef<HTMLDivElement>(null);
   const incorrectShown = useRef<boolean>(false);
 
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
   const { user, paused, setModalState } = useContext(GlobalState);
 
   function typeLetter(letter: string, cellIndex: number) {
@@ -321,7 +323,9 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     const results = checkBoard();
     if (results.totalCells > 0 && results.totalCells === results.totalCorrect) {
       setModalType("victory");
-      fireworks();
+      if (!prefersReducedMotion) {
+        fireworks();
+      }
       incorrectShown.current = false;
       posthog.capture("completed_puzzle", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current, autoCheck });
       setComplete(true);
