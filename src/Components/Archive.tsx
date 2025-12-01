@@ -7,6 +7,7 @@ import { GlobalState } from "../lib/GlobalState";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBoxArchive, faCheckCircle, faHourglassHalf } from "@fortawesome/free-solid-svg-icons";
 import { formatDuration } from "../lib/formatDate";
+import posthog from "posthog-js";
 
 export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
   const [data, setData] = useState<BasicArchiveRecord[] | null>(null);
@@ -133,6 +134,10 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
             archive
               .getOne(data.find((r) => r.publicationDate === selectedDate)!.id)
               .then((record) => {
+                posthog.capture("load_archive_puzzle", {
+                  publicationDate: record.publicationDate,
+                  id: record.id
+                });
                 const archiveRecord = record as ArchiveRecord;
                 setPuzzleData(archiveRecord.mini);
                 setOpen(false);

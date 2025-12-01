@@ -156,6 +156,7 @@ function App() {
               <Button
                 onClick={() => {
                   setModalState("archive");
+                  posthog.capture("open_archive");
                 }}
                 appearance="default"
                 startIcon={<FontAwesomeIcon icon={faBoxArchive} />}
