@@ -1,8 +1,13 @@
 .szh-menu-container svg,
-.rs-btn svg:not(.no-space) {
+.rs-btn svg:not(.no-space):not(*[aria-label="close"]) {
   color: inherit;
   padding-right: 5px;
 }
+
+.rs-btn[aria-label="Close"] {
+  aspect-ratio: 1;
+}
+
 .rs-btn-start-icon > svg {
   padding-right: 0 !important;
 }

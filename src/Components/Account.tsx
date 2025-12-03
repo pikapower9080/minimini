@@ -1,13 +1,13 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { Form, Modal } from "rsuite";
-import { pb, pb_url } from "../main";
-import { Avatar, Box, Button, ButtonGroup, Divider, Heading, HStack, Text, useDialog, VStack } from "rsuite";
+import { pb } from "../main";
+import { Avatar, Button, ButtonGroup, Heading, HStack, Text, useDialog, VStack } from "rsuite";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDoorOpen, faEnvelope, faLock, faPencil, faTrash, faUserCircle } from "@fortawesome/free-solid-svg-icons";
-import type { UserRecord } from "../lib/types";
+import { faDoorOpen, faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { GlobalState } from "../lib/GlobalState";
-import type { AuthRecord, RecordAuthResponse } from "pocketbase";
+import type { RecordAuthResponse } from "pocketbase";
 import posthog from "posthog-js";
+import { getDefaultAvatar } from "../lib/avatars";
 
 const EditUsernameDialog = ({ payload, onClose }: { payload: string; onClose: (newUser: RecordAuthResponse | null) => void }) => {
   const [isOpen, setIsOpen] = useState(true);
@@ -108,6 +108,8 @@ export default function Account({ open, setOpen }: { open: boolean; setOpen: (op
 
   const { user, setUser } = useContext(GlobalState);
 
+  const defaultAvatar = useMemo(() => getDefaultAvatar(user.username), [user]);
+
   if (user) {
     return (
       <Modal
@@ -119,11 +121,13 @@ export default function Account({ open, setOpen }: { open: boolean; setOpen: (op
           setOpen(false);
         }}
       >
-        <Modal.Title>Account</Modal.Title>
+        <Modal.Header closeButton>
+          <Modal.Title>Account</Modal.Title>
+        </Modal.Header>
         <Modal.Body>
           <VStack spacing={10}>
             <HStack spacing={10} border={"1px solid var(--rs-border-primary)"} padding={10} borderRadius={"var(--rs-radius-sm)"}>
-              <Avatar src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${user.username}&backgroundColor=0a5b83&shapeColor=1c799f`} />
+              <Avatar src={defaultAvatar} />
               <VStack spacing={0}>
                 <Heading level={3} textAlign={"left"}>
                   {user.username}

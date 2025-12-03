@@ -42,7 +42,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const { user, paused, setModalState } = useContext(GlobalState);
+  const { user, paused } = useContext(GlobalState);
 
   function typeLetter(letter: string, cellIndex: number) {
     if (!boardRef.current) return;

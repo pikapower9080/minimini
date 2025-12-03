@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { Modal } from "rsuite";
 import { pb } from "../main";
-import { Checkbox, Loader, Text, Heading, Avatar, HStack } from "rsuite";
+import { Checkbox, Loader, Text, Heading } from "rsuite";
 import { Table } from "rsuite/Table";
 import type { LeaderboardRecord, MiniCrossword, StateRecord } from "../lib/types";
 import { formatDuration } from "../lib/formatDate";

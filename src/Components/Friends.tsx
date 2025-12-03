@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Modal } from "rsuite";
 import { Button, Form, HStack, VStack, List, Text, Heading, PinInput, Avatar } from "rsuite";
 import { pb, pb_url } from "../main";
@@ -7,6 +7,38 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faUsers } from "@fortawesome/free-solid-svg-icons";
 
 import "../css/Friends.css";
+import { getDefaultAvatar } from "../lib/avatars";
+
+function FriendListEntry({ friend, fetchFriends }: { friend: UserRecord; fetchFriends: () => Promise<void> }) {
+  const defaultAvatar = useMemo(() => getDefaultAvatar(friend.username), []);
+
+  return (
+    <List.Item key={friend.id}>
+      <HStack justifyContent="space-between" spacing={10}>
+        <Avatar src={defaultAvatar} minWidth={25} width={25} height={25} />
+        <Text className="friend-list-name" title={friend.username}>
+          {friend.username}
+        </Text>
+        <Text className="friend-list-code" muted>
+          {friend.friend_code}
+        </Text>
+        <Button
+          className="friend-list-remove"
+          size="xs"
+          onClick={async () => {
+            if (!pb.authStore.isValid || !pb.authStore.record) return;
+            await pb.collection("users").update(pb.authStore.record.id, {
+              "friends-": [friend.id]
+            });
+            await fetchFriends();
+          }}
+        >
+          <FontAwesomeIcon icon={faTrash} className="no-space" />
+        </Button>
+      </HStack>
+    </List.Item>
+  );
+}
 
 export default function Friends({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
   const [loading, setLoading] = useState(false);
@@ -50,37 +82,7 @@ export default function Friends({ open, setOpen }: { open: boolean; setOpen: (op
         <VStack spacing={friends.length > 0 ? 10 : 0}>
           <List bordered={friends.length > 0} className="friends-list" hover>
             {friends.map((friend) => {
-              return (
-                <List.Item key={friend.id}>
-                  <HStack justifyContent="space-between" spacing={10}>
-                    <Avatar
-                      src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${friend.username}&backgroundColor=0a5b83&shapeColor=1c799f`}
-                      minWidth={25}
-                      width={25}
-                      height={25}
-                    />
-                    <Text className="friend-list-name" title={friend.username}>
-                      {friend.username}
-                    </Text>
-                    <Text className="friend-list-code" muted>
-                      {friend.friend_code}
-                    </Text>
-                    <Button
-                      className="friend-list-remove"
-                      size="xs"
-                      onClick={async () => {
-                        if (!pb.authStore.isValid || !pb.authStore.record) return;
-                        await pb.collection("users").update(pb.authStore.record.id, {
-                          "friends-": [friend.id]
-                        });
-                        await fetchFriends();
-                      }}
-                    >
-                      <FontAwesomeIcon icon={faTrash} className="no-space" />
-                    </Button>
-                  </HStack>
-                </List.Item>
-              );
+              return <FriendListEntry key={friend.id} friend={friend} fetchFriends={fetchFriends} />;
             })}
           </List>
           <Form
