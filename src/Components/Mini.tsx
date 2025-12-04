@@ -1,8 +1,7 @@
-import { useContext, useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { lazy, Suspense, useContext, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import type { MiniCrossword, MiniCrosswordClue } from "../lib/types";
 import { fireworks } from "../lib/confetti";
 import { Modal } from "rsuite";
-import Keyboard from "react-simple-keyboard";
 import posthog from "posthog-js";
 import localforage from "localforage";
 import { GlobalState } from "../lib/GlobalState";
@@ -14,6 +13,10 @@ import formatDate from "../lib/formatDate";
 import PuzzleMenu from "./PuzzleMenu";
 import Leaderboard from "./Leaderboard";
 import { ChevronLeftIcon, ChevronRightIcon, TrophyIcon } from "lucide-react";
+
+const Keyboard = lazy(async () => ({
+  default: (await import("react-simple-keyboard")).default
+}));
 
 interface MiniProps {
   data: MiniCrossword;
@@ -623,37 +626,39 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
                 <ChevronRightIcon />
               </div>
             </div>
+
+            <Suspense fallback={""}>
+              <Keyboard
+                onKeyPress={(key) => {
+                  if (key === "{numbers}" || key === "{abc}") {
+                    setKeyboardLayout(key === "{numbers}" ? "numeric" : "default");
+                    return;
+                  }
+                  let keyCode = key;
+                  if (key === "{bksp}") keyCode = "Backspace";
+                  if (key === "{enter}") keyCode = "Enter";
+                  if (key === "{esc}") keyCode = "Escape";
+                  if (key === "{tab}") keyCode = "Tab";
+                  handleKeyDown(new KeyboardEvent("keydown", { key: keyCode }), true);
+                }}
+                layout={{
+                  default: ["Q W E R T Y U I O P", "A S D F G H J K L", "{numbers} Z X C V B N M {bksp}"],
+                  numeric: ["1 2 3", "4 5 6", "7 8 9", "{abc} 0 {bksp}"]
+                }}
+                display={{
+                  "{numbers}": "123",
+                  "{abc}": "ABC",
+                  "{bksp}": "⌫"
+                }}
+                layoutName={keyboardLayout}
+                autoUseTouchEvents={true}
+                theme={!(keyboardOpen && selected !== null) ? "hidden" : ""}
+              />
+            </Suspense>
           </>
         ) : (
           ""
         )}
-
-        <Keyboard
-          onKeyPress={(key) => {
-            if (key === "{numbers}" || key === "{abc}") {
-              setKeyboardLayout(key === "{numbers}" ? "numeric" : "default");
-              return;
-            }
-            let keyCode = key;
-            if (key === "{bksp}") keyCode = "Backspace";
-            if (key === "{enter}") keyCode = "Enter";
-            if (key === "{esc}") keyCode = "Escape";
-            if (key === "{tab}") keyCode = "Tab";
-            handleKeyDown(new KeyboardEvent("keydown", { key: keyCode }), true);
-          }}
-          layout={{
-            default: ["Q W E R T Y U I O P", "A S D F G H J K L", "{numbers} Z X C V B N M {bksp}"],
-            numeric: ["1 2 3", "4 5 6", "7 8 9", "{abc} 0 {bksp}"]
-          }}
-          display={{
-            "{numbers}": "123",
-            "{abc}": "ABC",
-            "{bksp}": "⌫"
-          }}
-          layoutName={keyboardLayout}
-          autoUseTouchEvents={true}
-          theme={!(keyboardOpen && selected !== null) ? "hidden" : ""}
-        />
       </div>
     </>
   );
