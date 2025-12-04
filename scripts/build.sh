@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 bun install
 bun run build
 rm -rfv ./pb_public

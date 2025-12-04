@@ -2,6 +2,8 @@
 
 # Runs on a clean Ubuntu 24.04 install and requires root
 
+set -e
+
 apt update
 apt install git wget unzip -y
 
