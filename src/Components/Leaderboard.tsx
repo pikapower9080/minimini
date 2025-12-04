@@ -88,7 +88,7 @@ export default function Leaderboard({
         <div className="leaderboard-container" style={{ minWidth: "300px" }}>
           {data && !loading && (
             <>
-              <Table data={data} bordered autoHeight maxHeight={400}>
+              <Table data={data} bordered autoHeight maxHeight={408}>
                 <Table.Column flexGrow={1} align="center" verticalAlign="center">
                   <Table.HeaderCell>Rank</Table.HeaderCell>
                   <Table.Cell dataKey="rank" />
