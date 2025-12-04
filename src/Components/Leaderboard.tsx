@@ -7,7 +7,7 @@ import type { LeaderboardRecord, MiniCrossword, StateRecord } from "../lib/types
 import { formatDuration } from "../lib/formatDate";
 import { GlobalState } from "../lib/GlobalState";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrophy } from "@fortawesome/free-solid-svg-icons";
+import { faDisplay, faMobile, faTrophy } from "@fortawesome/free-solid-svg-icons";
 
 export default function Leaderboard({
   open,
@@ -85,23 +85,32 @@ export default function Leaderboard({
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <div className="leaderboard-container" style={{ minWidth: "300px" }}>
+        <div className="leaderboard-container" style={{ minWidth: "320px" }}>
           {data && !loading && (
             <>
               <Table data={data} bordered autoHeight maxHeight={408}>
-                <Table.Column flexGrow={1} align="center" verticalAlign="center">
-                  <Table.HeaderCell>Rank</Table.HeaderCell>
+                <Table.Column width={40} align="center" verticalAlign="center">
+                  <Table.HeaderCell>#</Table.HeaderCell>
                   <Table.Cell dataKey="rank" />
                 </Table.Column>
                 <Table.Column flexGrow={2} align="left" verticalAlign="center">
                   <Table.HeaderCell>Username</Table.HeaderCell>
                   <Table.Cell dataKey="expand.user.username" />
                 </Table.Column>
-                <Table.Column flexGrow={1} align="left" verticalAlign="center">
+                <Table.Column width={20} align="center" verticalAlign="center">
+                  <Table.HeaderCell> </Table.HeaderCell>
+                  <Table.Cell
+                    dataKey="platform"
+                    renderCell={(platform) =>
+                      platform === "mobile" ? <FontAwesomeIcon icon={faMobile} /> : <FontAwesomeIcon icon={faDisplay} />
+                    }
+                  ></Table.Cell>
+                </Table.Column>
+                <Table.Column flexGrow={1} align="center" verticalAlign="center">
                   <Table.HeaderCell>Time</Table.HeaderCell>
                   <Table.Cell dataKey="time" renderCell={(c) => formatDuration(c)} />
                 </Table.Column>
-                <Table.Column flexGrow={1} align="center" verticalAlign="center">
+                <Table.Column width={50} align="center" verticalAlign="center">
                   <Table.HeaderCell>Hints</Table.HeaderCell>
                   <Table.Cell dataKey="cheated" renderCell={(c) => <Checkbox checked={c} readOnly />} />
                 </Table.Column>

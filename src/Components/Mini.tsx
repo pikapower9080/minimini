@@ -445,6 +445,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       record.set("puzzle_id", data.id.toString());
       record.set("time", saved[0]?.toString() ?? "0");
       record.set("cheated", saved[2]?.toString() ?? "false");
+      record.set("platform", keyboardOpen ? "mobile" : "desktop");
 
       leaderboard
         .create(record)
