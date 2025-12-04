@@ -3,8 +3,7 @@ import { Modal } from "rsuite";
 import { pb } from "../main";
 import { GlobalState } from "../lib/GlobalState";
 import { Button, ButtonGroup, Form, Heading, VStack, PasswordInput, Text } from "rsuite";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { EyeClosedIcon, EyeIcon } from "lucide-react";
 
 interface SignInProps {
   open: boolean;
@@ -134,9 +133,7 @@ export default function SignIn({ open, setOpen }: SignInProps) {
             required
             maxLength={71}
             pattern="^(?=.*\S).{6,71}$"
-            renderVisibilityIcon={(visible) =>
-              visible ? <FontAwesomeIcon className="no-space" icon={faEyeSlash} /> : <FontAwesomeIcon className="no-space" icon={faEye} />
-            }
+            renderVisibilityIcon={(visible) => (visible ? <EyeClosedIcon /> : <EyeIcon />)}
             onChange={(e) => {
               passwordRef.current = e;
             }}

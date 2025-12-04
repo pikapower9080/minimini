@@ -1,11 +1,10 @@
-import { faPause } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import localforage from "localforage";
 import posthog from "posthog-js";
 import { useEffect, useState } from "react";
 import { useStopwatch } from "react-timer-hook";
 import type { MiniCrossword } from "../lib/types";
 import { HStack, Text } from "rsuite";
+import { PauseIcon } from "lucide-react";
 
 interface TimerProps {
   onPause: () => void;
@@ -64,8 +63,7 @@ export default function Timer({ onPause, running, setTime, puzzle, restoredTime 
       <Text className="timer-text">
         {minutes}:{seconds.toString().padStart(2, "0")}
       </Text>
-      <FontAwesomeIcon
-        icon={faPause}
+      <PauseIcon
         className="timer-icon"
         onClick={() => {
           posthog.capture("manual_pause", {

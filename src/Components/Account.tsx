@@ -2,12 +2,11 @@ import { useContext, useMemo, useState } from "react";
 import { Form, Modal } from "rsuite";
 import { pb } from "../main";
 import { Avatar, Button, ButtonGroup, Heading, HStack, Text, useDialog, VStack } from "rsuite";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDoorOpen, faPencil, faTrash, faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import { GlobalState } from "../lib/GlobalState";
 import type { RecordAuthResponse } from "pocketbase";
 import posthog from "posthog-js";
 import { getDefaultAvatar } from "../lib/avatars";
+import { CircleUserRoundIcon, LogOutIcon, PencilIcon, TrashIcon } from "lucide-react";
 
 const EditUsernameDialog = ({ payload, onClose }: { payload: string; onClose: (newUser: RecordAuthResponse | null) => void }) => {
   const [isOpen, setIsOpen] = useState(true);
@@ -123,7 +122,7 @@ export default function Account({ open, setOpen }: { open: boolean; setOpen: (op
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            <FontAwesomeIcon icon={faUserCircle} /> Account
+            <CircleUserRoundIcon /> Account
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -139,7 +138,7 @@ export default function Account({ open, setOpen }: { open: boolean; setOpen: (op
             </HStack>
             <ButtonGroup vertical block>
               <Button
-                startIcon={<FontAwesomeIcon icon={faPencil} />}
+                startIcon={<PencilIcon />}
                 onClick={async () => {
                   const newUser: RecordAuthResponse | null = await dialog.open(EditUsernameDialog, user.username);
                   if (newUser) {
@@ -155,7 +154,7 @@ export default function Account({ open, setOpen }: { open: boolean; setOpen: (op
                 Change Username
               </Button>
               <Button
-                startIcon={<FontAwesomeIcon icon={faTrash} />}
+                startIcon={<TrashIcon />}
                 onClick={async () => {
                   const response = await dialog.confirm(
                     "Are you sure you want to delete your account? All progress will be permanently erased."
@@ -174,7 +173,7 @@ export default function Account({ open, setOpen }: { open: boolean; setOpen: (op
             </ButtonGroup>
             <Button
               block
-              startIcon={<FontAwesomeIcon icon={faDoorOpen} />}
+              startIcon={<LogOutIcon />}
               onClick={() => {
                 pb.authStore.clear();
                 setUser(null);

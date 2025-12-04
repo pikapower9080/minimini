@@ -6,8 +6,7 @@ import { Table } from "rsuite/Table";
 import type { LeaderboardRecord, MiniCrossword, StateRecord } from "../lib/types";
 import { formatDuration } from "../lib/formatDate";
 import { GlobalState } from "../lib/GlobalState";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDisplay, faMobile, faTrophy } from "@fortawesome/free-solid-svg-icons";
+import { MonitorIcon, SmartphoneIcon, TrophyIcon } from "lucide-react";
 
 export default function Leaderboard({
   open,
@@ -81,7 +80,7 @@ export default function Leaderboard({
     >
       <Modal.Header closeButton>
         <Modal.Title>
-          <FontAwesomeIcon icon={faTrophy} /> Leaderboard
+          <TrophyIcon /> Leaderboard
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -101,9 +100,7 @@ export default function Leaderboard({
                   <Table.HeaderCell> </Table.HeaderCell>
                   <Table.Cell
                     dataKey="platform"
-                    renderCell={(platform) =>
-                      platform === "mobile" ? <FontAwesomeIcon icon={faMobile} /> : <FontAwesomeIcon icon={faDisplay} />
-                    }
+                    renderCell={(platform) => (platform === "mobile" ? <SmartphoneIcon /> : <MonitorIcon />)}
                   ></Table.Cell>
                 </Table.Column>
                 <Table.Column flexGrow={1} align="center" verticalAlign="center">

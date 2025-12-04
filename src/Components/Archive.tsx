@@ -4,10 +4,9 @@ import { Badge, Button, Calendar, Loader, Text, Heading, VStack } from "rsuite";
 import { pb } from "../main";
 import type { ArchiveRecord, ArchiveStateRecord, BasicArchiveRecord } from "../lib/types";
 import { GlobalState } from "../lib/GlobalState";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBoxArchive, faCheckCircle, faHourglassHalf } from "@fortawesome/free-solid-svg-icons";
 import { formatDuration } from "../lib/formatDate";
 import posthog from "posthog-js";
+import { ArchiveIcon, CircleCheckIcon, HourglassIcon } from "lucide-react";
 
 export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
   const [data, setData] = useState<BasicArchiveRecord[] | null>(null);
@@ -86,7 +85,7 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
       <VStack spacing={10}>
         <Modal.Header closeButton>
           <Modal.Title>
-            <FontAwesomeIcon icon={faBoxArchive} /> Archive
+            <ArchiveIcon /> Archive
           </Modal.Title>
           <Text>Solve past puzzles</Text>
         </Modal.Header>
@@ -108,10 +107,10 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
               return <Badge className="archive-badge" style={{ visibility: "hidden" }} />;
             }
             if (puzzleState?.complete) {
-              return <FontAwesomeIcon icon={faCheckCircle} className="archive-badge-icon archive-badge-icon-completed" />;
+              return <CircleCheckIcon className="archive-badge-icon archive-badge-icon-completed" />;
             }
             if (puzzleState) {
-              return <FontAwesomeIcon icon={faHourglassHalf} className="archive-badge-icon archive-badge-icon-incomplete" />;
+              return <HourglassIcon className="archive-badge-icon archive-badge-icon-incomplete" />;
             }
             return <Badge className="archive-badge" />;
           }}

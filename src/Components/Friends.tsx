@@ -3,11 +3,10 @@ import { Modal } from "rsuite";
 import { Button, Form, HStack, VStack, List, Text, Heading, PinInput, Avatar } from "rsuite";
 import { pb, pb_url } from "../main";
 import type { UserRecord } from "../lib/types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faUsers } from "@fortawesome/free-solid-svg-icons";
 
 import "../css/Friends.css";
 import { getDefaultAvatar } from "../lib/avatars";
+import { UsersIcon, UserXIcon } from "lucide-react";
 
 function FriendListEntry({ friend, fetchFriends }: { friend: UserRecord; fetchFriends: () => Promise<void> }) {
   const defaultAvatar = useMemo(() => getDefaultAvatar(friend.username), []);
@@ -33,7 +32,7 @@ function FriendListEntry({ friend, fetchFriends }: { friend: UserRecord; fetchFr
             await fetchFriends();
           }}
         >
-          <FontAwesomeIcon icon={faTrash} className="no-space" />
+          <UserXIcon />
         </Button>
       </HStack>
     </List.Item>
@@ -78,7 +77,7 @@ export default function Friends({ open, setOpen }: { open: boolean; setOpen: (op
       <VStack spacing={10}>
         <Modal.Header closeButton>
           <Modal.Title>
-            <FontAwesomeIcon icon={faUsers} /> Friends
+            <UsersIcon /> Friends
           </Modal.Title>
         </Modal.Header>
         <VStack spacing={friends.length > 0 ? 10 : 0}>

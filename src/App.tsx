@@ -11,11 +11,10 @@ import { GlobalState } from "./lib/GlobalState";
 import { Archive } from "./Components/Archive";
 import { Button, ButtonGroup, Heading, VStack, Text } from "rsuite";
 import formatDate from "./lib/formatDate";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBoxArchive, faRightToBracket, faUserCircle, faUsers } from "@fortawesome/free-solid-svg-icons";
 import SignIn from "./Components/SignIn";
 import Friends from "./Components/Friends";
 import Account from "./Components/Account";
+import { ArchiveIcon, CircleUserRoundIcon, LogInIcon, UserIcon, UsersIcon } from "lucide-react";
 
 function App() {
   const [data, setData] = useState<MiniCrossword | null>(null);
@@ -159,7 +158,7 @@ function App() {
                   posthog.capture("open_archive");
                 }}
                 appearance="default"
-                startIcon={<FontAwesomeIcon icon={faBoxArchive} />}
+                startIcon={<ArchiveIcon />}
               >
                 Archive
               </Button>
@@ -171,9 +170,9 @@ function App() {
                   onClick={() => {
                     setModalState("sign-in");
                   }}
+                  startIcon={<LogInIcon />}
                 >
-                  {" "}
-                  <FontAwesomeIcon icon={faRightToBracket} /> Sign in
+                  Sign in
                 </Button>
               ) : (
                 <>
@@ -185,8 +184,9 @@ function App() {
                     style={{
                       flexGrow: 1
                     }}
+                    startIcon={<CircleUserRoundIcon />}
                   >
-                    <FontAwesomeIcon icon={faUserCircle} /> Account
+                    Account
                   </Button>
                   <Button
                     appearance="subtle"
@@ -194,7 +194,7 @@ function App() {
                       setModalState("add-friends");
                     }}
                     style={{ flexGrow: 1 }}
-                    startIcon={<FontAwesomeIcon icon={faUsers} />}
+                    startIcon={<UsersIcon />}
                   >
                     Friends
                   </Button>

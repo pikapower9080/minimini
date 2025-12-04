@@ -1,12 +1,11 @@
 import { useContext, type RefObject } from "react";
 import { GlobalState } from "../lib/GlobalState";
 import { Menu, MenuDivider, MenuHeader, MenuItem } from "@szhsin/react-menu";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faBoxArchive, faDoorOpen, faRightToBracket, faRotateLeft, faTrophy, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import localforage from "localforage";
 import { pb } from "../main";
 import posthog from "posthog-js";
 import type { MiniCrossword } from "../lib/types";
+import { LogInIcon, LogOutIcon, MenuIcon, RotateCcwIcon, TrophyIcon } from "lucide-react";
 
 export default function PuzzleMenu({
   data,
@@ -24,7 +23,7 @@ export default function PuzzleMenu({
   const { user, setModalState } = useContext(GlobalState);
 
   return (
-    <Menu portal transition align="end" menuButton={<FontAwesomeIcon icon={faBars} />}>
+    <Menu portal transition align="end" menuButton={<MenuIcon />}>
       {user ? (
         <>
           <MenuHeader>{user.username}</MenuHeader>
@@ -36,7 +35,7 @@ export default function PuzzleMenu({
               });
             }}
           >
-            <FontAwesomeIcon icon={faDoorOpen}></FontAwesomeIcon>Sign out
+            <LogOutIcon /> Sign out
           </MenuItem>
           <MenuItem
             onClick={() => {
@@ -44,7 +43,7 @@ export default function PuzzleMenu({
             }}
             disabled={!complete}
           >
-            <FontAwesomeIcon icon={faTrophy} />
+            <TrophyIcon />
             Leaderboard
           </MenuItem>
           <MenuDivider />
@@ -55,7 +54,7 @@ export default function PuzzleMenu({
             setModalState("sign-in");
           }}
         >
-          <FontAwesomeIcon icon={faRightToBracket}></FontAwesomeIcon>Sign in
+          <LogInIcon /> Sign in
         </MenuItem>
       )}
       <MenuItem
@@ -75,7 +74,7 @@ export default function PuzzleMenu({
           });
         }}
       >
-        <FontAwesomeIcon icon={faRotateLeft} onClick={() => {}} />
+        <RotateCcwIcon />
         Reset Puzzle
       </MenuItem>
     </Menu>

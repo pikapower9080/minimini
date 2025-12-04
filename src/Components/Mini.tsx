@@ -3,8 +3,6 @@ import type { MiniCrossword, MiniCrosswordClue } from "../lib/types";
 import { fireworks } from "../lib/confetti";
 import { Modal } from "rsuite";
 import Keyboard from "react-simple-keyboard";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft, faChevronRight, faTrophy } from "@fortawesome/free-solid-svg-icons";
 import posthog from "posthog-js";
 import localforage from "localforage";
 import { GlobalState } from "../lib/GlobalState";
@@ -15,6 +13,7 @@ import Rating from "./Rating";
 import formatDate from "../lib/formatDate";
 import PuzzleMenu from "./PuzzleMenu";
 import Leaderboard from "./Leaderboard";
+import { ChevronLeftIcon, ChevronRightIcon, TrophyIcon } from "lucide-react";
 
 interface MiniProps {
   data: MiniCrossword;
@@ -556,8 +555,9 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
                 onClick={() => {
                   setModalType("leaderboard");
                 }}
+                startIcon={<TrophyIcon />}
               >
-                <FontAwesomeIcon icon={faTrophy} /> Leaderboard
+                Leaderboard
               </Button>
             )}
           </ButtonGroup>
@@ -607,7 +607,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
                   previous(true);
                 }}
               >
-                <FontAwesomeIcon icon={faChevronLeft} />
+                <ChevronLeftIcon />
               </div>
               {globalSelectedClue !== null ? (
                 <span className="clue-bar-text">{globalSelectedClue.text.map((t) => t.plain).join(" ")}</span>
@@ -620,7 +620,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
                   next();
                 }}
               >
-                <FontAwesomeIcon icon={faChevronRight} />
+                <ChevronRightIcon />
               </div>
             </div>
           </>
