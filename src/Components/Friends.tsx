@@ -76,9 +76,11 @@ export default function Friends({ open, setOpen }: { open: boolean; setOpen: (op
       }}
     >
       <VStack spacing={10}>
-        <Modal.Title className="modal-title">
-          <FontAwesomeIcon icon={faUsers} /> Friends
-        </Modal.Title>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <FontAwesomeIcon icon={faUsers} /> Friends
+          </Modal.Title>
+        </Modal.Header>
         <VStack spacing={friends.length > 0 ? 10 : 0}>
           <List bordered={friends.length > 0} className="friends-list" hover>
             {friends.map((friend) => {

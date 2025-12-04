@@ -84,12 +84,12 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
   return (
     <Modal open={open} onClose={() => setOpen(false)} centered overflow={false}>
       <VStack spacing={10}>
-        <div className="modal-title block">
-          <Heading level={2}>
+        <Modal.Header closeButton>
+          <Modal.Title>
             <FontAwesomeIcon icon={faBoxArchive} /> Archive
-          </Heading>
-          <Heading level={4}>Play past puzzles</Heading>
-        </div>
+          </Modal.Title>
+          <Text>Solve past puzzles</Text>
+        </Modal.Header>
         <Calendar
           bordered
           compact

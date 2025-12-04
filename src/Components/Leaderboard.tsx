@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { Modal } from "rsuite";
+import { Modal, ModalBody } from "rsuite";
 import { pb } from "../main";
 import { Checkbox, Loader, Text, Heading } from "rsuite";
 import { Table } from "rsuite/Table";
@@ -79,42 +79,44 @@ export default function Leaderboard({
         setData([]);
       }}
     >
-      <div className="modal-title">
-        <Heading level={2}>
+      <Modal.Header closeButton>
+        <Modal.Title>
           <FontAwesomeIcon icon={faTrophy} /> Leaderboard
-        </Heading>
-      </div>
-      <div className="leaderboard-container" style={{ minWidth: "300px" }}>
-        {data && !loading && (
-          <>
-            <Table data={data} bordered autoHeight maxHeight={400}>
-              <Table.Column flexGrow={1} align="center" verticalAlign="center">
-                <Table.HeaderCell>Rank</Table.HeaderCell>
-                <Table.Cell dataKey="rank" />
-              </Table.Column>
-              <Table.Column flexGrow={2} align="left" verticalAlign="center">
-                <Table.HeaderCell>Username</Table.HeaderCell>
-                <Table.Cell dataKey="expand.user.username" />
-              </Table.Column>
-              <Table.Column flexGrow={1} align="left" verticalAlign="center">
-                <Table.HeaderCell>Time</Table.HeaderCell>
-                <Table.Cell dataKey="time" renderCell={(c) => formatDuration(c)} />
-              </Table.Column>
-              <Table.Column flexGrow={1} align="center" verticalAlign="center">
-                <Table.HeaderCell>Hints</Table.HeaderCell>
-                <Table.Cell dataKey="cheated" renderCell={(c) => <Checkbox checked={c} readOnly />} />
-              </Table.Column>
-            </Table>
-            {user.friends.length === 0 && (
-              <Text style={{ marginTop: 10 }} weight="bold" className="centered block">
-                Add friends to compare scores
-              </Text>
-            )}
-          </>
-        )}
-      </div>
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <div className="leaderboard-container" style={{ minWidth: "300px" }}>
+          {data && !loading && (
+            <>
+              <Table data={data} bordered autoHeight maxHeight={400}>
+                <Table.Column flexGrow={1} align="center" verticalAlign="center">
+                  <Table.HeaderCell>Rank</Table.HeaderCell>
+                  <Table.Cell dataKey="rank" />
+                </Table.Column>
+                <Table.Column flexGrow={2} align="left" verticalAlign="center">
+                  <Table.HeaderCell>Username</Table.HeaderCell>
+                  <Table.Cell dataKey="expand.user.username" />
+                </Table.Column>
+                <Table.Column flexGrow={1} align="left" verticalAlign="center">
+                  <Table.HeaderCell>Time</Table.HeaderCell>
+                  <Table.Cell dataKey="time" renderCell={(c) => formatDuration(c)} />
+                </Table.Column>
+                <Table.Column flexGrow={1} align="center" verticalAlign="center">
+                  <Table.HeaderCell>Hints</Table.HeaderCell>
+                  <Table.Cell dataKey="cheated" renderCell={(c) => <Checkbox checked={c} readOnly />} />
+                </Table.Column>
+              </Table>
+              {user.friends.length === 0 && (
+                <Text style={{ marginTop: 10 }} weight="bold" className="centered block">
+                  Add friends to compare scores
+                </Text>
+              )}
+            </>
+          )}
+        </div>
 
-      {loading && <Loader center backdrop />}
+        {loading && <Loader center backdrop />}
+      </Modal.Body>
     </Modal>
   );
 }

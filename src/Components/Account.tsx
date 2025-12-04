@@ -3,7 +3,7 @@ import { Form, Modal } from "rsuite";
 import { pb } from "../main";
 import { Avatar, Button, ButtonGroup, Heading, HStack, Text, useDialog, VStack } from "rsuite";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDoorOpen, faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faDoorOpen, faPencil, faTrash, faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import { GlobalState } from "../lib/GlobalState";
 import type { RecordAuthResponse } from "pocketbase";
 import posthog from "posthog-js";
@@ -122,7 +122,9 @@ export default function Account({ open, setOpen }: { open: boolean; setOpen: (op
         }}
       >
         <Modal.Header closeButton>
-          <Modal.Title>Account</Modal.Title>
+          <Modal.Title>
+            <FontAwesomeIcon icon={faUserCircle} /> Account
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <VStack spacing={10}>
