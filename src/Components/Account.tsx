@@ -108,7 +108,7 @@ export default function Account({ open, setOpen }: { open: boolean; setOpen: (op
 
   const { user, setUser } = useContext(GlobalState);
 
-  const defaultAvatar = useMemo(() => getDefaultAvatar(user.username), [user]);
+  const defaultAvatar = useMemo(() => getDefaultAvatar(user?.username), [user]);
 
   if (user) {
     return (
