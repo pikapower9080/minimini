@@ -1,6 +1,6 @@
 {
-  "name": "minimini",
-  "short_name": "minimini",
+  "name": "Glyph",
+  "short_name": "Glyph",
   "icons": [
     {
       "src": "/icons/pwa-192x192.png",
@@ -31,5 +31,5 @@
   "display": "minimal-ui",
   "background_color": "#FFFFFF",
   "theme_color": "#FFFFFF",
-  "description": "Minimalist mini crossword"
+  "description": "Daily word games"
 }
