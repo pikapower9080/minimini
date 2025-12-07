@@ -1,38 +1,39 @@
-.game-cards .rs-card {
-  cursor: pointer;
-  transition: transform 0.15s;
-}
+.index {
+  .game-cards .rs-card {
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
 
-.game-cards .rs-card:hover {
-  transform: translateY(-4px);
-}
+  .game-cards .rs-card:hover {
+    transform: translateY(-4px);
+  }
 
-.title-container {
-  margin-bottom: 20px;
-}
+  .title-container {
+    margin-bottom: 20px;
+  }
 
-.rs-card .rs-image {
-  margin-block-start: var(--rs-card-padding);
-}
+  .rs-card .rs-image {
+    margin-block-start: var(--rs-card-padding);
+  }
 
-.rs-card-group {
-  max-width: 540px;
-  margin-inline: auto;
-}
+  .rs-card-group {
+    max-width: 540px;
+    margin-inline: auto;
+  }
 
-.rs-card {
-  text-align: center;
-}
+  .rs-card {
+    text-align: center;
+  }
 
-.account-buttons {
-  width: fit-content !important;
-  margin-inline: auto;
-}
+  .account-buttons {
+    width: fit-content !important;
+  }
 
-.rs-center:has(.account-buttons) {
-  margin-top: 10px;
-}
+  .rs-center:has(.account-buttons) {
+    margin-top: 10px;
+  }
 
-a {
-  color: unset !important;
+  a {
+    color: unset !important;
+  }
 }

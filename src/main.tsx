@@ -40,6 +40,7 @@ import "rsuite/Image/styles/index.css";
 import "rsuite/Center/styles/index.css";
 
 import "./css/App.css";
+import "./css/Index.css";
 import { GlobalState } from "./lib/GlobalState.ts";
 
 const Index = lazy(() => import("./Index.tsx"));

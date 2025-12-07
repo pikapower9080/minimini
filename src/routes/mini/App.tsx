@@ -5,7 +5,6 @@ import Timer from "./Components/Timer";
 import { Modal } from "rsuite";
 import posthog from "posthog-js";
 import localforage from "localforage";
-import type { AuthRecord } from "pocketbase";
 import { pb, pb_url } from "../../main";
 import { MiniState } from "./state";
 import { Archive } from "./Components/Archive";
@@ -14,8 +13,9 @@ import formatDate from "../../lib/formatDate";
 import SignIn from "../../Components/SignIn";
 import Friends from "../../Components/Friends";
 import Account from "../../Components/Account";
-import { ArchiveIcon, CircleUserRoundIcon, LogInIcon, UsersIcon } from "lucide-react";
+import { ArchiveIcon } from "lucide-react";
 import { GlobalState } from "../../lib/GlobalState";
+import AccountButtons from "../../Components/AccountButtons";
 
 function App() {
   const [data, setData] = useState<MiniCrossword | null>(null);
@@ -24,7 +24,7 @@ function App() {
   const [paused, setPaused] = useState(false);
   const [complete, setComplete] = useState(false);
   const [cloudLoading, setCloudLoading] = useState(false);
-  const [modalState, setModalState] = useState<"welcome" | "archive" | "sign-in" | "add-friends" | "account" | null>("welcome");
+  const [modalState, setModalState] = useState<"welcome" | "archive" | "sign-in" | "friends" | "account" | null>("welcome");
   const timeRef = useRef<number[]>([]);
   const startTouched = useRef(false);
   const stateDocId = useRef<string>("");
@@ -162,44 +162,7 @@ function App() {
                 Archive
               </Button>
             </ButtonGroup>
-            <ButtonGroup justified>
-              {!pb.authStore.isValid ? (
-                <Button
-                  appearance="subtle"
-                  onClick={() => {
-                    setModalState("sign-in");
-                  }}
-                  startIcon={<LogInIcon />}
-                >
-                  Sign in
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    appearance="subtle"
-                    onClick={() => {
-                      setModalState("account");
-                    }}
-                    style={{
-                      flexGrow: 1
-                    }}
-                    startIcon={<CircleUserRoundIcon />}
-                  >
-                    Account
-                  </Button>
-                  <Button
-                    appearance="subtle"
-                    onClick={() => {
-                      setModalState("add-friends");
-                    }}
-                    style={{ flexGrow: 1 }}
-                    startIcon={<UsersIcon />}
-                  >
-                    Friends
-                  </Button>
-                </>
-              )}
-            </ButtonGroup>
+            <AccountButtons setModalState={setModalState} appearance="subtle" justified={true} />
           </VStack>
         </Modal>
       )}
@@ -249,7 +212,7 @@ function App() {
       />
 
       <Friends
-        open={modalState === "add-friends"}
+        open={modalState === "friends"}
         setOpen={() => {
           setModalState("welcome");
         }}
