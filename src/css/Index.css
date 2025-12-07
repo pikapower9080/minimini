@@ -24,6 +24,15 @@
   text-align: center;
 }
 
+.account-buttons {
+  width: fit-content !important;
+  margin-inline: auto;
+}
+
+.rs-center:has(.account-buttons) {
+  margin-top: 10px;
+}
+
 a {
   color: unset !important;
 }

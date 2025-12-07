@@ -1,13 +1,67 @@
-import { Badge, Card, CardGroup, Heading, HStack, Image, Text } from "rsuite";
+import { Badge, Button, Card, CardGroup, Heading, HStack, Image, Text, ButtonGroup, Center } from "rsuite";
 import "./css/Index.css";
 import { Link } from "react-router";
+import { CircleUserRoundIcon, LogInIcon, UsersIcon } from "lucide-react";
+import { useContext, useState } from "react";
+import Account from "./Components/Account";
+import { GlobalState } from "./lib/GlobalState";
+import Friends from "./Components/Friends";
+import SignIn from "./Components/SignIn";
 
 export default function Index() {
+  const [modalState, setModalState] = useState<"account" | "friends" | "sign-in" | null>(null);
+  const { user, setUser } = useContext(GlobalState);
+
   return (
     <>
+      <Account open={modalState === "account"} setOpen={() => setModalState(null)} />
+      <Friends open={modalState === "friends"} setOpen={() => setModalState(null)} />
+      <SignIn open={modalState === "sign-in"} setOpen={() => setModalState(null)} />
+
       <div className="title-container">
         <Heading level={1}>Glyph</Heading>
         <Heading level={3}>Daily word games</Heading>
+        <Center>
+          <ButtonGroup className="account-buttons">
+            {user ? (
+              <>
+                {" "}
+                <Button
+                  appearance="default"
+                  onClick={() => {
+                    setModalState("account");
+                  }}
+                  style={{
+                    flexGrow: 1
+                  }}
+                  startIcon={<CircleUserRoundIcon />}
+                >
+                  Account
+                </Button>
+                <Button
+                  appearance="default"
+                  onClick={() => {
+                    setModalState("friends");
+                  }}
+                  style={{ flexGrow: 1 }}
+                  startIcon={<UsersIcon />}
+                >
+                  Friends
+                </Button>
+              </>
+            ) : (
+              <Button
+                appearance="default"
+                onClick={() => {
+                  setModalState("sign-in");
+                }}
+                startIcon={<LogInIcon />}
+              >
+                Sign in
+              </Button>
+            )}
+          </ButtonGroup>
+        </Center>
       </div>
       <CardGroup columns={2} className="game-cards" spacing={10}>
         <Link to={"/mini"}>

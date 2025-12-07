@@ -3,10 +3,10 @@ import { Modal } from "rsuite";
 import { Badge, Button, Calendar, Loader, Text, Heading, VStack } from "rsuite";
 import { pb } from "../../../main";
 import type { ArchiveRecord, ArchiveStateRecord, BasicArchiveRecord } from "../../../lib/types";
-import { GlobalState } from "../../../lib/GlobalState";
 import { formatDuration } from "../../../lib/formatDate";
 import posthog from "posthog-js";
 import { ArchiveIcon, CircleCheckIcon, HourglassIcon } from "lucide-react";
+import { MiniState } from "../state";
 
 export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
   const [data, setData] = useState<BasicArchiveRecord[] | null>(null);
@@ -23,7 +23,7 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
   const archive = pb.collection("archive");
   const puzzleState = pb.collection("puzzle_state");
 
-  const { setData: setPuzzleData } = useContext(GlobalState);
+  const { setData: setPuzzleData } = useContext(MiniState);
 
   useEffect(() => {
     if (!data && open) {

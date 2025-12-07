@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { MiniCrossword } from "../../lib/types";
 import Mini from "./Components/Mini";
 import Timer from "./Components/Timer";
@@ -7,7 +7,7 @@ import posthog from "posthog-js";
 import localforage from "localforage";
 import type { AuthRecord } from "pocketbase";
 import { pb, pb_url } from "../../main";
-import { GlobalState } from "../../lib/GlobalState";
+import { MiniState } from "./state";
 import { Archive } from "./Components/Archive";
 import { Button, ButtonGroup, Heading, VStack, Text } from "rsuite";
 import formatDate from "../../lib/formatDate";
@@ -15,6 +15,7 @@ import SignIn from "../../Components/SignIn";
 import Friends from "../../Components/Friends";
 import Account from "../../Components/Account";
 import { ArchiveIcon, CircleUserRoundIcon, LogInIcon, UsersIcon } from "lucide-react";
+import { GlobalState } from "../../lib/GlobalState";
 
 function App() {
   const [data, setData] = useState<MiniCrossword | null>(null);
@@ -28,12 +29,10 @@ function App() {
   const startTouched = useRef(false);
   const stateDocId = useRef<string>("");
 
-  const [user, setUser] = useState<AuthRecord | null>(pb.authStore.isValid ? pb.authStore.record : null);
+  const { user, setUser } = useContext(GlobalState);
 
-  const globalState = useMemo(
+  const miniState = useMemo(
     () => ({
-      user,
-      setUser,
       paused,
       data,
       setData,
@@ -127,7 +126,7 @@ function App() {
   });
 
   return (
-    <GlobalState.Provider value={globalState}>
+    <MiniState.Provider value={miniState}>
       {data && restoredTime > -1 && (
         <Modal open={modalState === "welcome"} onClose={() => {}} centered overflow={false} size={"fit-content"}>
           <VStack spacing={10}>
@@ -292,7 +291,7 @@ function App() {
         !data && !error && <Text className="loading centered block">Loading...</Text>
       )}
       {error && <div className="error">{error}</div>}
-    </GlobalState.Provider>
+    </MiniState.Provider>
   );
 }
 

@@ -13,6 +13,7 @@ import formatDate from "../../../lib/formatDate";
 import PuzzleMenu from "./PuzzleMenu";
 import Leaderboard from "../../../Components/Leaderboard";
 import { ChevronLeftIcon, ChevronRightIcon, TrophyIcon } from "lucide-react";
+import { MiniState } from "../state";
 
 const Keyboard = lazy(async () => ({
   default: (await import("react-simple-keyboard")).default
@@ -44,7 +45,8 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const { user, paused } = useContext(GlobalState);
+  const { user } = useContext(GlobalState);
+  const { paused } = useContext(MiniState);
 
   function typeLetter(letter: string, cellIndex: number) {
     if (!boardRef.current) return;

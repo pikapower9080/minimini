@@ -6,6 +6,7 @@ import { pb } from "../../../main";
 import posthog from "posthog-js";
 import type { MiniCrossword } from "../../../lib/types";
 import { LogInIcon, LogOutIcon, MenuIcon, RotateCcwIcon, TrophyIcon } from "lucide-react";
+import { MiniState } from "../state";
 
 export default function PuzzleMenu({
   data,
@@ -20,7 +21,8 @@ export default function PuzzleMenu({
   setPuzzleModalState: (state: any) => void;
   complete: boolean;
 }) {
-  const { user, setModalState } = useContext(GlobalState);
+  const { user } = useContext(GlobalState);
+  const { setModalState } = useContext(MiniState);
 
   return (
     <Menu portal transition align="end" menuButton={<MenuIcon />}>
