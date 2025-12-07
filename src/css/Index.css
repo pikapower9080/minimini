@@ -1,0 +1,29 @@
+.game-cards .rs-card {
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.game-cards .rs-card:hover {
+  transform: translateY(-4px);
+}
+
+.title-container {
+  margin-bottom: 20px;
+}
+
+.rs-card .rs-image {
+  margin-block-start: var(--rs-card-padding);
+}
+
+.rs-card-group {
+  max-width: 540px;
+  margin-inline: auto;
+}
+
+.rs-card {
+  text-align: center;
+}
+
+a {
+  color: unset !important;
+}

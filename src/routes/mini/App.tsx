@@ -1,20 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { MiniCrossword } from "./lib/types";
+import type { MiniCrossword } from "../../lib/types";
 import Mini from "./Components/Mini";
 import Timer from "./Components/Timer";
 import { Modal } from "rsuite";
 import posthog from "posthog-js";
 import localforage from "localforage";
 import type { AuthRecord } from "pocketbase";
-import { pb, pb_url } from "./main";
-import { GlobalState } from "./lib/GlobalState";
+import { pb, pb_url } from "../../main";
+import { GlobalState } from "../../lib/GlobalState";
 import { Archive } from "./Components/Archive";
 import { Button, ButtonGroup, Heading, VStack, Text } from "rsuite";
-import formatDate from "./lib/formatDate";
-import SignIn from "./Components/SignIn";
-import Friends from "./Components/Friends";
-import Account from "./Components/Account";
-import { ArchiveIcon, CircleUserRoundIcon, LogInIcon, UserIcon, UsersIcon } from "lucide-react";
+import formatDate from "../../lib/formatDate";
+import SignIn from "../../Components/SignIn";
+import Friends from "../../Components/Friends";
+import Account from "../../Components/Account";
+import { ArchiveIcon, CircleUserRoundIcon, LogInIcon, UsersIcon } from "lucide-react";
 
 function App() {
   const [data, setData] = useState<MiniCrossword | null>(null);

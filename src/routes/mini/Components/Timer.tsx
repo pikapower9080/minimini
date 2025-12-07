@@ -2,7 +2,7 @@ import localforage from "localforage";
 import posthog from "posthog-js";
 import { useEffect, useState } from "react";
 import { useStopwatch } from "react-timer-hook";
-import type { MiniCrossword } from "../lib/types";
+import type { MiniCrossword } from "../../../lib/types";
 import { HStack, Text } from "rsuite";
 import { PauseIcon } from "lucide-react";
 

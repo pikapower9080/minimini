@@ -1,10 +1,10 @@
 import { useContext, useEffect, useState } from "react";
 import { Modal } from "rsuite";
 import { Badge, Button, Calendar, Loader, Text, Heading, VStack } from "rsuite";
-import { pb } from "../main";
-import type { ArchiveRecord, ArchiveStateRecord, BasicArchiveRecord } from "../lib/types";
-import { GlobalState } from "../lib/GlobalState";
-import { formatDuration } from "../lib/formatDate";
+import { pb } from "../../../main";
+import type { ArchiveRecord, ArchiveStateRecord, BasicArchiveRecord } from "../../../lib/types";
+import { GlobalState } from "../../../lib/GlobalState";
+import { formatDuration } from "../../../lib/formatDate";
 import posthog from "posthog-js";
 import { ArchiveIcon, CircleCheckIcon, HourglassIcon } from "lucide-react";
 

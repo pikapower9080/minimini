@@ -1,10 +1,11 @@
 import { createRoot } from "react-dom/client";
-import App from "./App.tsx";
 import posthog from "posthog-js";
 import { PostHogProvider, PostHogErrorBoundary } from "posthog-js/react";
 import { configureStorage } from "./lib/storage.ts";
 import PocketBase from "pocketbase";
 import { CustomProvider } from "rsuite";
+import { BrowserRouter, Routes, Route } from "react-router";
+import { Suspense, lazy } from "react";
 
 import "@szhsin/react-menu/dist/core.css";
 import "@szhsin/react-menu/dist/index.css";
@@ -33,8 +34,14 @@ import "rsuite/InputGroup/styles/index.css";
 import "rsuite/Avatar/styles/index.css";
 import "rsuite/Box/styles/index.css";
 import "rsuite/Modal/styles/index.css";
+import "rsuite/Card/styles/index.css";
+import "rsuite/CardGroup/styles/index.css";
+import "rsuite/Image/styles/index.css";
 
 import "./css/App.css";
+
+const Index = lazy(() => import("./Index.tsx"));
+const Mini = lazy(() => import("./routes/mini/App.tsx"));
 
 export const pb_url = import.meta.env.VITE_POCKETBASE_URL || location.origin;
 
@@ -56,7 +63,14 @@ createRoot(document.getElementById("root")!).render(
   <PostHogProvider client={posthog}>
     <PostHogErrorBoundary>
       <CustomProvider>
-        <App />
+        <BrowserRouter>
+          <Suspense fallback={null}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/mini" element={<Mini />} />
+            </Routes>
+          </Suspense>
+        </BrowserRouter>
       </CustomProvider>
     </PostHogErrorBoundary>
   </PostHogProvider>
