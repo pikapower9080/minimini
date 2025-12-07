@@ -1,11 +1,13 @@
 import { createRoot } from "react-dom/client";
 import posthog from "posthog-js";
 import { PostHogProvider, PostHogErrorBoundary } from "posthog-js/react";
-import { configureStorage } from "./lib/storage.ts";
 import PocketBase, { type AuthRecord } from "pocketbase";
 import { CustomProvider } from "rsuite";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { Suspense, lazy, useState } from "react";
+
+import { configureStorage } from "@/lib/storage.ts";
+import { GlobalState } from "@/lib/GlobalState.ts";
 
 import "@szhsin/react-menu/dist/core.css";
 import "@szhsin/react-menu/dist/index.css";
@@ -13,7 +15,6 @@ import "@szhsin/react-menu/dist/transitions/zoom.css";
 import "react-simple-keyboard/build/css/index.css";
 
 import "rsuite/Animation/styles/index.css";
-
 import "rsuite/Toggle/styles/index.css";
 import "rsuite/Rate/styles/index.css";
 import "rsuite/Text/styles/index.css";
@@ -41,7 +42,6 @@ import "rsuite/Center/styles/index.css";
 
 import "./css/App.css";
 import "./css/Index.css";
-import { GlobalState } from "./lib/GlobalState.ts";
 
 const Index = lazy(() => import("./Index.tsx"));
 const Mini = lazy(() => import("./routes/mini/App.tsx"));

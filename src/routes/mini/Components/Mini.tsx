@@ -1,19 +1,20 @@
 import { lazy, Suspense, useContext, useEffect, useMemo, useRef, useState, type RefObject } from "react";
-import type { MiniCrossword, MiniCrosswordClue } from "../../../lib/types";
-import { fireworks } from "../../../lib/confetti";
 import { Modal } from "rsuite";
 import posthog from "posthog-js";
 import localforage from "localforage";
-import { GlobalState } from "../../../lib/GlobalState";
-import { pb } from "../../../main";
 import throttle from "throttleit";
 import { Button, ButtonGroup, HStack, VStack, Toggle, Heading } from "rsuite";
-import Rating from "../../../Components/Rating";
-import formatDate from "../../../lib/formatDate";
-import PuzzleMenu from "./PuzzleMenu";
-import Leaderboard from "../../../Components/Leaderboard";
 import { ChevronLeftIcon, ChevronRightIcon, TrophyIcon } from "lucide-react";
-import { MiniState } from "../state";
+
+import type { MiniCrossword, MiniCrosswordClue } from "@/lib/types";
+import { pb } from "@/main";
+import { fireworks } from "@/lib/confetti";
+import { GlobalState } from "@/lib/GlobalState";
+import formatDate from "@/lib/formatDate";
+import Leaderboard from "@/Components/Leaderboard";
+import Rating from "@/Components/Rating";
+import { MiniState } from "@/routes/mini/state";
+import PuzzleMenu from "./PuzzleMenu";
 
 const Keyboard = lazy(async () => ({
   default: (await import("react-simple-keyboard")).default

@@ -1,21 +1,22 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import type { MiniCrossword } from "../../lib/types";
-import Mini from "./Components/Mini";
-import Timer from "./Components/Timer";
 import { Modal } from "rsuite";
 import posthog from "posthog-js";
 import localforage from "localforage";
-import { pb, pb_url } from "../../main";
-import { MiniState } from "./state";
-import { Archive } from "./Components/Archive";
 import { Button, ButtonGroup, Heading, VStack, Text } from "rsuite";
-import formatDate from "../../lib/formatDate";
-import SignIn from "../../Components/SignIn";
-import Friends from "../../Components/Friends";
-import Account from "../../Components/Account";
 import { ArchiveIcon } from "lucide-react";
-import { GlobalState } from "../../lib/GlobalState";
-import AccountButtons from "../../Components/AccountButtons";
+
+import type { MiniCrossword } from "@/lib/types";
+import { GlobalState } from "@/lib/GlobalState";
+import formatDate from "@/lib/formatDate";
+import { Archive } from "./Components/Archive";
+import { MiniState } from "./state";
+import { pb, pb_url } from "@/main";
+import AccountButtons from "@/Components/AccountButtons";
+import SignIn from "@/Components/SignIn";
+import Friends from "@/Components/Friends";
+import Account from "@/Components/Account";
+import Mini from "./Components/Mini";
+import Timer from "./Components/Timer";
 
 function App() {
   const [data, setData] = useState<MiniCrossword | null>(null);

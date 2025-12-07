@@ -1,11 +1,12 @@
-import { Badge, Button, Card, CardGroup, Heading, HStack, Image, Text, ButtonGroup, Center } from "rsuite";
+import { Badge, Button, Card, CardGroup, Heading, HStack, Image, Text, Center } from "rsuite";
 import { Link } from "react-router";
 import { useContext, useState } from "react";
-import Account from "./Components/Account";
-import { GlobalState } from "./lib/GlobalState";
-import Friends from "./Components/Friends";
-import SignIn from "./Components/SignIn";
-import AccountButtons from "./Components/AccountButtons";
+
+import Account from "@/Components/Account";
+import { GlobalState } from "@/lib/GlobalState";
+import Friends from "@/Components/Friends";
+import SignIn from "@/Components/SignIn";
+import AccountButtons from "@/Components/AccountButtons";
 
 export default function Index() {
   const [modalState, setModalState] = useState<"account" | "friends" | "sign-in" | null>(null);

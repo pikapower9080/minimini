@@ -1,12 +1,13 @@
 import { useContext, useEffect, useState } from "react";
 import { Modal } from "rsuite";
-import { Badge, Button, Calendar, Loader, Text, Heading, VStack } from "rsuite";
-import { pb } from "../../../main";
-import type { ArchiveRecord, ArchiveStateRecord, BasicArchiveRecord } from "../../../lib/types";
-import { formatDuration } from "../../../lib/formatDate";
+import { Badge, Button, Calendar, Loader, Text, VStack } from "rsuite";
 import posthog from "posthog-js";
 import { ArchiveIcon, CircleCheckIcon, HourglassIcon } from "lucide-react";
-import { MiniState } from "../state";
+
+import { pb } from "@/main";
+import type { ArchiveRecord, ArchiveStateRecord, BasicArchiveRecord } from "@/lib/types";
+import { formatDuration } from "@/lib/formatDate";
+import { MiniState } from "@/routes/mini/state";
 
 export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
   const [data, setData] = useState<BasicArchiveRecord[] | null>(null);
