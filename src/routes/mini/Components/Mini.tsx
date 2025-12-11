@@ -17,7 +17,7 @@ import { MiniState } from "@/routes/mini/state";
 import PuzzleMenu from "./PuzzleMenu";
 
 const Keyboard = lazy(async () => ({
-  default: (await import("react-simple-keyboard")).default
+  default: (await import("@/Components/VirtualKeyboard")).default
 }));
 
 interface MiniProps {
@@ -38,7 +38,6 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   const [direction, setDirection] = useState<"across" | "down">("across");
   const [boardState, setBoardState] = useState<{ [key: number]: string }>({});
   const [modalType, setModalType] = useState<"victory" | "incorrect" | "leaderboard" | null>(null);
-  const [keyboardLayout, setKeyboardLayout] = useState<"default" | "numeric">("default");
   const [keyboardOpen, setKeyboardOpen] = useState<boolean>(startTouched);
   const [autoCheck, setAutoCheck] = useState(false);
   const boardRef = useRef<HTMLDivElement>(null);
@@ -630,33 +629,8 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
               </div>
             </div>
 
-            <Suspense fallback={""}>
-              <Keyboard
-                onKeyPress={(key) => {
-                  if (key === "{numbers}" || key === "{abc}") {
-                    setKeyboardLayout(key === "{numbers}" ? "numeric" : "default");
-                    return;
-                  }
-                  let keyCode = key;
-                  if (key === "{bksp}") keyCode = "Backspace";
-                  if (key === "{enter}") keyCode = "Enter";
-                  if (key === "{esc}") keyCode = "Escape";
-                  if (key === "{tab}") keyCode = "Tab";
-                  handleKeyDown(new KeyboardEvent("keydown", { key: keyCode }), true);
-                }}
-                layout={{
-                  default: ["Q W E R T Y U I O P", "A S D F G H J K L", "{numbers} Z X C V B N M {bksp}"],
-                  numeric: ["1 2 3", "4 5 6", "7 8 9", "{abc} 0 {bksp}"]
-                }}
-                display={{
-                  "{numbers}": "123",
-                  "{abc}": "ABC",
-                  "{bksp}": "⌫"
-                }}
-                layoutName={keyboardLayout}
-                autoUseTouchEvents={true}
-                theme={!(keyboardOpen && selected !== null) ? "hidden" : ""}
-              />
+            <Suspense fallback={null}>
+              <Keyboard handleKeyDown={handleKeyDown} />
             </Suspense>
           </>
         ) : (
