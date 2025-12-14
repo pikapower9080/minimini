@@ -55,6 +55,9 @@
 .hidden {
   display: none;
 }
+.invisible {
+  visibility: hidden;
+}
 
 .block {
   display: block;

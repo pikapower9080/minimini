@@ -23,6 +23,7 @@ import "rsuite/Calendar/styles/index.css";
 import "rsuite/Badge/styles/index.css";
 import "rsuite/ButtonGroup/styles/index.css";
 import "rsuite/Button/styles/index.css";
+import "rsuite/IconButton/styles/index.css";
 import "rsuite/Input/styles/index.css";
 import "rsuite/Table/styles/index.css";
 import "rsuite/Checkbox/styles/index.css";
@@ -42,9 +43,11 @@ import "rsuite/Center/styles/index.css";
 
 import "./css/App.css";
 import "./css/Index.css";
+import "./css/Cascades.css";
 
 const Index = lazy(() => import("./Index.tsx"));
 const Mini = lazy(() => import("./routes/mini/App.tsx"));
+const Cascades = lazy(() => import("./routes/cascades/App.tsx"));
 
 export const pb_url = import.meta.env.VITE_POCKETBASE_URL || location.origin;
 
@@ -55,10 +58,12 @@ if (import.meta.env.DEV) {
   window.pb = pb;
 }
 
-posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
-  api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
-  defaults: "2025-05-24"
-});
+if (import.meta.env.VITE_PUBLIC_POSTHOG_KEY && import.meta.env.VITE_PUBLIC_POSTHOG_HOST) {
+  posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
+    api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
+    defaults: "2025-05-24"
+  });
+}
 
 configureStorage();
 
@@ -77,6 +82,7 @@ function Main() {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/mini" element={<Mini />} />
+            <Route path="/cascades" element={<Cascades />} />
           </Routes>
         </Suspense>
       </BrowserRouter>

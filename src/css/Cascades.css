@@ -1,0 +1,51 @@
+@keyframes swing-out-top-bck {
+  0% {
+    transform: rotateX(0deg);
+    transform-origin: top;
+    opacity: 1;
+  }
+  100% {
+    transform: rotateX(-100deg);
+    transform-origin: top;
+    opacity: 0;
+  }
+}
+.swing-out-top-bck {
+  animation: swing-out-top-bck 0.45s cubic-bezier(0.6, -0.28, 0.735, 0.045) both;
+}
+
+.cascades {
+  .tile {
+    border: 1px var(--rs-gray-300) solid;
+    border-radius: var(--rs-radius-sm);
+    font-size: 20px;
+    width: 50px;
+    height: 50px;
+    aspect-ratio: 1;
+    user-select: none;
+    background-color: white;
+
+    &.inactive {
+      border-color: var(--rs-border-primary);
+    }
+  }
+
+  .cascade-tile {
+    cursor: pointer;
+
+    &.inactive {
+      background-color: var(--rs-gray-50);
+      opacity: 70%;
+      cursor: not-allowed;
+    }
+  }
+
+  .input-row-btn {
+    width: 50px;
+    height: 50px;
+  }
+  .rs-btn-icon {
+    aspect-ratio: 1;
+    padding: 10px;
+  }
+}

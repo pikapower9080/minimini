@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"vite --host --port 3000\" \"./scripts/pb_dev.sh\" --names \"vite,pb\" --kill-others --success first",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "dev": "concurrently \"bunx --bun vite --host --port 3000\" \"./scripts/pb_dev.sh\" --names \"vite,pb\" --kill-others --success first",
+    "build": "bunx --bun tsc -b && bunx --bun vite build",
+    "lint": "bunx --bun eslint .",
+    "preview": "bunx --bun vite preview"
   },
   "dependencies": {
     "@dicebear/collection": "^9.2.4",
@@ -19,7 +19,10 @@
     "lucide-react": "^0.555.0",
     "pocketbase": "^0.26.3",
     "posthog-js": "^1.301.0",
+    "rdndmb-html5-to-touch": "^9.0.0",
     "react": "^19.2.1",
+    "react-dnd": "^16.0.1",
+    "react-dnd-multi-backend": "^9.0.0",
     "react-dom": "^19.2.1",
     "react-router": "^7.10.1",
     "react-simple-keyboard": "^3.8.139",
