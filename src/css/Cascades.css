@@ -11,7 +11,23 @@
   }
 }
 .swing-out-top-bck {
-  animation: swing-out-top-bck 0.45s cubic-bezier(0.6, -0.28, 0.735, 0.045) both;
+  animation-delay: 1s;
+  animation: swing-out-top-bck 1s cubic-bezier(0.6, -0.28, 0.735, 0.045) both;
+}
+
+@keyframes slide-out-bck-center {
+  0% {
+    scale: 100%;
+    opacity: 1;
+  }
+  100% {
+    scale: 0%;
+    opacity: 0;
+  }
+}
+.slide-out-bck-center {
+  animation-delay: 1s;
+  animation: slide-out-bck-center 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53) both;
 }
 
 .cascades {
@@ -47,5 +63,11 @@
   .rs-btn-icon {
     aspect-ratio: 1;
     padding: 10px;
+  }
+
+  .tile-space.filled {
+    color: white;
+    background-color: var(--rs-green-400);
+    border-color: var(--rs-green-200);
   }
 }

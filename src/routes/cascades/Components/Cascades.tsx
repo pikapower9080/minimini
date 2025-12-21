@@ -2,11 +2,11 @@ import { Badge, Center, HStack, IconButton, VStack } from "rsuite";
 import { DndProvider, useDrag, useDrop, type DragSourceMonitor } from "react-dnd";
 import { HTML5toTouch } from "rdndmb-html5-to-touch";
 import { MultiBackend, usePreview } from "react-dnd-multi-backend";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useMemo, useRef, useState } from "react";
 import { ArrowRightIcon, TrashIcon } from "lucide-react";
 
 import type { CascadesStateProps, CascadeTileProps, TileSpaceProps } from "../types";
-import { cellIsActive, checkWords, getDefaultCascade } from "../util";
+import { cellIsActive, checkWords, dropCascade, getDefaultCascade } from "../util";
 import { CascadesState } from "../state";
 import { words } from "@/lib/words";
 
@@ -26,29 +26,32 @@ export function CascadeTilePreview() {
 export function CascadeTile({ row, column }: CascadeTileProps) {
   const { cascade, setCascade, setInputRow } = useContext<CascadesStateProps>(CascadesState);
 
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: "CASCADE_TILE",
-    item: { row, column },
-    collect: (monitor: DragSourceMonitor) => ({
-      isDragging: monitor.isDragging()
-    }),
-    end: (item, monitor) => {
-      const dropResult: { column: number } | null = monitor.getDropResult();
-      if (item && dropResult) {
-        console.log(item, dropResult);
-        setInputRow((prevInputRow) => {
-          const newInputRow = [...prevInputRow];
-          newInputRow[dropResult.column] = cascade[item.row][item.column];
-          return newInputRow;
-        });
-        setCascade((prevCascade) => {
-          const newCascade = prevCascade.map((r) => [...r]);
-          newCascade[item.row][item.column] = "";
-          return newCascade;
-        });
+  const [{ isDragging }, drag] = useDrag(
+    () => ({
+      type: "CASCADE_TILE",
+      item: { row, column },
+      collect: (monitor: DragSourceMonitor) => ({
+        isDragging: monitor.isDragging()
+      }),
+      end: (item, monitor) => {
+        const dropResult: { column: number } | null = monitor.getDropResult();
+        if (item && dropResult) {
+          console.log(item, dropResult);
+          setInputRow((prevInputRow) => {
+            const newInputRow = [...prevInputRow];
+            newInputRow[dropResult.column] = cascade[row][column];
+            return newInputRow;
+          });
+          setCascade((prevCascade) => {
+            const newCascade = prevCascade.map((r) => [...r]);
+            newCascade[row][column] = "";
+            return newCascade;
+          });
+        }
       }
-    }
-  }));
+    }),
+    [cascade, row, column]
+  );
 
   const letter = cascade[row][column];
   const active = cellIsActive(cascade, row, column);
@@ -76,7 +79,7 @@ export function CascadeTile({ row, column }: CascadeTileProps) {
   }
 }
 
-export function TileSpace({ column }: TileSpaceProps) {
+export function TileSpace({ column, exiting }: TileSpaceProps) {
   const { inputRow } = useContext<CascadesStateProps>(CascadesState);
 
   const letter = inputRow[column];
@@ -90,18 +93,18 @@ export function TileSpace({ column }: TileSpaceProps) {
     })
   }));
 
+  const classList = ["tile", "tile-space", exiting && "filled"];
+
+  const TileSpaceContent = (
+    <div className="tile-container">
+      <Center className={classList.join(" ")}>{letter}</Center>
+    </div>
+  );
+
   if (droppable) {
-    return drop(
-      <div className="tile-container">
-        <Center className="tile tile-space">{letter}</Center>
-      </div>
-    );
+    return drop(TileSpaceContent);
   } else {
-    return (
-      <div className="tile-container">
-        <Center className="tile tile-space filled">{letter}</Center>
-      </div>
-    );
+    return TileSpaceContent;
   }
 }
 
@@ -126,13 +129,18 @@ function DiscardButton() {
   );
 }
 
-function onSubmit(inputRow: string[]) {
+function onSubmit(inputRow: string[], cascadesState: CascadesStateProps) {
   const matches = checkWords(inputRow, words);
   console.log(matches);
+  if (matches.length > 0) {
+    cascadesState.setCascade(dropCascade(cascadesState.cascade, cascadesState.drops));
+  }
 }
 
 export default function Cascades() {
   const defaultCascade: string[][] = useMemo(() => getDefaultCascade(rows, columns), []);
+
+  const drops = useRef<number[]>(Array(columns).fill(0));
 
   const [cascade, setCascade] = useState(defaultCascade);
   const [inputRow, setInputRow] = useState<string[]>(Array(columns).fill(""));
@@ -142,7 +150,8 @@ export default function Cascades() {
       cascade,
       setCascade,
       inputRow,
-      setInputRow
+      setInputRow,
+      drops
     }),
     [cascade, inputRow]
   );
@@ -174,14 +183,14 @@ export default function Cascades() {
                   <DiscardButton />
                 </Center>
                 {Array.from({ length: columns }).map((_, i) => {
-                  return <TileSpace key={i} column={i} />;
+                  return <TileSpace key={i} column={i} exiting={false} />;
                 })}
                 <Center className="input-row-btn">
                   <IconButton
                     appearance="primary"
                     size="lg"
                     onClick={() => {
-                      onSubmit(inputRow);
+                      onSubmit(inputRow, cascadesState);
                     }}
                   >
                     <ArrowRightIcon />

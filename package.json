@@ -15,6 +15,7 @@
     "@szhsin/react-menu": "^4.5.1",
     "@types/canvas-confetti": "^1.9.0",
     "canvas-confetti": "^1.9.4",
+    "esm-seedrandom": "^3.0.5-esm.2",
     "localforage": "^1.10.0",
     "lucide-react": "^0.555.0",
     "pocketbase": "^0.26.3",
