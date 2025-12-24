@@ -1,4 +1,5 @@
 import type { Dispatch, RefObject, SetStateAction } from "react";
+import type { Toaster } from "rsuite";
 
 export interface CascadesStateProps {
   cascade: string[][];
@@ -6,6 +7,7 @@ export interface CascadesStateProps {
   inputRow: string[];
   setInputRow: Dispatch<SetStateAction<string[]>>;
   drops: RefObject<number[]>;
+  toaster: Toaster;
 }
 
 export interface CascadeTileProps {

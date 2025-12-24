@@ -1,4 +1,4 @@
-import { Badge, Center, HStack, IconButton, VStack } from "rsuite";
+import { Badge, Center, HStack, IconButton, useToaster, VStack, Notification } from "rsuite";
 import { DndProvider, useDrag, useDrop, type DragSourceMonitor } from "react-dnd";
 import { HTML5toTouch } from "rdndmb-html5-to-touch";
 import { MultiBackend, usePreview } from "react-dnd-multi-backend";
@@ -13,30 +13,40 @@ import { words } from "@/lib/words";
 const rows = 5;
 const columns = 6;
 
-export function CascadeTilePreview() {
+export function DragPreview() {
   const preview = usePreview();
   if (!preview.display) {
     return null;
   }
-  const { itemType, item, style } = preview;
+  const { itemType, item, style }: any = preview;
   if (itemType === "CASCADE_TILE") {
+    return (
+      <div className="cascade-tile-container tile-preview-container">
+        <Center className={"tile"} role="Handle">
+          {item?.letter ?? ""}
+        </Center>
+      </div>
+    );
   }
 }
 
 export function CascadeTile({ row, column }: CascadeTileProps) {
-  const { cascade, setCascade, setInputRow } = useContext<CascadesStateProps>(CascadesState);
+  const { cascade, setCascade, inputRow, setInputRow } = useContext<CascadesStateProps>(CascadesState);
+
+  const letter = cascade[row][column];
+  const active = cellIsActive(cascade, row, column);
 
   const [{ isDragging }, drag] = useDrag(
     () => ({
       type: "CASCADE_TILE",
-      item: { row, column },
+      item: { row, column, letter },
       collect: (monitor: DragSourceMonitor) => ({
         isDragging: monitor.isDragging()
       }),
       end: (item, monitor) => {
         const dropResult: { column: number } | null = monitor.getDropResult();
         if (item && dropResult) {
-          console.log(item, dropResult);
+          if (inputRow[dropResult.column] !== "") return;
           setInputRow((prevInputRow) => {
             const newInputRow = [...prevInputRow];
             newInputRow[dropResult.column] = cascade[row][column];
@@ -52,9 +62,6 @@ export function CascadeTile({ row, column }: CascadeTileProps) {
     }),
     [cascade, row, column]
   );
-
-  const letter = cascade[row][column];
-  const active = cellIsActive(cascade, row, column);
 
   const classList = ["tile", "cascade-tile"];
   if (isDragging || letter === "") {
@@ -80,12 +87,12 @@ export function CascadeTile({ row, column }: CascadeTileProps) {
 }
 
 export function TileSpace({ column, exiting }: TileSpaceProps) {
-  const { inputRow } = useContext<CascadesStateProps>(CascadesState);
+  const { inputRow, setInputRow } = useContext<CascadesStateProps>(CascadesState);
 
   const letter = inputRow[column];
   const droppable = letter === "";
   const [{ canDrop, isOver }, drop] = useDrop(() => ({
-    accept: "CASCADE_TILE",
+    accept: ["CASCADE_TILE", "INPUT_TILE"],
     drop: () => ({ column }),
     collect: (monitor) => ({
       isOver: monitor.isOver(),
@@ -93,24 +100,59 @@ export function TileSpace({ column, exiting }: TileSpaceProps) {
     })
   }));
 
+  const [{ isDragging }, drag] = useDrag(
+    () => ({
+      type: "INPUT_TILE",
+      item: { column },
+      collect: (monitor: DragSourceMonitor) => ({
+        isDragging: monitor.isDragging()
+      }),
+      end: (item, monitor) => {
+        const dropResult: { column: number } | null = monitor.getDropResult();
+        if (item && dropResult) {
+          const from = item.column;
+          const to = dropResult.column;
+          if (from === to) return;
+          if (typeof to !== "number") {
+            // Discard
+            setInputRow((prevInputRow) => {
+              const newInputRow = [...prevInputRow];
+              newInputRow[column] = "";
+              return newInputRow;
+            });
+          } else {
+            setInputRow((prevInputRow) => {
+              const newInputRow = [...prevInputRow];
+              const temp = newInputRow[from];
+              newInputRow[from] = newInputRow[to];
+              newInputRow[to] = temp;
+              return newInputRow;
+            });
+          }
+        }
+      }
+    }),
+    [letter, column]
+  );
+
   const classList = ["tile", "tile-space", exiting && "filled"];
 
   const TileSpaceContent = (
     <div className="tile-container">
-      <Center className={classList.join(" ")}>{letter}</Center>
+      <Center className={classList.join(" ")}>{!isDragging && letter}</Center>
     </div>
   );
 
   if (droppable) {
     return drop(TileSpaceContent);
   } else {
-    return TileSpaceContent;
+    return drag(drop(TileSpaceContent));
   }
 }
 
 function DiscardButton() {
   const [{ canDrop, isOver }, drop] = useDrop(() => ({
-    accept: "CASCADE_TILE",
+    accept: ["CASCADE_TILE", "INPUT_TILE"],
     drop: () => ({}),
     collect: (monitor) => ({
       isOver: monitor.isOver(),
@@ -134,10 +176,25 @@ function onSubmit(inputRow: string[], cascadesState: CascadesStateProps) {
   console.log(matches);
   if (matches.length > 0) {
     cascadesState.setCascade(dropCascade(cascadesState.cascade, cascadesState.drops));
+    cascadesState.setInputRow(
+      cascadesState.inputRow.map((letter) => {
+        if (matches[0].startsWith(letter.toLowerCase()) && letter !== "") {
+          matches[0] = matches[0].slice(1);
+          return "";
+        } else {
+          return letter;
+        }
+      })
+    );
+  } else {
+    const notification = <Notification>No real words found</Notification>;
+    cascadesState.toaster.push(notification, { placement: "topStart" });
   }
 }
 
 export default function Cascades() {
+  const toaster = useToaster();
+
   const defaultCascade: string[][] = useMemo(() => getDefaultCascade(rows, columns), []);
 
   const drops = useRef<number[]>(Array(columns).fill(0));
@@ -151,7 +208,8 @@ export default function Cascades() {
       setCascade,
       inputRow,
       setInputRow,
-      drops
+      drops,
+      toaster
     }),
     [cascade, inputRow]
   );
@@ -165,6 +223,7 @@ export default function Cascades() {
     <CascadesState.Provider value={cascadesState}>
       <Center className="cascades">
         <DndProvider backend={MultiBackend} options={HTML5toTouch}>
+          <DragPreview />
           <VStack spacing={15}>
             <HStack alignSelf={"center"}>
               {Array.from({ length: columns }).map((_, column) => {

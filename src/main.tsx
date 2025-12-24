@@ -40,6 +40,9 @@ import "rsuite/Card/styles/index.css";
 import "rsuite/CardGroup/styles/index.css";
 import "rsuite/Image/styles/index.css";
 import "rsuite/Center/styles/index.css";
+import "rsuite/toaster/styles/index.css";
+import "rsuite/useToaster/styles/index.css";
+import "rsuite/Notification/styles/index.css";
 
 import "./css/App.css";
 import "./css/Index.css";
