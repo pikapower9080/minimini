@@ -46,6 +46,15 @@ export function CascadeTile({ row, column }: CascadeTileProps) {
       end: (item, monitor) => {
         const dropResult: { column: number } | null = monitor.getDropResult();
         if (item && dropResult) {
+          if (typeof dropResult.column !== "number") {
+            // Discard
+            setCascade((prevCascade) => {
+              const newCascade = prevCascade.map((r) => [...r]);
+              newCascade[row][column] = "";
+              return newCascade;
+            });
+            return;
+          }
           if (inputRow[dropResult.column] !== "") return;
           setInputRow((prevInputRow) => {
             const newInputRow = [...prevInputRow];
@@ -60,7 +69,7 @@ export function CascadeTile({ row, column }: CascadeTileProps) {
         }
       }
     }),
-    [cascade, row, column]
+    [cascade, inputRow, row, column]
   );
 
   const classList = ["tile", "cascade-tile"];
@@ -135,7 +144,7 @@ export function TileSpace({ column, exiting }: TileSpaceProps) {
     [letter, column]
   );
 
-  const classList = ["tile", "tile-space", exiting && "filled"];
+  const classList = ["tile", "tile-space", exiting && "filled", !droppable && "pointer"];
 
   const TileSpaceContent = (
     <div className="tile-container">
