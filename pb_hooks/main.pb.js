@@ -45,32 +45,3 @@ routerAdd("GET", "/api/friends/from_code/{code}", (e) => {
     return e.json(404, { error: "Invalid friend code" });
   }
 });
-
-cronAdd("archive", "0 4 * * *", () => {
-  try {
-    const res = $http.send({
-      url: "https://www.nytimes.com/svc/crosswords/v6/puzzle/mini.json",
-      method: "GET",
-      body: "",
-      headers: {},
-      timeout: 120
-    });
-
-    const data = res.json;
-
-    try {
-      const record = $app.findFirstRecordByData("archive", "puzzleId", data.id);
-    } catch (err) {
-      const collection = $app.findCollectionByNameOrId("archive");
-      const record = new Record(collection);
-
-      record.set("puzzleId", data.id);
-      record.set("publicationDate", data.publicationDate);
-      record.set("mini", data);
-
-      $app.save(record);
-    }
-  } catch (err) {
-    console.error(err);
-  }
-});
