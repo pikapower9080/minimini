@@ -1,59 +1,74 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import type { MiniCrossword } from "./lib/types";
-import Mini from "./Components/Mini";
-import Timer from "./Components/Timer";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Modal } from "rsuite";
 import posthog from "posthog-js";
 import localforage from "localforage";
-import type { AuthRecord } from "pocketbase";
-import { pb, pb_url } from "./main";
-import { GlobalState } from "./lib/GlobalState";
-import { Archive } from "./Components/Archive";
 import { Button, ButtonGroup, Heading, VStack, Text } from "rsuite";
-import formatDate from "./lib/formatDate";
-import SignIn from "./Components/SignIn";
-import Friends from "./Components/Friends";
-import Account from "./Components/Account";
-import { ArchiveIcon, CircleUserRoundIcon, LogInIcon, UserIcon, UsersIcon } from "lucide-react";
+import { ArchiveIcon } from "lucide-react";
 
-function App() {
+import type { MiniCrossword } from "@/lib/types";
+import { GlobalState } from "@/lib/GlobalState";
+import formatDate from "@/lib/formatDate";
+import { Archive } from "./Components/Archive";
+import { MiniState } from "./state";
+import { pb, pb_url } from "@/main";
+import AccountButtons from "@/Components/AccountButtons";
+import SignIn from "@/Components/SignIn";
+import Friends from "@/Components/Friends";
+import Account from "@/Components/Account";
+import Mini from "./Components/Mini";
+import Timer from "./Components/Timer";
+
+function App({ type }: { type: "mini" | "crossword" }) {
   const [data, setData] = useState<MiniCrossword | null>(null);
   const [restoredTime, setRestoredTime] = useState<number>(-1);
   const [error, setError] = useState<string | null>(null);
   const [paused, setPaused] = useState(false);
   const [complete, setComplete] = useState(false);
   const [cloudLoading, setCloudLoading] = useState(false);
-  const [modalState, setModalState] = useState<"welcome" | "archive" | "sign-in" | "add-friends" | "account" | null>("welcome");
+  const [modalState, setModalState] = useState<"welcome" | "archive" | "sign-in" | "friends" | "account" | null>("welcome");
   const timeRef = useRef<number[]>([]);
   const startTouched = useRef(false);
   const stateDocId = useRef<string>("");
 
-  const [user, setUser] = useState<AuthRecord | null>(pb.authStore.isValid ? pb.authStore.record : null);
+  const { user, setUser } = useContext(GlobalState);
 
-  const globalState = useMemo(
+  const miniState = useMemo(
     () => ({
-      user,
-      setUser,
       paused,
       data,
       setData,
       modalState,
-      setModalState
+      setModalState,
+      type
     }),
-    [user, paused, data, modalState]
+    [user, paused, data, modalState, type]
   );
 
   useEffect(() => {
-    fetch(pb_url + "/api/today")
+    fetch(pb_url + (type === "mini" ? "/api/today" : "/api/today/xwd"))
       .then((res) => res.json())
       .then((json) => {
+        if (json.message && json.message === "Not Found") {
+          setError(
+            `${import.meta.env.DEV ? `Today's puzzle hasn't been archived yet.` : "Failed to load today's puzzle. Check back later."}`
+          );
+          return;
+        }
         setData(json);
       })
       .catch((err) => {
         console.error(err);
-        setError(`${import.meta.env.DEV ? `Failed to access the Pocketbase API at ${pb_url}` : "Failed to load today's puzzle. "}`);
+        setError(`${import.meta.env.DEV ? `Failed to access the Pocketbase API at ${pb_url}` : "Failed to load today's puzzle."}`);
       });
   }, []);
+
+  useEffect(() => {
+    document.title = type === "mini" ? "The Mini Crossword - Glyph" : "The Crossword - Glyph";
+    document.getElementById("favicon-ico")?.setAttribute("href", `/icons/${type}/favicon.ico`);
+    document.getElementById("favicon-svg")?.setAttribute("href", `/icons/${type}/favicon.svg`);
+    document.getElementById("apple-touch-icon")?.setAttribute("href", `/icons/${type}/apple-touch-icon.png`);
+    document.getElementById("site-manifest")?.setAttribute("href", `/pwa/${type}.webmanifest`);
+  }, [type]);
 
   useEffect(() => {
     if (user) {
@@ -127,12 +142,12 @@ function App() {
   });
 
   return (
-    <GlobalState.Provider value={globalState}>
+    <MiniState.Provider value={miniState}>
       {data && restoredTime > -1 && (
         <Modal open={modalState === "welcome"} onClose={() => {}} centered overflow={false} size={"fit-content"}>
           <VStack spacing={10}>
             <VStack spacing={5}>
-              <Heading level={2}>{restoredTime > 0 ? "Welcome back!" : "Welcome to minimini"}</Heading>
+              <Heading level={2}>The{type === "mini" && " Mini"} Crossword</Heading>
               <Heading level={3}>{formatDate(data.publicationDate)}</Heading>
               <Heading level={4}>by {data.constructors.join(", ")}</Heading>
             </VStack>
@@ -163,44 +178,7 @@ function App() {
                 Archive
               </Button>
             </ButtonGroup>
-            <ButtonGroup justified>
-              {!pb.authStore.isValid ? (
-                <Button
-                  appearance="subtle"
-                  onClick={() => {
-                    setModalState("sign-in");
-                  }}
-                  startIcon={<LogInIcon />}
-                >
-                  Sign in
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    appearance="subtle"
-                    onClick={() => {
-                      setModalState("account");
-                    }}
-                    style={{
-                      flexGrow: 1
-                    }}
-                    startIcon={<CircleUserRoundIcon />}
-                  >
-                    Account
-                  </Button>
-                  <Button
-                    appearance="subtle"
-                    onClick={() => {
-                      setModalState("add-friends");
-                    }}
-                    style={{ flexGrow: 1 }}
-                    startIcon={<UsersIcon />}
-                  >
-                    Friends
-                  </Button>
-                </>
-              )}
-            </ButtonGroup>
+            <AccountButtons setModalState={setModalState} appearance="subtle" justified={true} />
           </VStack>
         </Modal>
       )}
@@ -250,7 +228,7 @@ function App() {
       />
 
       <Friends
-        open={modalState === "add-friends"}
+        open={modalState === "friends"}
         setOpen={() => {
           setModalState("welcome");
         }}
@@ -289,10 +267,10 @@ function App() {
           stateDocId={stateDocId}
         />
       ) : (
-        !data && !error && <Text className="loading centered block">Loading...</Text>
+        !data && !error && <Text className="loading centered block"></Text>
       )}
-      {error && <div className="error">{error}</div>}
-    </GlobalState.Provider>
+      {error && <div className="error centered block">{error}</div>}
+    </MiniState.Provider>
   );
 }
 

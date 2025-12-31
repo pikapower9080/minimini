@@ -1,21 +1,23 @@
-import { lazy, Suspense, useContext, useEffect, useMemo, useRef, useState, type RefObject } from "react";
-import type { MiniCrossword, MiniCrosswordClue } from "../lib/types";
-import { fireworks } from "../lib/confetti";
+import { lazy, Suspense, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { Modal } from "rsuite";
 import posthog from "posthog-js";
 import localforage from "localforage";
-import { GlobalState } from "../lib/GlobalState";
-import { pb } from "../main";
 import throttle from "throttleit";
 import { Button, ButtonGroup, HStack, VStack, Toggle, Heading } from "rsuite";
-import Rating from "./Rating";
-import formatDate from "../lib/formatDate";
-import PuzzleMenu from "./PuzzleMenu";
-import Leaderboard from "./Leaderboard";
 import { ChevronLeftIcon, ChevronRightIcon, TrophyIcon } from "lucide-react";
 
+import type { MiniCrossword, MiniCrosswordClue } from "@/lib/types";
+import { pb } from "@/main";
+import { fireworks } from "@/lib/confetti";
+import { GlobalState } from "@/lib/GlobalState";
+import formatDate from "@/lib/formatDate";
+import Leaderboard from "@/Components/Leaderboard";
+import Rating from "@/Components/Rating";
+import { MiniState } from "@/routes/mini/state";
+import PuzzleMenu from "./PuzzleMenu";
+
 const Keyboard = lazy(async () => ({
-  default: (await import("react-simple-keyboard")).default
+  default: (await import("@/Components/VirtualKeyboard")).default
 }));
 
 interface MiniProps {
@@ -36,15 +38,33 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   const [direction, setDirection] = useState<"across" | "down">("across");
   const [boardState, setBoardState] = useState<{ [key: number]: string }>({});
   const [modalType, setModalType] = useState<"victory" | "incorrect" | "leaderboard" | null>(null);
-  const [keyboardLayout, setKeyboardLayout] = useState<"default" | "numeric">("default");
   const [keyboardOpen, setKeyboardOpen] = useState<boolean>(startTouched);
   const [autoCheck, setAutoCheck] = useState(false);
+  const [boardHeight, setBoardHeight] = useState(0);
   const boardRef = useRef<HTMLDivElement>(null);
   const incorrectShown = useRef<boolean>(false);
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const { user, paused } = useContext(GlobalState);
+  const { user } = useContext(GlobalState);
+  const { paused, type } = useContext(MiniState);
+
+  useLayoutEffect(() => {
+    if (boardRef.current) {
+      setBoardHeight(boardRef.current.offsetHeight);
+    }
+  }, [body.board]);
+
+  useEffect(() => {
+    const ro = new ResizeObserver(() => {
+      if (boardRef.current) {
+        setBoardHeight(boardRef.current.offsetHeight);
+      }
+    });
+    // @ts-ignore
+    ro.observe(boardRef.current);
+    return () => ro.disconnect();
+  }, []);
 
   function typeLetter(letter: string, cellIndex: number) {
     if (!boardRef.current) return;
@@ -155,6 +175,13 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       }
     });
   });
+
+  useEffect(() => {
+    const selectedClue = document.querySelector(".selected-clue");
+    if (selectedClue) {
+      selectedClue.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [selected, direction]);
 
   useEffect(() => {
     if (autoCheck) {
@@ -448,6 +475,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       record.set("time", saved[0]?.toString() ?? "0");
       record.set("cheated", saved[2]?.toString() ?? "false");
       record.set("platform", keyboardOpen ? "mobile" : "desktop");
+      record.set("type", type);
 
       leaderboard
         .create(record)
@@ -486,7 +514,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         className={`mini-container${!(keyboardOpen && selected !== null) ? "" : " keyboard-open"}`}
       >
         <VStack className="board-container">
-          <div ref={boardRef} className="board" dangerouslySetInnerHTML={{ __html: body.board }}></div>
+          <div ref={boardRef} className={`board board-${type}`} dangerouslySetInnerHTML={{ __html: body.board }}></div>
           <HStack justifyContent={"center"} className="toggle-container">
             <Toggle
               checked={autoCheck}
@@ -499,7 +527,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
           </HStack>
         </VStack>
 
-        <div className="clues">
+        <div className="clues" style={{ maxHeight: boardHeight - 5 }}>
           {body.clueLists.map((list, index) => {
             return (
               <div key={index}>
@@ -538,7 +566,8 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
             <Heading level={2}>Congratulations!</Heading>
             {timeRef.current.length === 2 && (
               <Heading level={3}>
-                You solved the Mini Crossword in {timeRef.current[0]}:{timeRef.current[1].toString().padStart(2, "0")}
+                You solved {type === "mini" && "the Mini Crossword"}
+                {type === "crossword" && "The Crossword"} in {timeRef.current[0]}:{timeRef.current[1].toString().padStart(2, "0")}
               </Heading>
             )}
             <Heading level={4}>{formatDate(data.publicationDate)}</Heading>
@@ -627,33 +656,8 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
               </div>
             </div>
 
-            <Suspense fallback={""}>
-              <Keyboard
-                onKeyPress={(key) => {
-                  if (key === "{numbers}" || key === "{abc}") {
-                    setKeyboardLayout(key === "{numbers}" ? "numeric" : "default");
-                    return;
-                  }
-                  let keyCode = key;
-                  if (key === "{bksp}") keyCode = "Backspace";
-                  if (key === "{enter}") keyCode = "Enter";
-                  if (key === "{esc}") keyCode = "Escape";
-                  if (key === "{tab}") keyCode = "Tab";
-                  handleKeyDown(new KeyboardEvent("keydown", { key: keyCode }), true);
-                }}
-                layout={{
-                  default: ["Q W E R T Y U I O P", "A S D F G H J K L", "{numbers} Z X C V B N M {bksp}"],
-                  numeric: ["1 2 3", "4 5 6", "7 8 9", "{abc} 0 {bksp}"]
-                }}
-                display={{
-                  "{numbers}": "123",
-                  "{abc}": "ABC",
-                  "{bksp}": "⌫"
-                }}
-                layoutName={keyboardLayout}
-                autoUseTouchEvents={true}
-                theme={!(keyboardOpen && selected !== null) ? "hidden" : ""}
-              />
+            <Suspense fallback={null}>
+              <Keyboard handleKeyDown={handleKeyDown} />
             </Suspense>
           </>
         ) : (
