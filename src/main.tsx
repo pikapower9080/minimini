@@ -84,7 +84,8 @@ function Main() {
         <Suspense fallback={null}>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/mini" element={<Mini />} />
+            <Route path="/mini" element={<Mini type={"mini"} />} />
+            <Route path="/crossword" element={<Mini type={"crossword"} />} />
             <Route path="/cascades" element={<Cascades />} />
           </Routes>
         </Suspense>

@@ -46,7 +46,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const { user } = useContext(GlobalState);
-  const { paused } = useContext(MiniState);
+  const { paused, type } = useContext(MiniState);
 
   function typeLetter(letter: string, cellIndex: number) {
     if (!boardRef.current) return;
@@ -450,6 +450,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       record.set("time", saved[0]?.toString() ?? "0");
       record.set("cheated", saved[2]?.toString() ?? "false");
       record.set("platform", keyboardOpen ? "mobile" : "desktop");
+      record.set("type", type);
 
       leaderboard
         .create(record)
@@ -540,7 +541,8 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
             <Heading level={2}>Congratulations!</Heading>
             {timeRef.current.length === 2 && (
               <Heading level={3}>
-                You solved the Mini Crossword in {timeRef.current[0]}:{timeRef.current[1].toString().padStart(2, "0")}
+                You solved {type === "mini" && "the Mini Crossword"}
+                {type === "crossword" && "The Crossword"} in {timeRef.current[0]}:{timeRef.current[1].toString().padStart(2, "0")}
               </Heading>
             )}
             <Heading level={4}>{formatDate(data.publicationDate)}</Heading>

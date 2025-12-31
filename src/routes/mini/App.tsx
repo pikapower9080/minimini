@@ -18,7 +18,7 @@ import Account from "@/Components/Account";
 import Mini from "./Components/Mini";
 import Timer from "./Components/Timer";
 
-function App() {
+function App({ type }: { type: "mini" | "crossword" }) {
   const [data, setData] = useState<MiniCrossword | null>(null);
   const [restoredTime, setRestoredTime] = useState<number>(-1);
   const [error, setError] = useState<string | null>(null);
@@ -38,16 +38,17 @@ function App() {
       data,
       setData,
       modalState,
-      setModalState
+      setModalState,
+      type
     }),
-    [user, paused, data, modalState]
+    [user, paused, data, modalState, type]
   );
 
   useEffect(() => {
-    fetch(pb_url + "/api/today")
+    fetch(pb_url + (type === "mini" ? "/api/today" : "/api/today/xwd"))
       .then((res) => res.json())
       .then((json) => {
-        if (json.message && json.message === "Forbidden") {
+        if (json.message && json.message === "Not Found") {
           setError(
             `${import.meta.env.DEV ? `Today's puzzle hasn't been archived yet.` : "Failed to load today's puzzle. Check back later."}`
           );
@@ -57,9 +58,17 @@ function App() {
       })
       .catch((err) => {
         console.error(err);
-        setError(`${import.meta.env.DEV ? `Failed to access the Pocketbase API at ${pb_url}` : "Failed to load today's puzzle. "}`);
+        setError(`${import.meta.env.DEV ? `Failed to access the Pocketbase API at ${pb_url}` : "Failed to load today's puzzle."}`);
       });
   }, []);
+
+  useEffect(() => {
+    document.title = type === "mini" ? "The Mini Crossword - Glyph" : "The Crossword - Glyph";
+    document.getElementById("favicon-ico")?.setAttribute("href", `/icons/${type}/favicon.ico`);
+    document.getElementById("favicon-svg")?.setAttribute("href", `/icons/${type}/favicon.svg`);
+    document.getElementById("apple-touch-icon")?.setAttribute("href", `/icons/${type}/apple-touch-icon.png`);
+    document.getElementById("site-manifest")?.setAttribute("href", `/pwa/${type}.webmanifest`);
+  }, [type]);
 
   useEffect(() => {
     if (user) {
@@ -138,7 +147,7 @@ function App() {
         <Modal open={modalState === "welcome"} onClose={() => {}} centered overflow={false} size={"fit-content"}>
           <VStack spacing={10}>
             <VStack spacing={5}>
-              <Heading level={2}>{restoredTime > 0 ? "Welcome back!" : "Welcome to minimini"}</Heading>
+              <Heading level={2}>The{type === "mini" && " Mini"} Crossword</Heading>
               <Heading level={3}>{formatDate(data.publicationDate)}</Heading>
               <Heading level={4}>by {data.constructors.join(", ")}</Heading>
             </VStack>
@@ -258,9 +267,9 @@ function App() {
           stateDocId={stateDocId}
         />
       ) : (
-        !data && !error && <Text className="loading centered block">Loading...</Text>
+        !data && !error && <Text className="loading centered block"></Text>
       )}
-      {error && <div className="error">{error}</div>}
+      {error && <div className="error centered block">{error}</div>}
     </MiniState.Provider>
   );
 }

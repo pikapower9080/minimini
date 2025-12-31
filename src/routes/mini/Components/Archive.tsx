@@ -24,17 +24,18 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
   const archive = pb.collection("archive");
   const puzzleState = pb.collection("puzzle_state");
 
-  const { setData: setPuzzleData } = useContext(MiniState);
+  const { setData: setPuzzleData, type } = useContext(MiniState);
 
   useEffect(() => {
     if (!data && open) {
       async function fetchData() {
         const [list, completed] = await Promise.all([
           archive.getFullList({
-            fields: "puzzleId,publicationDate,id"
+            fields: "mini_id,crossword_id,publication_date,id",
+            filter: `${type === "mini" ? "mini_id" : "crossword_id"}!=0`
           }) as Promise<BasicArchiveRecord[]>,
           puzzleState.getFullList({
-            fields: "puzzle_id,complete,cheated,time",
+            fields: "puzzle_id,complete,time",
             filter: `user="${pb.authStore?.record?.id}"`
           }) as Promise<any[]>
         ]);
@@ -47,13 +48,18 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
 
   function onSelectionChange() {
     if (selectedDate && data) {
-      const puzzle = data.find((r) => r.publicationDate === selectedDate);
+      const puzzle = data.find((r) => r.publication_date === selectedDate);
       if (!puzzle) {
         setSelectedPuzzleState("not-found");
         setSelectedPuzzleTime(0);
         return;
       }
-      const puzzleState = puzzleStates?.find((ps) => ps.puzzle_id === puzzle?.puzzleId);
+      let puzzleState = undefined;
+      if (type === "mini") {
+        puzzleState = puzzleStates?.find((ps) => ps.puzzle_id === puzzle?.mini_id);
+      } else {
+        puzzleState = puzzleStates?.find((ps) => ps.puzzle_id === puzzle?.crossword_id);
+      }
       if (puzzleState) {
         setSelectedPuzzleTime(puzzleState.time || 0);
         if (puzzleState.complete) {
@@ -102,8 +108,13 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
           }}
           renderCell={(date) => {
             const day = date.toISOString().split("T")[0];
-            const puzzle = data?.find((r) => r.publicationDate === day);
-            const puzzleState = puzzleStates?.find((ps) => ps.puzzle_id === puzzle?.puzzleId);
+            const puzzle = data?.find((r) => r.publication_date === day);
+            let puzzleState = undefined;
+            if (type === "mini") {
+              puzzleState = puzzleStates?.find((ps) => ps.puzzle_id === puzzle?.mini_id);
+            } else {
+              puzzleState = puzzleStates?.find((ps) => ps.puzzle_id === puzzle?.crossword_id);
+            }
             if (!puzzle) {
               return <Badge className="archive-badge" style={{ visibility: "hidden" }} />;
             }
@@ -132,14 +143,19 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
             if (!data || !selectedDate) return;
             setButtonLoading(true);
             archive
-              .getOne(data.find((r) => r.publicationDate === selectedDate)!.id)
+              .getOne(data.find((r) => r.publication_date === selectedDate)!.id)
               .then((record) => {
                 posthog.capture("load_archive_puzzle", {
-                  publicationDate: record.publicationDate,
-                  id: record.id
+                  publicationDate: record.publication_date,
+                  id: record.id,
+                  type
                 });
                 const archiveRecord = record as ArchiveRecord;
-                setPuzzleData(archiveRecord.mini);
+                if (type === "crossword") {
+                  setPuzzleData(archiveRecord.crossword);
+                } else {
+                  setPuzzleData(archiveRecord.mini);
+                }
                 setOpen(false);
               })
               .finally(() => {

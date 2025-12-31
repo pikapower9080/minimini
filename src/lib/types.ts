@@ -59,13 +59,16 @@ export interface BaseRecord {
 
 export interface ArchiveRecord extends BaseRecord {
   mini: MiniCrossword;
-  publicationDate: string;
-  puzzleId: number;
+  crossword: MiniCrossword;
+  publication_date: string;
+  mini_id: number;
+  crossword_id: number;
 }
 
 export interface BasicArchiveRecord {
-  publicationDate: string;
-  puzzleId: number;
+  publication_date: string;
+  mini_id: number;
+  crossword_id: number;
   id: string;
 }
 
