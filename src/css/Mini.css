@@ -8,21 +8,28 @@
 }
 .toggle-container {
   width: 100%;
-  max-width: 400px;
+  max-width: 600px;
   margin-left: auto;
+}
+.board-mini + .toggle-container {
+  max-width: 400px;
 }
 
 .board {
   width: 100%;
-  max-width: 400px;
+  max-width: 600px;
   user-select: none;
   display: block;
   margin-left: auto;
+}
+.board-mini {
+  max-width: 400px;
 }
 
 .clues {
   margin-left: 18px;
   max-width: 50%;
+  overflow-y: auto;
 }
 .clues h4 {
   margin-top: 0;

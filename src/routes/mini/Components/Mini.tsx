@@ -1,4 +1,4 @@
-import { lazy, Suspense, useContext, useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { lazy, Suspense, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { Modal } from "rsuite";
 import posthog from "posthog-js";
 import localforage from "localforage";
@@ -40,6 +40,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   const [modalType, setModalType] = useState<"victory" | "incorrect" | "leaderboard" | null>(null);
   const [keyboardOpen, setKeyboardOpen] = useState<boolean>(startTouched);
   const [autoCheck, setAutoCheck] = useState(false);
+  const [boardHeight, setBoardHeight] = useState(0);
   const boardRef = useRef<HTMLDivElement>(null);
   const incorrectShown = useRef<boolean>(false);
 
@@ -47,6 +48,23 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
   const { user } = useContext(GlobalState);
   const { paused, type } = useContext(MiniState);
+
+  useLayoutEffect(() => {
+    if (boardRef.current) {
+      setBoardHeight(boardRef.current.offsetHeight);
+    }
+  }, [body.board]);
+
+  useEffect(() => {
+    const ro = new ResizeObserver(() => {
+      if (boardRef.current) {
+        setBoardHeight(boardRef.current.offsetHeight);
+      }
+    });
+    // @ts-ignore
+    ro.observe(boardRef.current);
+    return () => ro.disconnect();
+  }, []);
 
   function typeLetter(letter: string, cellIndex: number) {
     if (!boardRef.current) return;
@@ -157,6 +175,13 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       }
     });
   });
+
+  useEffect(() => {
+    const selectedClue = document.querySelector(".selected-clue");
+    if (selectedClue) {
+      selectedClue.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [selected, direction]);
 
   useEffect(() => {
     if (autoCheck) {
@@ -489,7 +514,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         className={`mini-container${!(keyboardOpen && selected !== null) ? "" : " keyboard-open"}`}
       >
         <VStack className="board-container">
-          <div ref={boardRef} className="board" dangerouslySetInnerHTML={{ __html: body.board }}></div>
+          <div ref={boardRef} className={`board board-${type}`} dangerouslySetInnerHTML={{ __html: body.board }}></div>
           <HStack justifyContent={"center"} className="toggle-container">
             <Toggle
               checked={autoCheck}
@@ -502,7 +527,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
           </HStack>
         </VStack>
 
-        <div className="clues">
+        <div className="clues" style={{ maxHeight: boardHeight - 5 }}>
           {body.clueLists.map((list, index) => {
             return (
               <div key={index}>

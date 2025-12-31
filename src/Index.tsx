@@ -36,7 +36,7 @@ export default function Index() {
       <CardGroup columns={2} className="game-cards" spacing={10}>
         <Link to={"/mini"}>
           <Card shaded>
-            <Image src={"/icons/mini/pwa-192x192.png"} width={"100%"} height={50} fit="contain"></Image>
+            <Image src={"/icons/mini/pwa-192x192.png"} width={"100%"} height={50} fit="contain" draggable={false}></Image>
             <Card.Header>
               <Text size="lg" weight="bold">
                 The Mini
@@ -47,7 +47,7 @@ export default function Index() {
         </Link>
         <Link to={"/crossword"}>
           <Card shaded>
-            <Image src={"/icons/crossword/pwa-192x192.png"} width={"100%"} height={50} fit="contain"></Image>
+            <Image src={"/icons/crossword/pwa-192x192.png"} width={"100%"} height={50} fit="contain" draggable={false}></Image>
             <Card.Header>
               <HStack width={"100%"} justifyContent={"center"}>
                 <Text size="lg" weight="bold">
