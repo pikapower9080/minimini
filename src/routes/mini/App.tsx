@@ -47,6 +47,12 @@ function App() {
     fetch(pb_url + "/api/today")
       .then((res) => res.json())
       .then((json) => {
+        if (json.message && json.message === "Forbidden") {
+          setError(
+            `${import.meta.env.DEV ? `Today's puzzle hasn't been archived yet.` : "Failed to load today's puzzle. Check back later."}`
+          );
+          return;
+        }
         setData(json);
       })
       .catch((err) => {
