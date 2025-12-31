@@ -27,7 +27,7 @@
       "purpose": "maskable"
     }
   ],
-  "start_url": "/",
+  "start_url": "/crossword",
   "display": "minimal-ui",
   "background_color": "#FFFFFF",
   "theme_color": "#FFFFFF",
