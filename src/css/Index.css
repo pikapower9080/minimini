@@ -37,3 +37,16 @@
     color: unset !important;
   }
 }
+
+@media (max-width: 680px) {
+  .index {
+    .game-cards {
+      grid-template-columns: 1fr;
+
+      .rs-card {
+        width: fit-content;
+        margin-inline: auto;
+      }
+    }
+  }
+}
