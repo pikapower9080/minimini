@@ -182,6 +182,9 @@ ol li {
 }
 
 @media (max-width: 900px) {
+  #root {
+    padding: 15px !important;
+  }
   .mini-container {
     flex-direction: column;
   }
