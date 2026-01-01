@@ -135,7 +135,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       if (!parent) return;
       const index = parseInt(parent.getAttribute("data-index") || "-1", 10);
       if (isNaN(index) || index < 0) return;
-      const guess: SVGTextElement = parent.querySelector(".guess");
+      const guess: SVGTextElement | null = parent.querySelector(".guess");
 
       let highlightedCells: number[] = [];
       if (selected !== null) {
