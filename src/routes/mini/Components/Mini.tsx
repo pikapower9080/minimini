@@ -386,6 +386,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       ) {
         return;
       }
+      if (complete) return;
       setRebusMode(true);
       if (boardState[selected]) {
         setRebusText(boardState[selected].toUpperCase());
