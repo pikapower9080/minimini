@@ -171,6 +171,16 @@ ol li {
   pointer-events: none;
 }
 
+.rebus {
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding: 1px;
+  border-radius: 0;
+  font-size: 20px;
+  font-family: Helvetica, Arial, sans-serif !important;
+}
+
 @media (max-width: 900px) {
   .mini-container {
     flex-direction: column;

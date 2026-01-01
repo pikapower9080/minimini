@@ -1,5 +1,5 @@
 import { lazy, Suspense, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
-import { Modal } from "rsuite";
+import { Input, Modal } from "rsuite";
 import posthog from "posthog-js";
 import localforage from "localforage";
 import throttle from "throttleit";
@@ -41,6 +41,9 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   const [keyboardOpen, setKeyboardOpen] = useState<boolean>(startTouched);
   const [autoCheck, setAutoCheck] = useState(false);
   const [boardHeight, setBoardHeight] = useState(0);
+  const [rebusMode, setRebusMode] = useState<boolean>(false);
+  const [rebusText, setRebusText] = useState<string>("");
+  const rebusRef = useRef<HTMLInputElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
   const incorrectShown = useRef<boolean>(false);
 
@@ -132,6 +135,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       if (!parent) return;
       const index = parseInt(parent.getAttribute("data-index") || "-1", 10);
       if (isNaN(index) || index < 0) return;
+      const guess: SVGTextElement = parent.querySelector(".guess");
 
       let highlightedCells: number[] = [];
       if (selected !== null) {
@@ -151,9 +155,8 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       }
 
       if (boardState[index]) {
-        const guess = parent.querySelector(".guess");
         if (guess) {
-          (guess as HTMLElement).innerHTML = boardState[index].toUpperCase();
+          guess.innerHTML = boardState[index].toUpperCase();
         }
       }
 
@@ -165,12 +168,26 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
           setSelected(index);
         });
         if (autoCheck) {
-          const guess = parent.querySelector(".guess");
           if (guess && boardState[index]?.toUpperCase() === body.cells[index].answer?.toUpperCase() && boardState[index] !== undefined) {
             guess.classList.add("correct");
           } else {
             guess?.classList.add("incorrect");
           }
+        }
+      }
+
+      // rebus sizing
+      if (boardState[index] && boardState[index].length > 1) {
+        if (guess) {
+          let size = 22;
+          let minFont = 0.5;
+          let maxFont = 13;
+          const boxWidth = cell.getBoundingClientRect().width;
+          const length = guess.getBBox().width;
+          size *= boxWidth / length;
+          size = Math.min(maxFont, size);
+          size = Math.max(minFont, Math.floor(size));
+          guess.setAttribute("font-size", size.toString());
         }
       }
     });
@@ -256,6 +273,12 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     }
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (modalType !== null || paused) return;
+    if (rebusMode) {
+      if (e.key === "Escape" || e.key === "Enter") {
+        rebusRef.current?.blur();
+      }
+      return;
+    }
 
     // Typing logic
     if (letters.includes(e.key) && selected !== null) {
@@ -352,14 +375,58 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         next();
       }
     }
+
+    if (e.key === "Escape" && selected !== null) {
+      if (type === "mini") return;
+      if (
+        autoCheck &&
+        "answer" in body.cells[selected] &&
+        boardState[selected] &&
+        boardState[selected]?.toUpperCase() === body.cells[selected].answer?.toUpperCase()
+      ) {
+        return;
+      }
+      setRebusMode(true);
+      if (boardState[selected]) {
+        setRebusText(boardState[selected].toUpperCase());
+      } else {
+        setRebusText("");
+      }
+    }
   };
+
+  const handleRebusBlur = () => {
+    setRebusMode(false);
+    console.log(rebusText);
+    typeLetter(rebusText, selected as number);
+  };
+
+  useEffect(() => {
+    if (rebusMode) {
+      const rebus = rebusRef.current;
+      if (!rebus) return;
+      rebus.focus();
+      const selectedCell = document.querySelector(`g[data-index='${selected}']`);
+      if (!selectedCell) return;
+      const cellBox = selectedCell?.querySelector("path")?.getBoundingClientRect();
+      if (!cellBox) return;
+      rebus.addEventListener("blur", handleRebusBlur);
+      rebus.style.width = `${cellBox.width || 0}px`;
+      rebus.style.height = `${cellBox.height || 0}px`;
+      rebus.style.top = `${cellBox.top || 0}px`;
+      rebus.style.left = `${(cellBox.left || 0) + ((cellBox.width || 0) - rebus.offsetWidth) / 2}px`;
+      return () => {
+        rebus.removeEventListener("blur", handleRebusBlur);
+      };
+    }
+  }, [rebusMode, rebusText]);
 
   const handleTouchStart = () => {
     setKeyboardOpen(true);
   };
 
   const handlePhysicalKeydown = (e: KeyboardEvent) => {
-    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key)) {
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key) && !e.metaKey && !e.altKey && !rebusMode) {
       e.preventDefault();
     }
     handleKeyDown(e, false);
@@ -372,7 +439,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       document.removeEventListener("keydown", handlePhysicalKeydown);
       document.removeEventListener("touchstart", handleTouchStart);
     };
-  }, [selected, direction, boardState, complete, modalType, autoCheck, paused]);
+  }, [selected, direction, boardState, complete, modalType, autoCheck, paused, rebusMode]);
 
   useEffect(() => {
     const results = checkBoard();
@@ -534,6 +601,27 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
   return (
     <>
+      {rebusMode && (
+        <Input
+          ref={rebusRef}
+          value={rebusText}
+          className="rebus"
+          onChange={(e) => {
+            const text = e
+              .split("")
+              .map((c) => {
+                if (letters.includes(c)) {
+                  return c.toUpperCase();
+                } else {
+                  return "";
+                }
+              })
+              .join("")
+              .slice(0, 10);
+            setRebusText(text);
+          }}
+        ></Input>
+      )}
       <HStack
         alignItems={"stretch"}
         spacing={0}

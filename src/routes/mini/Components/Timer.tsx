@@ -1,11 +1,12 @@
 import localforage from "localforage";
 import posthog from "posthog-js";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useStopwatch } from "react-timer-hook";
 import { HStack, Text } from "rsuite";
 import { PauseIcon } from "lucide-react";
 
 import type { MiniCrossword } from "@/lib/types";
+import { MiniState } from "../state";
 
 interface TimerProps {
   onPause: () => void;
@@ -25,6 +26,7 @@ export default function Timer({ onPause, running, setTime, puzzle, restoredTime 
   });
 
   const [justPaused, setJustPaused] = useState(false);
+  const { type } = useContext(MiniState);
 
   useEffect(() => {
     if (running) {
@@ -42,6 +44,7 @@ export default function Timer({ onPause, running, setTime, puzzle, restoredTime 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
+        if (type === "crossword") return;
         if (justPaused) {
           setJustPaused(false);
           return;
