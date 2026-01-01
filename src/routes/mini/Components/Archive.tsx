@@ -6,7 +6,7 @@ import { ArchiveIcon, CircleCheckIcon, HourglassIcon } from "lucide-react";
 
 import { pb } from "@/main";
 import type { ArchiveRecord, ArchiveStateRecord, BasicArchiveRecord } from "@/lib/types";
-import { formatDuration } from "@/lib/formatDate";
+import { formatDuration } from "@/lib/formatting";
 import { MiniState } from "@/routes/mini/state";
 
 export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {

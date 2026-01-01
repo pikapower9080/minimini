@@ -10,7 +10,7 @@ import type { MiniCrossword, MiniCrosswordClue } from "@/lib/types";
 import { pb } from "@/main";
 import { fireworks } from "@/lib/confetti";
 import { GlobalState } from "@/lib/GlobalState";
-import formatDate from "@/lib/formatDate";
+import formatDate, { renderClue } from "@/lib/formatting";
 import Leaderboard from "@/Components/Leaderboard";
 import Rating from "@/Components/Rating";
 import { MiniState } from "@/routes/mini/state";
@@ -664,7 +664,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
                         }}
                       >
                         <span className="clue-label">{clue.label}</span>{" "}
-                        <span className="clue-text">{clue.text.map((t) => t.plain).join(" ")}</span>
+                        <span className="clue-text" dangerouslySetInnerHTML={{ __html: renderClue(clue) }}></span>
                       </li>
                     );
                   })}
@@ -757,7 +757,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
                 <ChevronLeftIcon />
               </div>
               {globalSelectedClue !== null ? (
-                <span className="clue-bar-text">{globalSelectedClue.text.map((t) => t.plain).join(" ")}</span>
+                <span className="clue-bar-text" dangerouslySetInnerHTML={{ __html: renderClue(globalSelectedClue) }}></span>
               ) : (
                 ""
               )}

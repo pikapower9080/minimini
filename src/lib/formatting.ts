@@ -1,3 +1,5 @@
+import type { MiniCrosswordClue } from "./types";
+
 export default function formatDate(publicationDate: string): string {
   return new Date(publicationDate + "T00:00:00")
     .toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })
@@ -13,4 +15,27 @@ export function formatDuration(seconds: number): string {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
+export function decodeFormatted(input: string): string {
+  let s = input;
+  try {
+    s = JSON.parse(`"${s.replace(/"/g, '\\"')}"`);
+  } catch {}
+
+  const textarea = document.createElement("textarea");
+  textarea.innerHTML = s;
+  s = textarea.value;
+
+  return s
+}
+
+export function renderClue(clue: MiniCrosswordClue): string {
+	return clue.text.map((part) => {
+		if (part.formatted) {
+			return decodeFormatted(part.formatted);
+		} else {
+			return part.plain;
+		}
+	}).join("");
 }

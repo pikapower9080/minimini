@@ -4,7 +4,7 @@ import { pb } from "../main";
 import { Checkbox, Loader, Text, Heading } from "rsuite";
 import { Table } from "rsuite/Table";
 import type { LeaderboardRecord, MiniCrossword, StateRecord } from "../lib/types";
-import { formatDuration } from "../lib/formatDate";
+import { formatDuration } from "../lib/formatting";
 import { GlobalState } from "../lib/GlobalState";
 import { MonitorIcon, SmartphoneIcon, TrophyIcon } from "lucide-react";
 

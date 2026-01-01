@@ -7,7 +7,7 @@ import { ArchiveIcon } from "lucide-react";
 
 import type { MiniCrossword } from "@/lib/types";
 import { GlobalState } from "@/lib/GlobalState";
-import formatDate from "@/lib/formatDate";
+import formatDate from "@/lib/formatting";
 import { Archive } from "./Components/Archive";
 import { MiniState } from "./state";
 import { pb, pb_url } from "@/main";
