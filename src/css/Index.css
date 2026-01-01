@@ -4,6 +4,10 @@
     transition: transform 0.15s;
   }
 
+  .rs-card-body {
+    padding-block-start: 12px;
+  }
+
   .game-cards .rs-card:hover {
     transform: translateY(-4px);
   }

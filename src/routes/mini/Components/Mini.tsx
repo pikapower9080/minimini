@@ -593,7 +593,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
             {timeRef.current.length === 2 && (
               <Heading level={3}>
                 You solved {type === "mini" && "the Mini Crossword"}
-                {type === "crossword" && "The Crossword"} in {timeRef.current[0]}:{timeRef.current[1].toString().padStart(2, "0")}
+                {type === "crossword" && "the Daily Crossword"} in {timeRef.current[0]}:{timeRef.current[1].toString().padStart(2, "0")}
               </Heading>
             )}
             <Heading level={4}>{formatDate(data.publicationDate)}</Heading>

@@ -63,7 +63,7 @@ function App({ type }: { type: "mini" | "crossword" }) {
   }, []);
 
   useEffect(() => {
-    document.title = type === "mini" ? "The Mini Crossword - Glyph" : "The Crossword - Glyph";
+    document.title = type === "mini" ? "The Mini Crossword - Glyph" : "The Daily - Glyph";
     document.getElementById("favicon-ico")?.setAttribute("href", `/icons/${type}/favicon.ico`);
     document.getElementById("favicon-svg")?.setAttribute("href", `/icons/${type}/favicon.svg`);
     document.getElementById("apple-touch-icon")?.setAttribute("href", `/icons/${type}/apple-touch-icon.png`);
@@ -147,7 +147,7 @@ function App({ type }: { type: "mini" | "crossword" }) {
         <Modal open={modalState === "welcome"} onClose={() => {}} centered overflow={false} size={"fit-content"}>
           <VStack spacing={10}>
             <VStack spacing={5}>
-              <Heading level={2}>The{type === "mini" && " Mini"} Crossword</Heading>
+              <Heading level={2}>The {type === "mini" ? "Mini" : "Daily"} Crossword</Heading>
               <Heading level={3}>{formatDate(data.publicationDate)}</Heading>
               <Heading level={4}>by {data.constructors.join(", ")}</Heading>
             </VStack>

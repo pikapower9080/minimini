@@ -42,21 +42,20 @@ export default function Index() {
                 The Mini
               </Text>
             </Card.Header>
-            <Card.Body>Crack clues to cross words</Card.Body>
+            <Card.Body>Tiny crossword puzzles</Card.Body>
           </Card>
         </Link>
-        <Link to={"/crossword"}>
+        <Link to={"/daily"}>
           <Card shaded>
             <Image src={"/icons/crossword/pwa-192x192.png"} width={"100%"} height={50} fit="contain" draggable={false}></Image>
             <Card.Header>
               <HStack width={"100%"} justifyContent={"center"}>
                 <Text size="lg" weight="bold">
-                  The Crossword
+                  The Daily
                 </Text>
-                <Badge content="New"></Badge>
               </HStack>
             </Card.Header>
-            <Card.Body>Solve large puzzles</Card.Body>
+            <Card.Body>Full size crossword puzzles</Card.Body>
           </Card>
         </Link>
         {/* <Link to={"/cascades"}>

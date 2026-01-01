@@ -3,7 +3,7 @@ import posthog from "posthog-js";
 import { PostHogProvider, PostHogErrorBoundary } from "posthog-js/react";
 import PocketBase, { type AuthRecord } from "pocketbase";
 import { CustomProvider } from "rsuite";
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { Suspense, lazy, useState } from "react";
 
 import { configureStorage } from "@/lib/storage.ts";
@@ -85,7 +85,8 @@ function Main() {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/mini" element={<Mini type={"mini"} />} />
-            <Route path="/crossword" element={<Mini type={"crossword"} />} />
+            <Route path="/crossword" element={<Navigate to="/daily" replace />} />
+            <Route path="/daily" element={<Mini type={"crossword"} />} />
             <Route path="/cascades" element={<Cascades />} />
           </Routes>
         </Suspense>

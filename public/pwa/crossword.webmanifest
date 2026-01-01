@@ -1,5 +1,5 @@
 {
-  "name": "The Crossword",
+  "name": "The Daily",
   "short_name": "Crossword",
   "icons": [
     {
@@ -27,7 +27,7 @@
       "purpose": "maskable"
     }
   ],
-  "start_url": "/crossword",
+  "start_url": "/daily",
   "display": "minimal-ui",
   "background_color": "#FFFFFF",
   "theme_color": "#FFFFFF",
