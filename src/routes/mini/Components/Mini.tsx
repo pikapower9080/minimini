@@ -123,7 +123,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     return { totalCells, totalFilled, totalCorrect };
   }
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!boardRef.current) return;
     const cells = boardRef.current.querySelectorAll(".cell");
     cells.forEach((cell) => {
@@ -174,6 +174,29 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         }
       }
     });
+
+    if (data.assets && data.assets.length > 0) {
+      let startOverlay = null;
+      let solveOverlay = null;
+      data.assets.forEach((asset) => {
+        if (asset.uri.endsWith(".start.png")) {
+          startOverlay = asset.uri;
+        }
+        if (asset.uri.endsWith(".solve.png")) {
+          solveOverlay = asset.uri;
+        }
+      });
+      if ((startOverlay && solveOverlay && !complete) || (startOverlay && !solveOverlay)) {
+        const overlay = document.createElement("image");
+        boardRef.current.querySelector("svg")?.appendChild(overlay);
+        overlay.outerHTML = `<image href="${startOverlay}" width="100%" height="100%" class="overlay"></image>`;
+      }
+      if (solveOverlay && complete) {
+        const overlay = document.createElement("image");
+        boardRef.current.querySelector("svg")?.appendChild(overlay);
+        overlay.outerHTML = `<image href="${solveOverlay}" width="100%" height="100%" class="overlay"></image>`;
+      }
+    }
   });
 
   useEffect(() => {
@@ -336,6 +359,9 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   };
 
   const handlePhysicalKeydown = (e: KeyboardEvent) => {
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key)) {
+      e.preventDefault();
+    }
     handleKeyDown(e, false);
   };
 

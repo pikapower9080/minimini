@@ -1,6 +1,7 @@
 import type { AuthRecord } from "pocketbase";
 
 export interface MiniCrossword {
+  assets?: MiniCrosswordAsset[];
   body: MiniCrosswordBody[];
   constructors: string[];
   copyright: string;
@@ -47,6 +48,10 @@ export interface MiniCrosswordClueText {
 export interface MiniCrosswordDimensions {
   height: number;
   width: number;
+}
+
+export interface MiniCrosswordAsset {
+  uri: string;
 }
 
 export interface BaseRecord {
