@@ -288,7 +288,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   }
 
   function nextCell() {
-    if (!selected) return;
+    if (selected === null) return;
     const highlightedCells = getCellsInDirection(selected, direction);
     const localIndex = highlightedCells.indexOf(selected);
     if (localIndex >= 0 && localIndex < highlightedCells.length - 1) {
