@@ -1,11 +1,11 @@
 import { useContext, type RefObject } from "react";
 import posthog from "posthog-js";
-import { DoorOpenIcon, MenuIcon, RotateCcwIcon, TrophyIcon } from "lucide-react";
+import { DoorOpenIcon, MenuIcon, PrinterIcon, RotateCcwIcon, TrophyIcon } from "lucide-react";
 
 import type { MiniCrossword } from "@/lib/types";
 import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
 import { MiniState } from "@/routes/mini/state";
-import { pb } from "@/main";
+import { pb, pb_url } from "@/main";
 import { GlobalState } from "@/lib/GlobalState";
 
 export default function PuzzleMenu({
@@ -22,7 +22,7 @@ export default function PuzzleMenu({
   complete: boolean;
 }) {
   const { user } = useContext(GlobalState);
-  const { setModalState } = useContext(MiniState);
+  const { type } = useContext(MiniState);
 
   return (
     <Menu portal transition align="end" menuButton={<MenuIcon />}>
@@ -50,6 +50,28 @@ export default function PuzzleMenu({
         <DoorOpenIcon />
         Exit
       </MenuItem>
+      {type === "crossword" && (
+        <MenuItem
+          onClick={async () => {
+            const archive = pb.collection("archive");
+            const item = await archive.getFirstListItem(`crossword_id="${data.id}"`, {
+              fields: "id,media"
+            });
+            if (item.media && item.media.length > 0) {
+              const printout = item.media.find((m: string) => m.endsWith("printout.pdf"));
+              if (!printout) {
+                alert("This puzzle can't be printed at this time.");
+              }
+              window.open(`${pb_url}/api/files/archive/${item.id}/${printout}`, "_blank");
+            } else {
+              alert("This puzzle can't be printed at this time.");
+            }
+          }}
+        >
+          <PrinterIcon />
+          Print
+        </MenuItem>
+      )}
       <MenuItem
         onClick={() => {
           clearLocalPuzzleData().then(() => {
