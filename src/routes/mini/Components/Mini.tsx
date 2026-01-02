@@ -376,7 +376,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       }
     }
 
-    if (e.key === "Escape" && selected !== null) {
+    if ((e.key === "Escape" || e.key === "`") && selected !== null) {
       if (type === "mini") return;
       if (
         autoCheck &&
