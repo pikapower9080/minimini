@@ -266,6 +266,39 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     }
   }
 
+  function arrowKey(key: string, dir: "across" | "down") {
+    if (selected === null) return;
+    if (direction !== dir) {
+      setDirection(dir);
+      return;
+    }
+
+    const highlightedCells = getCellsInDirection(selected, dir);
+    const localIndex = highlightedCells.indexOf(selected);
+
+    if (key === "ArrowRight" || key === "ArrowDown") {
+      if (localIndex >= 0 && localIndex < highlightedCells.length - 1) {
+        setSelected(highlightedCells[localIndex + 1]);
+      }
+    } else if (key === "ArrowLeft" || key === "ArrowUp") {
+      if (localIndex > 0) {
+        setSelected(highlightedCells[localIndex - 1]);
+      }
+    }
+  }
+
+  function nextCell() {
+    if (!selected) return;
+    const highlightedCells = getCellsInDirection(selected, direction);
+    const localIndex = highlightedCells.indexOf(selected);
+    if (localIndex >= 0 && localIndex < highlightedCells.length - 1) {
+      setSelected(highlightedCells[localIndex + 1]);
+    } else if (localIndex === highlightedCells.length - 1) {
+      // jump to the next clue if at the end of the current one
+      next();
+    }
+  }
+
   const handleKeyDown = (e: KeyboardEvent, virtual: boolean) => {
     if (!virtual) {
       // close the virtual keyboard when a physical key is pressed
@@ -274,7 +307,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (modalType !== null || paused) return;
     if (rebusMode) {
-      if (e.key === "Escape" || e.key === "Enter") {
+      if (e.key === "Escape" || e.key === "Enter" || e.key === "`") {
         rebusRef.current?.blur();
       }
       return;
@@ -283,14 +316,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     // Typing logic
     if (letters.includes(e.key) && selected !== null) {
       typeLetter(e.key, selected);
-      const highlightedCells = getCellsInDirection(selected, direction);
-      const localIndex = highlightedCells.indexOf(selected);
-      if (localIndex >= 0 && localIndex < highlightedCells.length - 1) {
-        setSelected(highlightedCells[localIndex + 1]);
-      } else if (localIndex === highlightedCells.length - 1) {
-        // jump to the next clue if at the end of the current one
-        next();
-      }
+      nextCell();
     }
 
     if (e.key === "Backspace" && selected !== null) {
@@ -328,27 +354,6 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       }
     }
 
-    function arrowKey(key: string, dir: "across" | "down") {
-      if (selected === null) return;
-      if (direction !== dir) {
-        setDirection(dir);
-        return;
-      }
-
-      const highlightedCells = getCellsInDirection(selected, dir);
-      const localIndex = highlightedCells.indexOf(selected);
-
-      if (key === "ArrowRight" || key === "ArrowDown") {
-        if (localIndex >= 0 && localIndex < highlightedCells.length - 1) {
-          setSelected(highlightedCells[localIndex + 1]);
-        }
-      } else if (key === "ArrowLeft" || key === "ArrowUp") {
-        if (localIndex > 0) {
-          setSelected(highlightedCells[localIndex - 1]);
-        }
-      }
-    }
-
     if (e.key === "ArrowRight") {
       arrowKey("ArrowRight", "across");
     }
@@ -376,6 +381,11 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       }
     }
 
+    if (e.key === " " || e.key === "Delete") {
+      typeLetter("", selected as number);
+      nextCell();
+    }
+
     if ((e.key === "Escape" || e.key === "`") && selected !== null) {
       if (type === "mini") return;
       if (
@@ -400,6 +410,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     setRebusMode(false);
     console.log(rebusText);
     typeLetter(rebusText, selected as number);
+    nextCell();
   };
 
   useEffect(() => {
