@@ -48,7 +48,7 @@
       grid-template-columns: 1fr;
 
       .rs-card {
-        width: fit-content;
+        width: 230px;
         margin-inline: auto;
       }
     }
