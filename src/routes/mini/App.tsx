@@ -48,10 +48,8 @@ function App({ type }: { type: "mini" | "crossword" }) {
     fetch(pb_url + (type === "mini" ? "/api/today" : "/api/today/xwd"))
       .then((res) => res.json())
       .then((json) => {
-        if (json.message && json.message === "Not Found") {
-          setError(
-            `${import.meta.env.DEV ? `Today's puzzle hasn't been archived yet.` : "Failed to load today's puzzle. Check back later."}`
-          );
+        if (json.error && json.error === "Not Found") {
+          setError("Failed to load today's puzzle.");
           return;
         }
         setData(json);
