@@ -196,10 +196,10 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       let startOverlay = null;
       let solveOverlay = null;
       data.assets.forEach((asset) => {
-        if (asset.uri.endsWith(".start.png")) {
+        if (asset.uri.endsWith(".start.png") || asset.uri.endsWith(".start.gif")) {
           startOverlay = asset.uri;
         }
-        if (asset.uri.endsWith(".solve.png")) {
+        if (asset.uri.endsWith(".solve.png") || asset.uri.endsWith(".solve.gif")) {
           solveOverlay = asset.uri;
         }
       });
