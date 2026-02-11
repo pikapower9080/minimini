@@ -47,6 +47,8 @@ import "rsuite/Notification/styles/index.css";
 import "./css/App.css";
 import "./css/Index.css";
 import "./css/Cascades.css";
+import Custom from "./routes/custom/Custom.tsx";
+import Create from "./routes/custom/create/Create.tsx";
 
 const Index = lazy(() => import("./Index.tsx"));
 const Mini = lazy(() => import("./routes/mini/App.tsx"));
@@ -88,6 +90,8 @@ function Main() {
             <Route path="/crossword" element={<Navigate to="/daily" replace />} />
             <Route path="/daily" element={<Mini type={"crossword"} />} />
             <Route path="/cascades" element={<Cascades />} />
+            <Route path="/custom" element={<Custom />} />
+            <Route path="/custom/create" element={<Create />} />
           </Routes>
         </Suspense>
       </BrowserRouter>

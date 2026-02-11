@@ -1,0 +1,14 @@
+diff --git a/esm/PinInput/PinInput.js b/esm/PinInput/PinInput.js
+index c1e2c8f038b9d6f175b817f13ed2e6c8fe6ef545..3da4ce4647215e40ab4cbada0a48c0717664906f 100644
+--- a/esm/PinInput/PinInput.js
++++ b/esm/PinInput/PinInput.js
+@@ -139,6 +139,9 @@ const PinInput = forwardRef((props, ref) => {
+     }
+     // Allow only keys matching allowedKeys
+     else if (allowedKeys.test(e.key)) {
++      if (e.key.length !== 1) {
++        return; // Ignore non-character keys
++      }
+       setDigit(index, e.key);
+ 
+       // Move focus to the next input if there is one
