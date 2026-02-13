@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Modal } from "rsuite";
+import { Modal, useDialog } from "rsuite";
 import { Button, Form, HStack, VStack, List, Text, Heading, PinInput, Avatar } from "rsuite";
 import { pb, pb_url } from "../main";
 import type { UserRecord } from "../lib/types";
@@ -10,6 +10,7 @@ import { UsersIcon, UserXIcon } from "lucide-react";
 
 function FriendListEntry({ friend, fetchFriends }: { friend: UserRecord; fetchFriends: () => Promise<void> }) {
   const defaultAvatar = useMemo(() => getDefaultAvatar(friend.username), []);
+  const dialog = useDialog();
 
   return (
     <List.Item key={friend.id}>
@@ -26,6 +27,14 @@ function FriendListEntry({ friend, fetchFriends }: { friend: UserRecord; fetchFr
           size="xs"
           onClick={async () => {
             if (!pb.authStore.isValid || !pb.authStore.record) return;
+            if (
+              !(await dialog.confirm(
+                `Are you sure you want to remove ${friend.username} from your friends? You'll need their friend code again to add them back.`,
+                { title: "Confirm" }
+              ))
+            ) {
+              return;
+            }
             await pb.collection("users").update(pb.authStore.record.id, {
               "friends-": [friend.id]
             });
