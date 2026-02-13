@@ -43,16 +43,22 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
           setPuzzleStates(puzzleStateCache.current[getMonthFilter(new Date(selectedDate))]);
           return;
         }
-        const [list, completed] = await Promise.all([
-          archive.getFullList({
-            fields: "mini_id,crossword_id,publication_date,id",
-            filter: `${type === "mini" ? "mini_id" : "crossword_id"}!=0 && ${getMonthFilter(new Date(selectedDate))}`
-          }) as Promise<BasicArchiveRecord[]>,
-          puzzleState.getFullList({
-            fields: "puzzle_id,complete,time",
-            filter: `user="${pb.authStore?.record?.id}"`
-          }) as Promise<any[]>
-        ]);
+        const list = (await archive.getFullList({
+          fields: "mini_id,crossword_id,publication_date,id",
+          filter: `${type === "mini" ? "mini_id" : "crossword_id"}!=0 && ${getMonthFilter(new Date(selectedDate))}`
+        })) as BasicArchiveRecord[];
+
+        let stateFilter = `user="${pb.authStore?.record?.id}"`;
+
+        if (list.length > 0) {
+          stateFilter += ` && (${list.map((x) => `puzzle_id = "${type === "mini" ? x.mini_id : x.crossword_id}"`).join(" || ")})`;
+        }
+
+        const completed = (await puzzleState.getFullList({
+          fields: "puzzle_id,complete,time",
+          filter: stateFilter
+        })) as ArchiveStateRecord[];
+
         setData(list);
         setPuzzleStates(completed || []);
         dataCache.current[getMonthFilter(new Date(selectedDate))] = list;
