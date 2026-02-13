@@ -181,6 +181,11 @@ ol li {
   font-family: Helvetica, Arial, sans-serif !important;
 }
 
+.leaderboard-username div.rs-table-cell-content {
+  display: inline-block !important;
+  text-overflow: ellipsis;
+}
+
 @media (max-width: 900px) {
   #root {
     padding: 15px !important;

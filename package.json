@@ -28,7 +28,7 @@
     "react-router": "^7.11.0",
     "react-simple-keyboard": "^3.8.141",
     "react-timer-hook": "^4.0.5",
-    "rsuite": "^6.1.1",
+    "rsuite": "^6.1.2",
     "throttleit": "^2.1.0"
   },
   "devDependencies": {

@@ -1,0 +1,220 @@
+/* 
+	Modified rsuite css reset
+
+	- removed heading styles
+	- removed link styles
+  - removed svg overflow styles
+*/
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  font-size: var(--rs-html-font-size);
+}
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: var(--rs-font-family-base);
+  font-size: var(--rs-font-size-sm);
+  line-height: var(--rs-line-height-md);
+  color: var(--rs-text-primary);
+  background-color: var(--rs-body);
+}
+
+[hidden],
+template {
+  display: none;
+}
+
+b,
+strong {
+  font-weight: bold;
+}
+
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sup {
+  top: -0.5em;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+hr {
+  box-sizing: content-box;
+  height: 0;
+  margin-block: var(--rs-line-height-base);
+  border: 0;
+  border-top: 1px solid var(--rs-divider-border);
+}
+
+pre {
+  overflow: auto;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  color: inherit;
+  font: inherit;
+  margin: 0;
+}
+
+button {
+  overflow: visible;
+  border-radius: var(--rs-radius-none);
+}
+
+button,
+select {
+  text-transform: none;
+}
+
+button,
+input[type="reset"],
+input[type="submit"] {
+  appearance: auto;
+  cursor: pointer;
+}
+
+button[disabled],
+html input[disabled] {
+  cursor: not-allowed;
+}
+
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+input {
+  line-height: normal;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  box-sizing: border-box;
+  padding: 0;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  height: auto;
+}
+
+textarea {
+  overflow: auto;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+td,
+th {
+  padding: 0;
+}
+
+[tabindex="-1"] {
+  outline: none;
+}
+
+button,
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  border-width: 0;
+}
+
+input::-ms-clear {
+  display: none;
+}
+
+input[type="file"]::-webkit-file-upload-button,
+input[type="file"]::-ms-browse {
+  border-width: 0;
+  background: transparent;
+  color: currentcolor;
+}
+
+input,
+button,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+img {
+  vertical-align: middle;
+  border: 0;
+}
+
+[role="button"] {
+  cursor: pointer;
+}
+
+small {
+  font-size: var(--rs-font-size-xs);
+}
+
+h1 small,
+h2 small,
+h3 small,
+h4 small,
+h5 small,
+h6 small {
+  font-weight: normal;
+  line-height: 1;
+  color: var(--rs-text-disabled);
+}
+
+mark {
+  background-color: var(--rs-bg-warning);
+  padding: 0.2em;
+  font-weight: bolder;
+}
+
+ul,
+ol {
+  margin-top: 0;
+  margin-bottom: calc(var(--rs-line-height-base) / 2);
+}
+ul ul,
+ul ol,
+ol ul,
+ol ol {
+  margin-bottom: 0;
+}
+
+dl {
+  margin-top: 0;
+  margin-bottom: calc(var(--rs-line-height-base) / 2);
+}
+
+dt,
+dd {
+  line-height: var(--rs-line-height-md);
+}
+
+dt {
+  font-weight: bold;
+}
+
+dd {
+  margin-inline-start: 0;
+  margin-bottom: calc(var(--rs-line-height-base) / 2);
+}

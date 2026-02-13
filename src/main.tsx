@@ -43,10 +43,12 @@ import "rsuite/Center/styles/index.css";
 import "rsuite/toaster/styles/index.css";
 import "rsuite/useToaster/styles/index.css";
 import "rsuite/Notification/styles/index.css";
+import "rsuite/Tooltip/styles/index.css";
 
 import "./css/App.css";
 import "./css/Index.css";
 import "./css/Cascades.css";
+import "./css/rsuite-reset.css";
 
 const Index = lazy(() => import("./Index.tsx"));
 const Mini = lazy(() => import("./routes/mini/App.tsx"));

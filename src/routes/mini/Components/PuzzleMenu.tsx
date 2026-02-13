@@ -7,6 +7,7 @@ import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
 import { MiniState } from "@/routes/mini/state";
 import { pb, pb_url } from "@/main";
 import { GlobalState } from "@/lib/GlobalState";
+import { useDialog } from "rsuite";
 
 export default function PuzzleMenu({
   data,
@@ -22,7 +23,8 @@ export default function PuzzleMenu({
   complete: boolean;
 }) {
   const { user } = useContext(GlobalState);
-  const { type } = useContext(MiniState);
+  const { type, options } = useContext(MiniState);
+  const dialog = useDialog();
 
   return (
     <Menu portal transition align="end" menuButton={<MenuIcon />}>
@@ -73,7 +75,22 @@ export default function PuzzleMenu({
         </MenuItem>
       )}
       <MenuItem
-        onClick={() => {
+        onClick={async () => {
+          if (user) {
+            try {
+              await pb.collection("leaderboard").getFirstListItem(`puzzle_id="${data.id}" && user="${user.id}"`);
+            } catch (err) {
+              dialog.alert("You must complete this puzzle at least once before resetting your progress.", { title: "Error" });
+              return;
+            }
+            if (
+              !(await dialog.confirm("Resetting your progress will not clear or change your leaderboard entry.", {
+                title: "Are you sure?"
+              }))
+            ) {
+              return;
+            }
+          }
           clearLocalPuzzleData().then(() => {
             if (user) {
               pb.collection("puzzle_state")
@@ -88,6 +105,7 @@ export default function PuzzleMenu({
             }
           });
         }}
+        disabled={options.includes("hardcore")}
       >
         <RotateCcwIcon />
         Reset Puzzle

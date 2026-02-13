@@ -1,12 +1,12 @@
 import { useContext, useEffect, useState } from "react";
-import { Modal, ModalBody } from "rsuite";
+import { Modal, Tooltip, Whisper } from "rsuite";
 import { pb } from "../main";
 import { Checkbox, Loader, Text, Heading } from "rsuite";
 import { Table } from "rsuite/Table";
 import type { LeaderboardRecord, MiniCrossword, StateRecord } from "../lib/types";
 import { formatDuration } from "../lib/formatting";
 import { GlobalState } from "../lib/GlobalState";
-import { MonitorIcon, SmartphoneIcon, TrophyIcon } from "lucide-react";
+import { MonitorIcon, SmartphoneIcon, StarIcon, TrophyIcon } from "lucide-react";
 
 export default function Leaderboard({
   open,
@@ -94,13 +94,38 @@ export default function Leaderboard({
                 </Table.Column>
                 <Table.Column flexGrow={2} align="left" verticalAlign="center">
                   <Table.HeaderCell>Username</Table.HeaderCell>
-                  <Table.Cell dataKey="expand.user.username" />
+                  <Table.Cell dataKey="expand.user.username" className="leaderboard-username" />
+                </Table.Column>
+                <Table.Column width={20} align="center" verticalAlign="center">
+                  <Table.HeaderCell> </Table.HeaderCell>
+                  <Table.Cell
+                    dataKey="hardcore"
+                    renderCell={(hardcore) =>
+                      hardcore ? (
+                        <Whisper placement="top" trigger={"hover"} speaker={<Tooltip>Hardcore mode</Tooltip>}>
+                          <StarIcon style={{ color: "var(--rs-orange-600)", fill: "var(--rs-orange-600)" }} />
+                        </Whisper>
+                      ) : (
+                        ""
+                      )
+                    }
+                  ></Table.Cell>
                 </Table.Column>
                 <Table.Column width={20} align="center" verticalAlign="center">
                   <Table.HeaderCell> </Table.HeaderCell>
                   <Table.Cell
                     dataKey="platform"
-                    renderCell={(platform) => (platform === "mobile" ? <SmartphoneIcon /> : <MonitorIcon />)}
+                    renderCell={(platform) =>
+                      platform === "mobile" ? (
+                        <Whisper placement="top" trigger={"hover"} speaker={<Tooltip>Mobile</Tooltip>}>
+                          <SmartphoneIcon />
+                        </Whisper>
+                      ) : (
+                        <Whisper placement="top" trigger={"hover"} speaker={<Tooltip>Desktop</Tooltip>}>
+                          <MonitorIcon />
+                        </Whisper>
+                      )
+                    }
                   ></Table.Cell>
                 </Table.Column>
                 <Table.Column flexGrow={1} align="center" verticalAlign="center">

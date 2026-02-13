@@ -1,10 +1,10 @@
 import { lazy, Suspense, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
-import { Input, Modal } from "rsuite";
+import { Input, Modal, Text } from "rsuite";
 import posthog from "posthog-js";
 import localforage from "localforage";
 import throttle from "throttleit";
 import { Button, ButtonGroup, HStack, VStack, Toggle, Heading } from "rsuite";
-import { ChevronLeftIcon, ChevronRightIcon, TrophyIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, StarIcon, TrophyIcon } from "lucide-react";
 
 import type { MiniCrossword, MiniCrosswordClue } from "@/lib/types";
 import { pb } from "@/main";
@@ -50,7 +50,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const { user } = useContext(GlobalState);
-  const { paused, type } = useContext(MiniState);
+  const { paused, type, options } = useContext(MiniState);
 
   useLayoutEffect(() => {
     if (boardRef.current) {
@@ -486,7 +486,9 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         setBoardState(savedState as { [key: number]: string });
       }
       if (savedAutoCheck !== null && typeof savedAutoCheck === "boolean") {
-        setAutoCheck(savedAutoCheck);
+        if (!options.includes("hardcore")) {
+          setAutoCheck(savedAutoCheck);
+        }
       }
       if (savedSelected && Array.isArray(savedSelected) && savedSelected.length === 2) {
         const [sel, dir] = savedSelected;
@@ -567,6 +569,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
   async function submitScore() {
     if (!user) return;
+    console.log(options.includes("hardcore").toString());
     const leaderboard = pb.collection("leaderboard");
     const record = new FormData();
     Promise.all([
@@ -581,6 +584,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       record.set("cheated", saved[2]?.toString() ?? "false");
       record.set("platform", keyboardOpen ? "mobile" : "desktop");
       record.set("type", type);
+      record.set("hardcore", options.includes("hardcore").toString());
 
       leaderboard
         .create(record)
@@ -642,14 +646,22 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         <VStack className="board-container">
           <div ref={boardRef} className={`board board-${type}`} dangerouslySetInnerHTML={{ __html: body.board }}></div>
           <HStack justifyContent={"center"} className="toggle-container">
-            <Toggle
-              checked={autoCheck}
-              name="autoCheck"
-              onChange={(e) => {
-                setAutoCheck(e);
-              }}
-            />
-            <label>Autocheck</label>
+            {!options.includes("hardcore") ? (
+              <>
+                <Toggle
+                  checked={autoCheck}
+                  name="autoCheck"
+                  onChange={(e) => {
+                    setAutoCheck(e);
+                  }}
+                />
+                <label>Autocheck</label>
+              </>
+            ) : (
+              <Text color={"orange.600"} weight="bold">
+                <StarIcon strokeWidth={3} /> Hardcore Mode
+              </Text>
+            )}
           </HStack>
         </VStack>
 

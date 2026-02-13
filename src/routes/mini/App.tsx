@@ -1,22 +1,21 @@
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { Modal } from "rsuite";
-import posthog from "posthog-js";
 import localforage from "localforage";
-import { Button, ButtonGroup, Heading, VStack, Text } from "rsuite";
-import { ArchiveIcon } from "lucide-react";
+import { ArchiveIcon, InfoIcon, StarIcon } from "lucide-react";
+import posthog from "posthog-js";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { Button, ButtonGroup, Center, Checkbox, CheckboxGroup, Heading, Modal, Text, Tooltip, useDialog, VStack, Whisper } from "rsuite";
 
-import type { MiniCrossword } from "@/lib/types";
+import Account from "@/Components/Account";
+import AccountButtons from "@/Components/AccountButtons";
+import Friends from "@/Components/Friends";
+import SignIn from "@/Components/SignIn";
 import { GlobalState } from "@/lib/GlobalState";
 import formatDate from "@/lib/formatting";
-import { Archive } from "./Components/Archive";
-import { MiniState } from "./state";
+import type { MiniCrossword } from "@/lib/types";
 import { pb, pb_url } from "@/main";
-import AccountButtons from "@/Components/AccountButtons";
-import SignIn from "@/Components/SignIn";
-import Friends from "@/Components/Friends";
-import Account from "@/Components/Account";
+import { Archive } from "./Components/Archive";
 import Mini from "./Components/Mini";
 import Timer from "./Components/Timer";
+import { MiniState } from "./state";
 
 function App({ type }: { type: "mini" | "crossword" }) {
   const [data, setData] = useState<MiniCrossword | null>(null);
@@ -25,10 +24,12 @@ function App({ type }: { type: "mini" | "crossword" }) {
   const [paused, setPaused] = useState(false);
   const [complete, setComplete] = useState(false);
   const [cloudLoading, setCloudLoading] = useState(false);
+  const [options, setOptions] = useState<(string | number)[]>([]);
   const [modalState, setModalState] = useState<"welcome" | "archive" | "sign-in" | "friends" | "account" | null>("welcome");
   const timeRef = useRef<number[]>([]);
   const startTouched = useRef(false);
   const stateDocId = useRef<string>("");
+  const dialog = useDialog();
 
   const { user, setUser } = useContext(GlobalState);
 
@@ -39,10 +40,17 @@ function App({ type }: { type: "mini" | "crossword" }) {
       setData,
       modalState,
       setModalState,
-      type
+      type,
+      options
     }),
-    [user, paused, data, modalState, type]
+    [user, paused, data, modalState, type, options]
   );
+
+  function pause() {
+    if (options.includes("hardcore")) return;
+    if (complete) return;
+    setPaused(true);
+  }
 
   useEffect(() => {
     fetch(pb_url + (type === "mini" ? "/api/today" : "/api/today/xwd"))
@@ -125,11 +133,16 @@ function App({ type }: { type: "mini" | "crossword" }) {
     const handleBlur = () => {
       if (modalState == null && !paused) {
         if (complete) return;
+        if (options.includes("hardcore")) {
+          setOptions((prev) => prev.filter((opt) => opt !== "hardcore"));
+          posthog.capture("hardcore_invalidate");
+          dialog.alert("Hardcore mode was invalidated because you left the tab. You can still continue in normal mode.");
+        }
         if (import.meta.env.VITE_AUTO_PAUSE === "false") return;
         posthog.capture("auto_pause", {
           time: `${timeRef.current.length === 2 ? timeRef.current[0] + ":" + timeRef.current[1].toString().padStart(2, "0") : ""}`
         });
-        setPaused(true);
+        pause();
       }
     };
 
@@ -138,6 +151,20 @@ function App({ type }: { type: "mini" | "crossword" }) {
       window.removeEventListener("blur", handleBlur);
     };
   });
+
+  useEffect(() => {
+    if (!user) return;
+    if (cloudLoading) return;
+    if (!data) return;
+    if (restoredTime === -1) return;
+    (async () => {
+      const hardcorePreference = await localforage.getItem("hardcore-preference");
+      if (hardcorePreference) {
+        if (restoredTime > 0) return;
+        setOptions((prev) => [...prev, "hardcore"]);
+      }
+    })();
+  }, [cloudLoading, data, restoredTime]);
 
   return (
     <MiniState.Provider value={miniState}>
@@ -151,7 +178,17 @@ function App({ type }: { type: "mini" | "crossword" }) {
             </VStack>
             <ButtonGroup vertical block>
               <Button
-                onClick={() => {
+                onClick={async () => {
+                  if (options.includes("hardcore")) {
+                    if (
+                      !(await dialog.confirm(
+                        "Once you start in hardcore mode, you won't be able to pause the game or use autocheck. If you leave or close the tab, hardcore mode will be permanently invalidated for this puzzle, but you can still solve it normally.",
+                        { title: "Ready to start?" }
+                      ))
+                    ) {
+                      return;
+                    }
+                  }
                   setModalState(null);
                   posthog.capture(restoredTime > 0 ? "continue_puzzle" : "start_puzzle", { puzzle: data.id });
                 }}
@@ -160,10 +197,11 @@ function App({ type }: { type: "mini" | "crossword" }) {
                   console.log("touch input detected");
                 }}
                 appearance="primary"
+                startIcon={options.includes("hardcore") ? <StarIcon /> : undefined}
                 loading={cloudLoading}
                 disabled={cloudLoading}
               >
-                {restoredTime > 0 ? "Continue Solving" : "Start Solving"}
+                {restoredTime > 0 ? "Continue Solving" : `Start Solving${options.includes("hardcore") ? " (Hardcore)" : ""}`}
               </Button>
               <Button
                 onClick={() => {
@@ -176,6 +214,33 @@ function App({ type }: { type: "mini" | "crossword" }) {
                 Archive
               </Button>
             </ButtonGroup>
+            {user && (
+              <Center width={"100%"}>
+                <CheckboxGroup
+                  value={options}
+                  onChange={(value) => {
+                    localforage.setItem(`hardcore-preference`, value.includes("hardcore"));
+                    setOptions(value);
+                  }}
+                >
+                  <Checkbox value="hardcore" disabled={restoredTime > 0}>
+                    Hardcore Mode{" "}
+                    <Whisper
+                      placement="top"
+                      trigger={"hover"}
+                      speaker={
+                        <Tooltip>
+                          When enabled, the game can't be paused and autocheck will be disabled. Exiting the tab will invalidate hardcore
+                          mode. Can only be attempted once per puzzle.
+                        </Tooltip>
+                      }
+                    >
+                      <InfoIcon />
+                    </Whisper>
+                  </Checkbox>
+                </CheckboxGroup>
+              </Center>
+            )}
             <AccountButtons setModalState={setModalState} appearance="subtle" justified={true} />
           </VStack>
         </Modal>
@@ -242,8 +307,7 @@ function App({ type }: { type: "mini" | "crossword" }) {
       {data && restoredTime > -1 && modalState === null ? (
         <Timer
           onPause={() => {
-            if (complete) return;
-            setPaused(true);
+            pause();
           }}
           running={!paused && !complete}
           setTime={(time) => {
