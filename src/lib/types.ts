@@ -38,6 +38,7 @@ export interface MiniCrosswordClue {
   label: string;
   list?: number;
   text: MiniCrosswordClueText[];
+  relatives?: number[];
 }
 
 export interface MiniCrosswordClueText {

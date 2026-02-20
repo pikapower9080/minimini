@@ -43,6 +43,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   const [boardHeight, setBoardHeight] = useState(0);
   const [rebusMode, setRebusMode] = useState<boolean>(false);
   const [rebusText, setRebusText] = useState<string>("");
+
   const rebusRef = useRef<HTMLInputElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
   const incorrectShown = useRef<boolean>(false);
@@ -51,6 +52,8 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
   const { user } = useContext(GlobalState);
   const { paused, type, options } = useContext(MiniState);
+
+  let relatedClues: number[] = [];
 
   useLayoutEffect(() => {
     if (boardRef.current) {
@@ -149,6 +152,15 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
       if (highlightedCells.includes(index)) {
         cell.classList.add("highlighted");
+      }
+
+      if (globalSelectedClue && globalSelectedClue.relatives) {
+        globalSelectedClue.relatives.forEach((rel) => {
+          const relClue = body.clues[rel];
+          if (relClue.cells.includes(index)) {
+            cell.classList.add("related");
+          }
+        });
       }
 
       if (cell.getAttribute("fill") === "none" || cell.classList.contains("shaded")) {
@@ -534,6 +546,11 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     selectedClue = activeClues.findIndex((clueIndex) => body.clues[clueIndex].direction.toLowerCase() === direction);
     globalSelectedClue =
       body.clues[activeClues.find((clueIndex) => body.clues[clueIndex].direction.toLowerCase() === direction) || 0] || {};
+
+    const selectedClueId = activeClues[selectedClue];
+    if (selectedClueId && body.clues[selectedClueId].relatives) {
+      relatedClues = body.clues[selectedClueId].relatives as number[];
+    }
   }
 
   async function cloudSave() {
@@ -701,7 +718,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
                     return (
                       <li
                         key={clueIndex}
-                        className={`clue ${activeClues.includes(clueIndex) ? "active-clue" : ""} ${activeClues[selectedClue] === clueIndex ? "selected-clue" : ""}`}
+                        className={`clue ${activeClues.includes(clueIndex) ? "active-clue" : ""} ${activeClues[selectedClue] === clueIndex ? "selected-clue" : ""} ${relatedClues.includes(clueIndex) ? "related-clue" : ""}`}
                         onClick={() => {
                           const targetCell = getFirstEmptyCell(clue);
                           setSelected(targetCell);

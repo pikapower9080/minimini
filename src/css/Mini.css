@@ -69,6 +69,10 @@ ol li {
   font-size: 16px;
 }
 
+.related {
+  fill: var(--related);
+}
+
 .highlighted {
   fill: var(--highlight);
 }
@@ -89,6 +93,10 @@ ol li {
   fill: var(--shaded-select);
 }
 
+.shaded.related {
+  fill: var(--shaded-related);
+}
+
 .clue {
   display: flex;
   border-left: transparent solid 10px;
@@ -100,6 +108,10 @@ ol li {
 .clue-label {
   font-weight: bold;
   padding-inline: 5px;
+}
+
+.related-clue {
+  background-color: var(--related);
 }
 
 .active-clue {
