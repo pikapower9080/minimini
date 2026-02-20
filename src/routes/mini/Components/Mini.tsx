@@ -305,7 +305,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   }
 
   function activateRebusMode() {
-    if (!selected) return;
+    if (selected == null) return;
     if (type === "mini") return;
     if (
       autoCheck &&
@@ -326,9 +326,11 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
   const handleKeyDown = (e: KeyboardEvent, virtual: boolean) => {
     if (!virtual) {
-      if (rebusMode) return; // don't hide the keyboard when typing rebuses on mobile
       // close the virtual keyboard when a physical key is pressed
-      setKeyboardOpen(false);
+      if (!rebusMode) {
+        // don't hide the keyboard when typing rebuses on mobile
+        setKeyboardOpen(false);
+      }
     }
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (modalType !== null || paused) return;
