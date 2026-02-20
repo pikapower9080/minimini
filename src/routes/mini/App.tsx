@@ -158,7 +158,7 @@ function App({ type }: { type: "mini" | "crossword" }) {
     if (!data) return;
     if (restoredTime === -1) return;
     (async () => {
-      const hardcorePreference = await localforage.getItem("hardcore-preference");
+      const hardcorePreference = await localforage.getItem(`hardcore-preference${type === "crossword" ? "-daily" : ""}`);
       if (hardcorePreference) {
         if (restoredTime > 0) return;
         setOptions((prev) => [...prev, "hardcore"]);
@@ -219,7 +219,7 @@ function App({ type }: { type: "mini" | "crossword" }) {
                 <CheckboxGroup
                   value={options}
                   onChange={(value) => {
-                    localforage.setItem(`hardcore-preference`, value.includes("hardcore"));
+                    localforage.setItem(`hardcore-preference${type === "crossword" ? "-daily" : ""}`, value.includes("hardcore"));
                     setOptions(value);
                   }}
                 >
