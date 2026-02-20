@@ -26,6 +26,10 @@
   --incorrect: #e63333;
   --icon-button: #909090;
 
+  --shaded: #d3d3d3;
+  --shaded-select: #f3db4d;
+  --shaded-highlight: #bad9f3;
+
   --rs-btn-primary-bg: black !important;
   --rs-btn-primary-hover-bg: black !important;
   --rs-btn-primary-active-bg: black !important;

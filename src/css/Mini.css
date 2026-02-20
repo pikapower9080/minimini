@@ -77,6 +77,18 @@ ol li {
   fill: var(--select);
 }
 
+.shaded {
+  fill: var(--shaded);
+}
+
+.shaded.highlighted {
+  fill: var(--shaded-highlight);
+}
+
+.shaded.selected {
+  fill: var(--shaded-select);
+}
+
 .clue {
   display: flex;
   border-left: transparent solid 10px;

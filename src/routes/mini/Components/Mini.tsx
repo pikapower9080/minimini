@@ -142,11 +142,16 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         highlightedCells = getCellsInDirection(selected, direction);
       }
 
+      if (cell.getAttribute("fill") === "#d3d3d3") {
+        cell.removeAttribute("fill");
+        cell.classList.add("shaded");
+      }
+
       if (highlightedCells.includes(index)) {
         cell.classList.add("highlighted");
       }
 
-      if (cell.getAttribute("fill") === "none") {
+      if (cell.getAttribute("fill") === "none" || cell.classList.contains("shaded")) {
         if (selected === index) {
           cell.classList.add("selected");
         } else {
