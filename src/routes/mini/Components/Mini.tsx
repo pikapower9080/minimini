@@ -326,6 +326,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
   const handleKeyDown = (e: KeyboardEvent, virtual: boolean) => {
     if (!virtual) {
+      if (rebusMode) return; // don't hide the keyboard when typing rebuses on mobile
       // close the virtual keyboard when a physical key is pressed
       setKeyboardOpen(false);
     }
