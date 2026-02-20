@@ -5,17 +5,15 @@ import { GlobalState } from "../lib/GlobalState";
 
 export default function AccountButtons({
   setModalState,
-  appearance,
-  justified
+  appearance
 }: {
   setModalState: any;
   appearance: "default" | "primary" | "subtle" | "ghost" | "link";
-  justified: boolean;
 }) {
   const { user } = useContext(GlobalState);
 
   return (
-    <ButtonGroup className="account-buttons" justified={justified}>
+    <>
       {user ? (
         <>
           {" "}
@@ -53,6 +51,6 @@ export default function AccountButtons({
           Sign in
         </Button>
       )}
-    </ButtonGroup>
+    </>
   );
 }

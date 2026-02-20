@@ -1,4 +1,4 @@
-import { Badge, Button, Card, CardGroup, Heading, HStack, Image, Text, Center } from "rsuite";
+import { ButtonGroup, Card, CardGroup, Heading, HStack, Image, Text, Center } from "rsuite";
 import { Link } from "react-router";
 import { useContext, useEffect, useState } from "react";
 
@@ -30,7 +30,9 @@ export default function Index() {
         <Heading level={1}>Glyph</Heading>
         <Heading level={3}>Daily word games</Heading>
         <Center>
-          <AccountButtons setModalState={setModalState} appearance="default" justified={false} />
+          <ButtonGroup className="account-buttons" justified>
+            <AccountButtons setModalState={setModalState} appearance="default" />
+          </ButtonGroup>
         </Center>
       </div>
       <CardGroup columns={2} className="game-cards" spacing={10}>

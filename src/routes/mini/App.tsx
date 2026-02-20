@@ -1,5 +1,5 @@
 import localforage from "localforage";
-import { ArchiveIcon, InfoIcon, StarIcon } from "lucide-react";
+import { ArchiveIcon, ArrowLeftIcon, ChartNoAxesColumnIcon, InfoIcon, StarIcon } from "lucide-react";
 import posthog from "posthog-js";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Button, ButtonGroup, Center, Checkbox, CheckboxGroup, Heading, Modal, Text, Tooltip, useDialog, VStack, Whisper } from "rsuite";
@@ -16,6 +16,8 @@ import { Archive } from "./Components/Archive";
 import Mini from "./Components/Mini";
 import Timer from "./Components/Timer";
 import { MiniState } from "./state";
+import { useNavigate } from "react-router";
+import { Stats } from "./Components/Stats";
 
 function App({ type }: { type: "mini" | "crossword" }) {
   const [data, setData] = useState<MiniCrossword | null>(null);
@@ -25,11 +27,13 @@ function App({ type }: { type: "mini" | "crossword" }) {
   const [complete, setComplete] = useState(false);
   const [cloudLoading, setCloudLoading] = useState(false);
   const [options, setOptions] = useState<(string | number)[]>([]);
-  const [modalState, setModalState] = useState<"welcome" | "archive" | "sign-in" | "friends" | "account" | null>("welcome");
+  const [modalState, setModalState] = useState<"welcome" | "archive" | "sign-in" | "friends" | "account" | "stats" | null>("welcome");
+
   const timeRef = useRef<number[]>([]);
   const startTouched = useRef(false);
   const stateDocId = useRef<string>("");
   const dialog = useDialog();
+  const navigate = useNavigate();
 
   const { user, setUser } = useContext(GlobalState);
 
@@ -241,7 +245,24 @@ function App({ type }: { type: "mini" | "crossword" }) {
                 </CheckboxGroup>
               </Center>
             )}
-            <AccountButtons setModalState={setModalState} appearance="subtle" justified={true} />
+            <ButtonGroup justified>
+              <Button
+                startIcon={<ArrowLeftIcon />}
+                appearance="subtle"
+                onClick={() => {
+                  navigate("/");
+                }}
+              >
+                Back
+              </Button>
+              {user ? (
+                <Button startIcon={<ChartNoAxesColumnIcon />} appearance="subtle" onClick={() => setModalState("stats")}>
+                  Stats
+                </Button>
+              ) : (
+                <AccountButtons setModalState={setModalState} appearance="subtle" />
+              )}
+            </ButtonGroup>
           </VStack>
         </Modal>
       )}
@@ -283,6 +304,7 @@ function App({ type }: { type: "mini" | "crossword" }) {
           </Button>
         </VStack>
       </Modal>
+
       <SignIn
         open={modalState === "sign-in"}
         setOpen={() => {
@@ -290,18 +312,12 @@ function App({ type }: { type: "mini" | "crossword" }) {
         }}
       />
 
-      <Friends
-        open={modalState === "friends"}
+      <Stats
+        open={modalState === "stats"}
         setOpen={() => {
           setModalState("welcome");
         }}
-      />
-
-      <Account
-        open={modalState === "account"}
-        setOpen={() => {
-          setModalState("welcome");
-        }}
+        type={type}
       />
 
       {data && restoredTime > -1 && modalState === null ? (
