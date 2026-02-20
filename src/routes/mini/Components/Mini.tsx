@@ -1,5 +1,5 @@
 import { lazy, Suspense, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
-import { Input, Modal, Text } from "rsuite";
+import { Divider, Input, Modal, Text } from "rsuite";
 import posthog from "posthog-js";
 import localforage from "localforage";
 import throttle from "throttleit";
@@ -304,6 +304,26 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     }
   }
 
+  function activateRebusMode() {
+    if (!selected) return;
+    if (type === "mini") return;
+    if (
+      autoCheck &&
+      "answer" in body.cells[selected] &&
+      boardState[selected] &&
+      boardState[selected]?.toUpperCase() === body.cells[selected].answer?.toUpperCase()
+    ) {
+      return;
+    }
+    if (complete) return;
+    setRebusMode(true);
+    if (boardState[selected]) {
+      setRebusText(boardState[selected].toUpperCase());
+    } else {
+      setRebusText("");
+    }
+  }
+
   const handleKeyDown = (e: KeyboardEvent, virtual: boolean) => {
     if (!virtual) {
       // close the virtual keyboard when a physical key is pressed
@@ -392,30 +412,16 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     }
 
     if ((e.key === "Escape" || e.key === "`") && selected !== null) {
-      if (type === "mini") return;
-      if (
-        autoCheck &&
-        "answer" in body.cells[selected] &&
-        boardState[selected] &&
-        boardState[selected]?.toUpperCase() === body.cells[selected].answer?.toUpperCase()
-      ) {
-        return;
-      }
-      if (complete) return;
-      setRebusMode(true);
-      if (boardState[selected]) {
-        setRebusText(boardState[selected].toUpperCase());
-      } else {
-        setRebusText("");
-      }
+      activateRebusMode();
     }
   };
 
   const handleRebusBlur = () => {
     setRebusMode(false);
-    console.log(rebusText);
     typeLetter(rebusText, selected as number);
-    nextCell();
+    if (rebusText !== "") {
+      nextCell();
+    }
   };
 
   useEffect(() => {
@@ -666,6 +672,14 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
               <Text color={"orange.600"} weight="bold">
                 <StarIcon strokeWidth={3} /> Hardcore Mode
               </Text>
+            )}
+            {type === "crossword" && (
+              <>
+                <Divider vertical size={"md"} />
+                <Button size="sm" onClick={activateRebusMode} disabled={rebusMode}>
+                  Rebus
+                </Button>
+              </>
             )}
           </HStack>
         </VStack>

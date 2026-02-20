@@ -44,6 +44,7 @@ import "rsuite/toaster/styles/index.css";
 import "rsuite/useToaster/styles/index.css";
 import "rsuite/Notification/styles/index.css";
 import "rsuite/Tooltip/styles/index.css";
+import "rsuite/Divider/styles/index.css";
 
 import "./css/App.css";
 import "./css/Index.css";
