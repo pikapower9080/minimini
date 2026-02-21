@@ -6,45 +6,76 @@ import type { UserRecord } from "../lib/types";
 
 import "../css/Friends.css";
 import { getDefaultAvatar } from "../lib/avatars";
-import { UsersIcon, UserXIcon } from "lucide-react";
+import { ChartNoAxesColumnIcon, MenuIcon, UsersIcon, UserXIcon } from "lucide-react";
+import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
+import { Stats } from "@/routes/mini/Components/Stats";
 
 function FriendListEntry({ friend, fetchFriends }: { friend: UserRecord; fetchFriends: () => Promise<void> }) {
   const defaultAvatar = useMemo(() => getDefaultAvatar(friend.username), []);
   const dialog = useDialog();
 
+  const [miniStatsOpen, setMiniStatsOpen] = useState(false);
+  const [dailyStatsOpen, setDailyStatsOpen] = useState(false);
+
+  async function remove() {
+    if (!pb.authStore.isValid || !pb.authStore.record) return;
+    if (
+      !(await dialog.confirm(
+        `Are you sure you want to remove ${friend.username} from your friends? You'll need their friend code again to add them back.`,
+        { title: "Confirm" }
+      ))
+    ) {
+      return;
+    }
+    await pb.collection("users").update(pb.authStore.record.id, {
+      "friends-": [friend.id]
+    });
+    await fetchFriends();
+  }
+
   return (
-    <List.Item key={friend.id}>
-      <HStack justifyContent="space-between" spacing={10}>
-        <Avatar src={defaultAvatar} minWidth={25} width={25} height={25} />
-        <Text className="friend-list-name" title={friend.username}>
-          {friend.username}
-        </Text>
-        <Text className="friend-list-code" muted>
-          {friend.friend_code}
-        </Text>
-        <Button
-          className="friend-list-remove"
-          size="xs"
-          onClick={async () => {
-            if (!pb.authStore.isValid || !pb.authStore.record) return;
-            if (
-              !(await dialog.confirm(
-                `Are you sure you want to remove ${friend.username} from your friends? You'll need their friend code again to add them back.`,
-                { title: "Confirm" }
-              ))
-            ) {
-              return;
+    <>
+      <List.Item key={friend.id}>
+        <HStack justifyContent="space-between" spacing={10}>
+          <Avatar src={defaultAvatar} minWidth={25} width={25} height={25} />
+          <Text className="friend-list-name" title={friend.username}>
+            {friend.username}
+          </Text>
+          <Text className="friend-list-code" muted>
+            {friend.friend_code}
+          </Text>
+          <Menu
+            transition
+            menuButton={
+              <Button className="friend-list-remove" size="xs">
+                <MenuIcon />
+              </Button>
             }
-            await pb.collection("users").update(pb.authStore.record.id, {
-              "friends-": [friend.id]
-            });
-            await fetchFriends();
-          }}
-        >
-          <UserXIcon />
-        </Button>
-      </HStack>
-    </List.Item>
+          >
+            <MenuItem onClick={remove}>
+              <UserXIcon /> Remove Friend
+            </MenuItem>
+            <MenuDivider />
+            <MenuItem
+              onClick={() => {
+                setMiniStatsOpen(true);
+              }}
+            >
+              <ChartNoAxesColumnIcon /> Mini Stats
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                setDailyStatsOpen(true);
+              }}
+            >
+              <ChartNoAxesColumnIcon /> Daily Stats
+            </MenuItem>
+          </Menu>
+        </HStack>
+      </List.Item>
+      <Stats open={miniStatsOpen} setOpen={setMiniStatsOpen} type="mini" user={friend} />
+      <Stats open={dailyStatsOpen} setOpen={setDailyStatsOpen} type="crossword" user={friend} />
+    </>
   );
 }
 

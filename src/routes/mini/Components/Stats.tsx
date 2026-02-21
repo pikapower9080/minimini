@@ -1,4 +1,5 @@
 import { formatDuration } from "@/lib/formatting";
+import type { UserRecord } from "@/lib/types";
 import { pb } from "@/main";
 import { ChartNoAxesColumnIcon, ClockIcon, HashIcon, RabbitIcon, TurtleIcon } from "lucide-react";
 import type { RecordModel } from "pocketbase";
@@ -31,7 +32,17 @@ const emptyStats: StatsRecord = {
   collectionName: ""
 };
 
-export function Stats({ open, setOpen, type }: { open: boolean; setOpen: (open: boolean) => void; type: "mini" | "crossword" }) {
+export function Stats({
+  open,
+  setOpen,
+  type,
+  user
+}: {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  type: "mini" | "crossword";
+  user?: UserRecord;
+}) {
   const [data, setData] = useState<StatsRecord>(emptyStats);
   const [loaded, setLoaded] = useState(false);
   const [fastestTimeDate, setFastestTimeDate] = useState<string | null>(null);
@@ -68,7 +79,7 @@ export function Stats({ open, setOpen, type }: { open: boolean; setOpen: (open: 
         try {
           response = (await pb
             .collection(`user_${type === "mini" ? "mini" : "daily"}_stats`)
-            .getOne(pb.authStore.record.id)) as StatsRecord;
+            .getOne(user?.id ?? pb.authStore.record.id)) as StatsRecord;
         } catch (err) {
           console.error(err);
           setData(emptyStats);
