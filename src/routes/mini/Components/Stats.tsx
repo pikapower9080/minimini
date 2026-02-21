@@ -64,17 +64,29 @@ export function Stats({ open, setOpen, type }: { open: boolean; setOpen: (open: 
           setOpen(false);
           return;
         }
-        const response = (await pb
-          .collection(`user_${type === "mini" ? "mini" : "daily"}_stats`)
-          .getOne(pb.authStore.record.id)) as StatsRecord;
-        const slowestTimeDoc = await pb
-          .collection("archive")
-          .getFirstListItem(`mini_id=${response.highest_time_id}`, { fields: "publication_date" });
-        const fastestTimeDoc = await pb
-          .collection("archive")
-          .getFirstListItem(`mini_id=${response.lowest_time_id}`, { fields: "publication_date" });
-        setFastestTimeDate(new Date(fastestTimeDoc.publication_date).toLocaleDateString());
-        setSlowestTimeDate(new Date(slowestTimeDoc.publication_date).toLocaleDateString());
+        let response: StatsRecord;
+        try {
+          response = (await pb
+            .collection(`user_${type === "mini" ? "mini" : "daily"}_stats`)
+            .getOne(pb.authStore.record.id)) as StatsRecord;
+        } catch (err) {
+          console.error(err);
+          setData(emptyStats);
+          setLoaded(true);
+          return;
+        }
+        try {
+          const slowestTimeDoc = await pb
+            .collection("archive")
+            .getFirstListItem(`mini_id=${response.highest_time_id}`, { fields: "publication_date" });
+          const fastestTimeDoc = await pb
+            .collection("archive")
+            .getFirstListItem(`mini_id=${response.lowest_time_id}`, { fields: "publication_date" });
+          setFastestTimeDate(new Date(fastestTimeDoc.publication_date).toLocaleDateString());
+          setSlowestTimeDate(new Date(slowestTimeDoc.publication_date).toLocaleDateString());
+        } catch (err) {
+          console.error("Error fetching puzzle dates:", err);
+        }
         setData(response);
         setLoaded(true);
       }
