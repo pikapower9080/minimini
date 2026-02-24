@@ -260,18 +260,52 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     return clue.cells[0];
   }
 
+  function getCurrentClueIndex(): number {
+    if (selected === null) return 0;
+    return body.clues.findIndex((clue) => clue.cells.includes(selected) && clue.direction.toLowerCase() === direction);
+  }
+
+  function getNextClueIndex(): number | null {
+    const currentClue = getCurrentClueIndex();
+    if (currentClue === null) return null;
+    let i = currentClue;
+    let iterations = 0;
+    while (iterations < body.clues.length) {
+      const nextClueIndex = (i + 1) % body.clues.length;
+      const nextClue = body.clues[nextClueIndex];
+      let filled = true;
+      nextClue.cells.forEach((cellIndex) => {
+        if (!boardState[cellIndex]) {
+          filled = false;
+        }
+      });
+      if (!filled) {
+        return nextClueIndex;
+      }
+      i++;
+      iterations++;
+    }
+    return null;
+  }
+
+  function setActiveClue(clueIndex: number): void {
+    const clue = body.clues[clueIndex];
+    setSelected(getFirstEmptyCell(clue));
+    setDirection(clue.direction.toLowerCase() === "across" ? "across" : "down");
+  }
+
   function next() {
     if (selected === null) return;
-    const currentClue = body.clues.findIndex((clue) => clue.cells.includes(selected) && clue.direction.toLowerCase() === direction);
-    const nextClue = body.clues[(currentClue + 1) % body.clues.length];
-    if (nextClue) {
-      setSelected(getFirstEmptyCell(nextClue));
-      setDirection(nextClue.direction.toLowerCase() === "across" ? "across" : "down");
+    const currentClue = getCurrentClueIndex();
+    const nextClueIndex = (currentClue + 1) % body.clues.length;
+    if (nextClueIndex !== null) {
+      setActiveClue(nextClueIndex);
     }
   }
+
   function previous(start: boolean = false) {
     if (selected === null) return;
-    const currentClue = body.clues.findIndex((clue) => clue.cells.includes(selected) && clue.direction.toLowerCase() === direction);
+    const currentClue = getCurrentClueIndex();
     const prevClue = body.clues[(currentClue - 1 + body.clues.length) % body.clues.length];
     if (prevClue) {
       if (start) {
@@ -311,8 +345,13 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     if (localIndex >= 0 && localIndex < highlightedCells.length - 1) {
       setSelected(highlightedCells[localIndex + 1]);
     } else if (localIndex === highlightedCells.length - 1) {
-      // jump to the next clue if at the end of the current one
-      next();
+      // jump to the next empty clue if at the end of the current one
+      const nextClueIndex = getNextClueIndex();
+      if (nextClueIndex !== null) {
+        setActiveClue(nextClueIndex);
+      } else {
+        next();
+      }
     }
   }
 
@@ -410,7 +449,12 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     }
 
     if (e.key === "Enter" && selected !== null) {
-      next();
+      const nextClueIndex = getNextClueIndex();
+      if (nextClueIndex !== null) {
+        setActiveClue(nextClueIndex);
+      } else {
+        next();
+      }
     }
     if (e.key === "Tab" && selected !== null) {
       e.preventDefault();
