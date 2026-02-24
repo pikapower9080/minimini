@@ -29,7 +29,7 @@ interface MiniProps {
   stateDocId: RefObject<string>;
 }
 
-const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890=+-?.,/".split("");
+const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
 
 export default function Mini({ data, startTouched, timeRef, complete, setComplete, stateDocId }: MiniProps) {
   const body = data.body[0];
