@@ -164,7 +164,10 @@ function App({ type }: { type: "mini" | "crossword" }) {
     (async () => {
       const hardcorePreference = await localforage.getItem(`hardcore-preference${type === "crossword" ? "-daily" : ""}`);
       if (hardcorePreference) {
-        if (restoredTime > 0) return;
+        if (restoredTime > 0) {
+          setOptions((prev) => prev.filter((x) => x !== "hardcore"));
+          return;
+        }
         setOptions((prev) => [...prev, "hardcore"]);
       }
     })();
