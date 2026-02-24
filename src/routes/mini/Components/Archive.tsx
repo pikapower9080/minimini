@@ -54,15 +54,19 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
           stateFilter += ` && (${list.map((x) => `puzzle_id = "${type === "mini" ? x.mini_id : x.crossword_id}"`).join(" || ")})`;
         }
 
-        const completed = (await puzzleState.getFullList({
-          fields: "puzzle_id,complete,time",
-          filter: stateFilter
-        })) as ArchiveStateRecord[];
+        let completed: ArchiveStateRecord[] = [];
+
+        if (list.length > 0) {
+          completed = (await puzzleState.getFullList({
+            fields: "puzzle_id,complete,time",
+            filter: stateFilter
+          })) as ArchiveStateRecord[];
+        }
 
         setData(list);
-        setPuzzleStates(completed || []);
+        setPuzzleStates(completed ?? []);
         dataCache.current[getMonthFilter(new Date(selectedDate))] = list;
-        puzzleStateCache.current[getMonthFilter(new Date(selectedDate))] = completed || [];
+        puzzleStateCache.current[getMonthFilter(new Date(selectedDate))] = completed ?? [];
       }
       fetchData();
     }
