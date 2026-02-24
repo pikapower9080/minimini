@@ -317,6 +317,15 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     }
   }
 
+  function nextEditableClue() {
+    const nextClueIndex = getNextClueIndex();
+    if (nextClueIndex !== null) {
+      setActiveClue(nextClueIndex);
+    } else {
+      next();
+    }
+  }
+
   function arrowKey(key: string, dir: "across" | "down") {
     if (selected === null) return;
     if (direction !== dir) {
@@ -345,13 +354,8 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     if (localIndex >= 0 && localIndex < highlightedCells.length - 1) {
       setSelected(highlightedCells[localIndex + 1]);
     } else if (localIndex === highlightedCells.length - 1) {
-      // jump to the next empty clue if at the end of the current one
-      const nextClueIndex = getNextClueIndex();
-      if (nextClueIndex !== null) {
-        setActiveClue(nextClueIndex);
-      } else {
-        next();
-      }
+      // jump to the next editable clue if at the end of the current one
+      nextEditableClue();
     }
   }
 
@@ -449,12 +453,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     }
 
     if (e.key === "Enter" && selected !== null) {
-      const nextClueIndex = getNextClueIndex();
-      if (nextClueIndex !== null) {
-        setActiveClue(nextClueIndex);
-      } else {
-        next();
-      }
+      nextEditableClue();
     }
     if (e.key === "Tab" && selected !== null) {
       e.preventDefault();
@@ -870,7 +869,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
               <div
                 className="clue-bar-forward"
                 onClick={() => {
-                  next();
+                  nextEditableClue();
                 }}
               >
                 <ChevronRightIcon />
