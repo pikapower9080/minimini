@@ -265,13 +265,18 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     return body.clues.findIndex((clue) => clue.cells.includes(selected) && clue.direction.toLowerCase() === direction);
   }
 
-  function getNextClueIndex(): number | null {
+  function getNextClueIndex(previous: boolean = false): number | null {
     const currentClue = getCurrentClueIndex();
     if (currentClue === null) return null;
     let i = currentClue;
     let iterations = 0;
     while (iterations < body.clues.length) {
-      const nextClueIndex = (i + 1) % body.clues.length;
+      let nextClueIndex = -1;
+      if (previous) {
+        nextClueIndex = (i - 1 + body.clues.length) % body.clues.length;
+      } else {
+        nextClueIndex = (i + 1) % body.clues.length;
+      }
       const nextClue = body.clues[nextClueIndex];
       let filled = true;
       nextClue.cells.forEach((cellIndex) => {
@@ -282,7 +287,11 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       if (!filled) {
         return nextClueIndex;
       }
-      i++;
+      if (previous) {
+        i--;
+      } else {
+        i++;
+      }
       iterations++;
     }
     return null;
@@ -317,8 +326,8 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     }
   }
 
-  function nextEditableClue() {
-    const nextClueIndex = getNextClueIndex();
+  function nextEditableClue(previous: boolean = false) {
+    const nextClueIndex = getNextClueIndex(previous);
     if (nextClueIndex !== null) {
       setActiveClue(nextClueIndex);
     } else {
@@ -453,7 +462,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     }
 
     if (e.key === "Enter" && selected !== null) {
-      nextEditableClue();
+      nextEditableClue(e.shiftKey); // previous editable clue if shift+enter
     }
     if (e.key === "Tab" && selected !== null) {
       e.preventDefault();
@@ -856,7 +865,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
               <div
                 className="clue-bar-back"
                 onClick={() => {
-                  previous(true);
+                  nextEditableClue(true);
                 }}
               >
                 <ChevronLeftIcon />
