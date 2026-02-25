@@ -79,12 +79,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     if (!square) return;
     const guess = square.querySelector(".guess");
     if (!guess) return;
-    if (
-      autoCheck &&
-      "answer" in body.cells[cellIndex] &&
-      boardState[cellIndex] &&
-      boardState[cellIndex]?.toUpperCase() === body.cells[cellIndex].answer?.toUpperCase()
-    ) {
+    if (autoCheck && "answer" in body.cells[cellIndex] && boardState[cellIndex] && checkCell(cellIndex)) {
       return;
     }
     setBoardState((prev) => {
@@ -111,6 +106,22 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     return cells;
   }
 
+  function checkCell(cellIndex: number): boolean {
+    const cell = body.cells[cellIndex];
+    if (cell == null) return false;
+    const state = boardState[cellIndex]?.toUpperCase();
+    if (state == null) return false;
+    if (cell.moreAnswers?.valid) {
+      if (cell.moreAnswers.valid.includes(state.toUpperCase())) {
+        return true;
+      }
+    }
+    if (cell.answer && cell.answer.toUpperCase() === state) {
+      return true;
+    }
+    return false;
+  }
+
   function checkBoard() {
     let totalCells = 0;
     let totalFilled = 0;
@@ -121,7 +132,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         if (boardState[index]) {
           totalFilled++;
         }
-        if (boardState[index]?.toUpperCase() === cell.answer.toUpperCase()) {
+        if (checkCell(index)) {
           totalCorrect++;
         }
       }
@@ -185,7 +196,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
           setSelected(index);
         });
         if (autoCheck) {
-          if (guess && boardState[index]?.toUpperCase() === body.cells[index].answer?.toUpperCase() && boardState[index] !== undefined) {
+          if (guess && checkCell(index) && boardState[index] !== undefined) {
             guess.classList.add("correct");
           } else {
             guess?.classList.add("incorrect");
@@ -223,7 +234,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       if ((startOverlay && solveOverlay && !complete) || (startOverlay && !solveOverlay)) {
         const overlay = document.createElement("image");
         boardRef.current.querySelector("svg")?.appendChild(overlay);
-        overlay.outerHTML = `<image href="${startOverlay}" width="100%" height="100%" class="overlay"></image>`;
+        // overlay.outerHTML = `<image href="${startOverlay}" width="100%" height="100%" class="overlay"></image>`;
       }
       if (solveOverlay && complete) {
         const overlay = document.createElement("image");
@@ -371,12 +382,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   function activateRebusMode() {
     if (selected == null) return;
     if (type === "mini") return;
-    if (
-      autoCheck &&
-      "answer" in body.cells[selected] &&
-      boardState[selected] &&
-      boardState[selected]?.toUpperCase() === body.cells[selected].answer?.toUpperCase()
-    ) {
+    if (autoCheck && "answer" in body.cells[selected] && boardState[selected] && checkCell(selected)) {
       return;
     }
     if (complete) return;
@@ -428,8 +434,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         // first cell of the clue
         const empty = boardState[highlightedCells[localIndex]] === undefined;
         if (autoCheck) {
-          const correct =
-            boardState[highlightedCells[localIndex]]?.toUpperCase() === body.cells[highlightedCells[localIndex]].answer?.toUpperCase();
+          const correct = checkCell(highlightedCells[localIndex]);
           if (correct || empty) {
             previous();
           } else {

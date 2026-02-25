@@ -25,6 +25,7 @@ export interface MiniCrosswordCell {
   clues?: number[];
   label?: string;
   type?: number;
+  moreAnswers?: { valid: string[] };
 }
 
 export interface MiniCrosswordClueList {
