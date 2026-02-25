@@ -234,7 +234,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
       if ((startOverlay && solveOverlay && !complete) || (startOverlay && !solveOverlay)) {
         const overlay = document.createElement("image");
         boardRef.current.querySelector("svg")?.appendChild(overlay);
-        // overlay.outerHTML = `<image href="${startOverlay}" width="100%" height="100%" class="overlay"></image>`;
+        overlay.outerHTML = `<image href="${startOverlay}" width="100%" height="100%" class="overlay"></image>`;
       }
       if (solveOverlay && complete) {
         const overlay = document.createElement("image");
