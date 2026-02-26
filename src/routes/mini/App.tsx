@@ -96,7 +96,7 @@ function App({ type }: { type: "mini" | "crossword" }) {
 
       if (pb.authStore.isValid && pb.authStore.record) {
         try {
-          await pb.collection("users");
+          await pb.collection("users").authRefresh();
           console.log("Refreshed auth store");
           const record = await pb.collection("puzzle_state").getFirstListItem(`puzzle_id="${data.id}" && user="${pb.authStore.record.id}"`);
           console.log("Found cloud save:", record.id);

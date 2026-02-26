@@ -7,6 +7,7 @@ import type { RecordAuthResponse } from "pocketbase";
 import posthog from "posthog-js";
 import { getDefaultAvatar } from "../lib/avatars";
 import { CircleUserRoundIcon, LogOutIcon, PencilIcon, TrashIcon } from "lucide-react";
+import localforage from "localforage";
 
 const EditUsernameDialog = ({ payload, onClose }: { payload: string; onClose: (newUser: RecordAuthResponse | null) => void }) => {
   const [isOpen, setIsOpen] = useState(true);
@@ -174,8 +175,9 @@ export default function Account({ open, setOpen }: { open: boolean; setOpen: (op
             <Button
               block
               startIcon={<LogOutIcon />}
-              onClick={() => {
+              onClick={async () => {
                 pb.authStore.clear();
+                await localforage.clear();
                 setUser(null);
                 setOpen(false);
               }}
