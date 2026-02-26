@@ -26,7 +26,6 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
   const [selectedPuzzleState, setSelectedPuzzleState] = useState<string>("unset");
   const [buttonLoading, setButtonLoading] = useState(false);
   const [selectedPuzzleTime, setSelectedPuzzleTime] = useState<number>(0);
-  const lastMonth = useRef(new Date());
   const dataCache = useRef<{ [month: string]: BasicArchiveRecord[] }>({});
   const puzzleStateCache = useRef<{ [month: string]: ArchiveStateRecord[] }>({});
 
@@ -38,14 +37,16 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
   useEffect(() => {
     if (!data && open) {
       async function fetchData() {
-        if (dataCache.current[getMonthFilter(new Date(selectedDate))]) {
-          setData(dataCache.current[getMonthFilter(new Date(selectedDate))]);
-          setPuzzleStates(puzzleStateCache.current[getMonthFilter(new Date(selectedDate))]);
+        const selectedDateObj = new Date(`${selectedDate}T00:00:00`);
+        const monthFilter = getMonthFilter(selectedDateObj);
+        if (dataCache.current[monthFilter]) {
+          setData(dataCache.current[monthFilter]);
+          setPuzzleStates(puzzleStateCache.current[monthFilter]);
           return;
         }
         const list = (await archive.getFullList({
           fields: "mini_id,crossword_id,publication_date,id",
-          filter: `${type === "mini" ? "mini_id" : "crossword_id"}!=0 && ${getMonthFilter(new Date(selectedDate))}`
+          filter: `${type === "mini" ? "mini_id" : "crossword_id"}!=0 && ${monthFilter}`
         })) as BasicArchiveRecord[];
 
         let stateFilter = `user="${pb.authStore?.record?.id}"`;
@@ -114,8 +115,7 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
   }
 
   function onMonthChange(newMonth: Date) {
-    if (newMonth !== lastMonth.current && !dataCache.current[getMonthFilter(newMonth)]) {
-      lastMonth.current = newMonth;
+    if (dataCache.current[getMonthFilter(newMonth)] === undefined) {
       setData(null);
       setPuzzleStates(null);
     } else {
