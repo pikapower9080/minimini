@@ -10,6 +10,8 @@ export interface MiniCrossword {
   publicationDate: string;
   subcategory: number;
   freePuzzle: boolean;
+  title?: string;
+  editor?: string;
 }
 
 export interface MiniCrosswordBody {
@@ -66,16 +68,19 @@ export interface BaseRecord {
 
 export interface ArchiveRecord extends BaseRecord {
   mini: MiniCrossword;
-  crossword: MiniCrossword;
+  daily: MiniCrossword;
   publication_date: string;
   mini_id: number;
-  crossword_id: number;
+  daily_id: number;
+  midi: MiniCrossword;
+  midi_id: number;
 }
 
 export interface BasicArchiveRecord {
   publication_date: string;
   mini_id: number;
-  crossword_id: number;
+  daily_id: number;
+  midi_id: number;
   id: string;
 }
 

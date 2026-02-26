@@ -92,7 +92,8 @@ function Main() {
             <Route path="/" element={<Index />} />
             <Route path="/mini" element={<Mini type={"mini"} />} />
             <Route path="/crossword" element={<Navigate to="/daily" replace />} />
-            <Route path="/daily" element={<Mini type={"crossword"} />} />
+            <Route path="/daily" element={<Mini type={"daily"} />} />
+            <Route path="/midi" element={<Mini type={"midi"} />} />
             <Route path="/cascades" element={<Cascades />} />
           </Routes>
         </Suspense>

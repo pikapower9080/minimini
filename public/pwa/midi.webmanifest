@@ -1,35 +1,35 @@
 {
-  "name": "The Mini",
-  "short_name": "Mini",
+  "name": "The Midi",
+  "short_name": "Midi",
   "icons": [
     {
-      "src": "/icons/mini/pwa-192x192.png",
+      "src": "/icons/midi/pwa-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/mini/pwa-512x512.png",
+      "src": "/icons/midi/pwa-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/mini/pwa-maskable-192x192.png",
+      "src": "/icons/midi/pwa-maskable-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icons/mini/pwa-maskable-512x512.png",
+      "src": "/icons/midi/pwa-maskable-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     }
   ],
-  "start_url": "/mini",
+  "start_url": "/midi",
   "display": "minimal-ui",
   "background_color": "#FFFFFF",
   "theme_color": "#FFFFFF",
-  "description": "Tiny crossword puzzles"
+  "description": "Medium size crossword puzzles"
 }

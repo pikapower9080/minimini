@@ -1,27 +1,27 @@
 {
   "name": "The Daily",
-  "short_name": "Crossword",
+  "short_name": "Daily",
   "icons": [
     {
-      "src": "/icons/crossword/pwa-192x192.png",
+      "src": "/icons/daily/pwa-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/crossword/pwa-512x512.png",
+      "src": "/icons/daily/pwa-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/crossword/pwa-maskable-192x192.png",
+      "src": "/icons/daily/pwa-maskable-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icons/crossword/pwa-maskable-512x512.png",
+      "src": "/icons/daily/pwa-maskable-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -31,5 +31,5 @@
   "display": "minimal-ui",
   "background_color": "#FFFFFF",
   "theme_color": "#FFFFFF",
-  "description": "Solve large crossword puzzles"
+  "description": "Solve full size crossword puzzles"
 }

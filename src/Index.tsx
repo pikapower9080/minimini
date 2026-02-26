@@ -1,4 +1,4 @@
-import { ButtonGroup, Card, CardGroup, Heading, HStack, Image, Text, Center } from "rsuite";
+import { ButtonGroup, Card, CardGroup, Heading, HStack, Image, Text, Center, Badge } from "rsuite";
 import { Link } from "react-router";
 import { useContext, useEffect, useState } from "react";
 
@@ -7,6 +7,34 @@ import { GlobalState } from "@/lib/GlobalState";
 import Friends from "@/Components/Friends";
 import SignIn from "@/Components/SignIn";
 import AccountButtons from "@/Components/AccountButtons";
+
+interface LinkCardProps {
+  title: string;
+  description: string;
+  imageSrc: string;
+  link: string;
+  disabled?: boolean;
+  badgeContent?: string;
+}
+
+function LinkCard({ title, description, imageSrc, link, disabled, badgeContent }: LinkCardProps) {
+  return (
+    <Link to={link} aria-disabled={disabled} className={disabled ? "link-card-disabled" : "link-card"}>
+      <Card shaded>
+        <Image src={imageSrc} width={"100%"} height={50} fit="contain" draggable={false}></Image>
+        <Card.Header>
+          <HStack width={"100%"} justifyContent={"center"}>
+            <Text size="lg" weight="bold">
+              {title}
+            </Text>
+            {badgeContent && <Badge content={badgeContent}></Badge>}
+          </HStack>
+        </Card.Header>
+        <Card.Body>{description}</Card.Body>
+      </Card>
+    </Link>
+  );
+}
 
 export default function Index() {
   const [modalState, setModalState] = useState<"account" | "friends" | "sign-in" | null>(null);
@@ -36,43 +64,16 @@ export default function Index() {
         </Center>
       </div>
       <CardGroup columns={2} className="game-cards" spacing={10}>
-        <Link to={"/mini"}>
-          <Card shaded>
-            <Image src={"/icons/mini/pwa-192x192.png"} width={"100%"} height={50} fit="contain" draggable={false}></Image>
-            <Card.Header>
-              <Text size="lg" weight="bold">
-                The Mini
-              </Text>
-            </Card.Header>
-            <Card.Body>Tiny crossword puzzles</Card.Body>
-          </Card>
-        </Link>
-        <Link to={"/daily"}>
-          <Card shaded>
-            <Image src={"/icons/crossword/pwa-192x192.png"} width={"100%"} height={50} fit="contain" draggable={false}></Image>
-            <Card.Header>
-              <HStack width={"100%"} justifyContent={"center"}>
-                <Text size="lg" weight="bold">
-                  The Daily
-                </Text>
-              </HStack>
-            </Card.Header>
-            <Card.Body>Full size crossword puzzles</Card.Body>
-          </Card>
-        </Link>
-        {/* <Link to={"/cascades"}>
-          <Card shaded>
-            <Card.Header>
-              <HStack width={"100%"} justifyContent={"center"}>
-                <Text size="lg" weight="bold">
-                  Cascades
-                </Text>
-                <Badge content="New"></Badge>
-              </HStack>
-            </Card.Header>
-            <Card.Body>Form words from falling letters</Card.Body>
-          </Card>
-        </Link> */}
+        <LinkCard title="The Mini" description="Tiny crossword puzzles" link="/mini" imageSrc="/icons/mini/pwa-192x192.png" />
+        <LinkCard
+          title="The Midi"
+          description="Medium crossword puzzles"
+          link="/midi"
+          imageSrc="/icons/midi/pwa-192x192.png"
+          badgeContent="New"
+        />
+        <LinkCard title="The Daily" description="Large crossword puzzles" link="/daily" imageSrc="/icons/daily/pwa-192x192.png" />
+        <LinkCard title="Bonus Puzzles" description="Coming soon" link="" imageSrc="/icons/bonus.svg" disabled />
       </CardGroup>
     </main>
   );

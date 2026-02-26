@@ -40,7 +40,7 @@ export function Stats({
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
-  type: "mini" | "crossword";
+  type: "mini" | "daily" | "midi";
   user?: UserRecord;
 }) {
   const [data, setData] = useState<StatsRecord>(emptyStats);
@@ -77,9 +77,7 @@ export function Stats({
         }
         let response: StatsRecord;
         try {
-          response = (await pb
-            .collection(`user_${type === "mini" ? "mini" : "daily"}_stats`)
-            .getOne(user?.id ?? pb.authStore.record.id)) as StatsRecord;
+          response = (await pb.collection(`user_${type}_stats`).getOne(user?.id ?? pb.authStore.record.id)) as StatsRecord;
         } catch (err) {
           console.error(err);
           setData(emptyStats);
@@ -89,10 +87,10 @@ export function Stats({
         try {
           const slowestTimeDoc = await pb
             .collection("archive")
-            .getFirstListItem(`mini_id=${response.highest_time_id}`, { fields: "publication_date" });
+            .getFirstListItem(`${type}_id=${response.highest_time_id}`, { fields: "publication_date" });
           const fastestTimeDoc = await pb
             .collection("archive")
-            .getFirstListItem(`mini_id=${response.lowest_time_id}`, { fields: "publication_date" });
+            .getFirstListItem(`${type}_id=${response.lowest_time_id}`, { fields: "publication_date" });
           setFastestTimeDate(new Date(fastestTimeDoc.publication_date).toLocaleDateString());
           setSlowestTimeDate(new Date(slowestTimeDoc.publication_date).toLocaleDateString());
         } catch (err) {

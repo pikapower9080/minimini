@@ -381,7 +381,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
 
   function activateRebusMode() {
     if (selected == null) return;
-    if (type === "mini") return;
+    if (type !== "daily") return;
     if (autoCheck && "answer" in body.cells[selected] && boardState[selected] && checkCell(selected)) {
       return;
     }
@@ -750,7 +750,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
                 <StarIcon strokeWidth={3} /> Hardcore Mode
               </Text>
             )}
-            {type === "crossword" && (
+            {type === "daily" && (
               <>
                 <Divider vertical size={"md"} />
                 <Button size="sm" onClick={activateRebusMode} disabled={rebusMode}>
@@ -800,8 +800,8 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
             <Heading level={2}>Congratulations!</Heading>
             {timeRef.current.length === 2 && (
               <Heading level={3}>
-                You solved {type === "mini" && "the Mini Crossword"}
-                {type === "crossword" && "the Daily Crossword"} in {timeRef.current[0]}:{timeRef.current[1].toString().padStart(2, "0")}
+                You solved the {type.charAt(0).toUpperCase()}
+                {type.substring(1)} Crossword in {timeRef.current[0]}:{timeRef.current[1].toString().padStart(2, "0")}
               </Heading>
             )}
             <Heading level={4}>{formatDate(data.publicationDate)}</Heading>

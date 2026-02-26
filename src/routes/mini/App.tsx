@@ -2,11 +2,23 @@ import localforage from "localforage";
 import { ArchiveIcon, ArrowLeftIcon, ChartNoAxesColumnIcon, InfoIcon, StarIcon } from "lucide-react";
 import posthog from "posthog-js";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { Button, ButtonGroup, Center, Checkbox, CheckboxGroup, Heading, Modal, Text, Tooltip, useDialog, VStack, Whisper } from "rsuite";
+import {
+  Button,
+  ButtonGroup,
+  Center,
+  Checkbox,
+  CheckboxGroup,
+  Heading,
+  Image,
+  Modal,
+  Text,
+  Tooltip,
+  useDialog,
+  VStack,
+  Whisper
+} from "rsuite";
 
-import Account from "@/Components/Account";
 import AccountButtons from "@/Components/AccountButtons";
-import Friends from "@/Components/Friends";
 import SignIn from "@/Components/SignIn";
 import { GlobalState } from "@/lib/GlobalState";
 import formatDate from "@/lib/formatting";
@@ -19,12 +31,13 @@ import { MiniState } from "./state";
 import { useNavigate } from "react-router";
 import { Stats } from "./Components/Stats";
 
-function App({ type }: { type: "mini" | "crossword" }) {
+function App({ type }: { type: "mini" | "daily" | "midi" }) {
   const [data, setData] = useState<MiniCrossword | null>(null);
   const [restoredTime, setRestoredTime] = useState<number>(-1);
   const [error, setError] = useState<string | null>(null);
   const [paused, setPaused] = useState(false);
   const [complete, setComplete] = useState(false);
+  const [alreadyCompleted, setAlreadyCompleted] = useState(false);
   const [cloudLoading, setCloudLoading] = useState(false);
   const [options, setOptions] = useState<(string | number)[]>([]);
   const [modalState, setModalState] = useState<"welcome" | "archive" | "sign-in" | "friends" | "account" | "stats" | null>("welcome");
@@ -57,7 +70,7 @@ function App({ type }: { type: "mini" | "crossword" }) {
   }
 
   useEffect(() => {
-    fetch(pb_url + (type === "mini" ? "/api/today" : "/api/today/xwd"))
+    fetch(pb_url + "/api/today/" + type)
       .then((res) => res.json())
       .then((json) => {
         if (json.error && json.error === "Not Found") {
@@ -73,7 +86,7 @@ function App({ type }: { type: "mini" | "crossword" }) {
   }, []);
 
   useEffect(() => {
-    document.title = type === "mini" ? "The Mini Crossword - Glyph" : "The Daily - Glyph";
+    document.title = `The ${type.charAt(0).toUpperCase()}${type.substring(1)} - Glyph`;
     document.getElementById("favicon-ico")?.setAttribute("href", `/icons/${type}/favicon.ico`);
     document.getElementById("favicon-svg")?.setAttribute("href", `/icons/${type}/favicon.svg`);
     document.getElementById("apple-touch-icon")?.setAttribute("href", `/icons/${type}/apple-touch-icon.png`);
@@ -91,6 +104,7 @@ function App({ type }: { type: "mini" | "crossword" }) {
   useEffect(() => {
     if (!data?.id) return;
 
+    setAlreadyCompleted(false);
     const restoreSave = async () => {
       setCloudLoading(true);
 
@@ -110,6 +124,9 @@ function App({ type }: { type: "mini" | "crossword" }) {
             localforage.setItem(`complete-${data.id}`, record.complete),
             localforage.setItem(`cheated-${data.id}`, record.cheated)
           ]);
+          if (record.complete) {
+            setAlreadyCompleted(true);
+          }
           setRestoredTime(record.time ?? 0);
           setCloudLoading(false);
           return;
@@ -162,7 +179,7 @@ function App({ type }: { type: "mini" | "crossword" }) {
     if (!data) return;
     if (restoredTime === -1) return;
     (async () => {
-      const hardcorePreference = await localforage.getItem(`hardcore-preference${type === "crossword" ? "-daily" : ""}`);
+      const hardcorePreference = await localforage.getItem(`hardcore-preference-${type}`);
       if (hardcorePreference) {
         if (restoredTime > 0) {
           setOptions((prev) => prev.filter((x) => x !== "hardcore"));
@@ -176,13 +193,63 @@ function App({ type }: { type: "mini" | "crossword" }) {
   return (
     <MiniState.Provider value={miniState}>
       {data && restoredTime > -1 && (
-        <Modal open={modalState === "welcome"} onClose={() => {}} centered overflow={false} size={"fit-content"}>
+        <Modal
+          open={modalState === "welcome"}
+          onClose={() => {}}
+          centered
+          overflow={false}
+          size={"fit-content"}
+          dialogClassName="welcome-dialog"
+        >
           <VStack spacing={10}>
-            <VStack spacing={5}>
-              <Heading level={2}>The {type === "mini" ? "Mini" : "Daily"} Crossword</Heading>
-              <Heading level={3}>{formatDate(data.publicationDate)}</Heading>
-              <Heading level={4}>by {data.constructors.join(", ")}</Heading>
+            <VStack width={"100%"} spacing={5} alignItems={"center"}>
+              <Image src={`/icons/${type}/pwa-192x192.png`} width={48} />
+              <Heading level={2} className="merriweather-display">
+                The {type.charAt(0).toUpperCase()}
+                {type.substring(1)}
+              </Heading>
+              {data.title && (
+                <Heading level={3} className="merriweather-bold">
+                  "{data.title}"
+                </Heading>
+              )}
             </VStack>
+            <VStack width={"100%"} maxWidth={280} spacing={5}>
+              <Text width={"100%"} textAlign={"center"}>
+                By {data.constructors.join(", ")}
+                {data.editor && ` · Edited by ${data.editor}`}
+              </Text>
+              <Text width={"100%"} textAlign={"center"}>
+                {formatDate(data.publicationDate)}
+              </Text>
+            </VStack>
+            {user && (
+              <Center width={"100%"}>
+                <CheckboxGroup
+                  value={options}
+                  onChange={(value) => {
+                    localforage.setItem(`hardcore-preference-${type}`, value.includes("hardcore"));
+                    setOptions(value);
+                  }}
+                >
+                  <Checkbox value="hardcore" disabled={restoredTime > 0}>
+                    Hardcore Mode{" "}
+                    <Whisper
+                      placement="top"
+                      trigger={"hover"}
+                      speaker={
+                        <Tooltip>
+                          When enabled, the game can't be paused and autocheck will be disabled. Exiting the tab will invalidate hardcore
+                          mode. Can only be attempted once per puzzle.
+                        </Tooltip>
+                      }
+                    >
+                      <InfoIcon />
+                    </Whisper>
+                  </Checkbox>
+                </CheckboxGroup>
+              </Center>
+            )}
             <ButtonGroup vertical block>
               <Button
                 onClick={async () => {
@@ -208,7 +275,11 @@ function App({ type }: { type: "mini" | "crossword" }) {
                 loading={cloudLoading}
                 disabled={cloudLoading}
               >
-                {restoredTime > 0 ? "Continue Solving" : `Start Solving${options.includes("hardcore") ? " (Hardcore)" : ""}`}
+                {alreadyCompleted
+                  ? "Admire Puzzle"
+                  : restoredTime > 0
+                    ? "Continue Solving"
+                    : `Start Solving${options.includes("hardcore") ? " (Hardcore)" : ""}`}
               </Button>
               <Button
                 onClick={() => {
@@ -221,33 +292,6 @@ function App({ type }: { type: "mini" | "crossword" }) {
                 Archive
               </Button>
             </ButtonGroup>
-            {user && (
-              <Center width={"100%"}>
-                <CheckboxGroup
-                  value={options}
-                  onChange={(value) => {
-                    localforage.setItem(`hardcore-preference${type === "crossword" ? "-daily" : ""}`, value.includes("hardcore"));
-                    setOptions(value);
-                  }}
-                >
-                  <Checkbox value="hardcore" disabled={restoredTime > 0}>
-                    Hardcore Mode{" "}
-                    <Whisper
-                      placement="top"
-                      trigger={"hover"}
-                      speaker={
-                        <Tooltip>
-                          When enabled, the game can't be paused and autocheck will be disabled. Exiting the tab will invalidate hardcore
-                          mode. Can only be attempted once per puzzle.
-                        </Tooltip>
-                      }
-                    >
-                      <InfoIcon />
-                    </Whisper>
-                  </Checkbox>
-                </CheckboxGroup>
-              </Center>
-            )}
             <ButtonGroup justified>
               <Button
                 startIcon={<ArrowLeftIcon />}

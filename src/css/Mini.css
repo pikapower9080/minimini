@@ -210,6 +210,10 @@ ol li {
   text-overflow: ellipsis;
 }
 
+.welcome-dialog {
+  min-width: 300px;
+}
+
 @media (max-width: 900px) {
   #root {
     padding: 15px !important;

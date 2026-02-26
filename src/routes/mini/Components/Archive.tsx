@@ -5,7 +5,7 @@ import posthog from "posthog-js";
 import { ArchiveIcon, CircleCheckIcon, HourglassIcon } from "lucide-react";
 
 import { pb } from "@/main";
-import type { ArchiveRecord, ArchiveStateRecord, BasicArchiveRecord } from "@/lib/types";
+import type { ArchiveRecord, ArchiveStateRecord, BasicArchiveRecord, MiniCrossword } from "@/lib/types";
 import { formatDuration } from "@/lib/formatting";
 import { MiniState } from "@/routes/mini/state";
 
@@ -32,7 +32,7 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
   const archive = pb.collection("archive");
   const puzzleState = pb.collection("puzzle_state");
 
-  const { setData: setPuzzleData, type } = useContext(MiniState);
+  const { setData: setPuzzleData, type }: { setData: (x: MiniCrossword) => void; type: "mini" | "daily" | "midi" } = useContext(MiniState);
 
   useEffect(() => {
     if (!data && open) {
@@ -45,14 +45,14 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
           return;
         }
         const list = (await archive.getFullList({
-          fields: "mini_id,crossword_id,publication_date,id",
-          filter: `${type === "mini" ? "mini_id" : "crossword_id"}!=0 && ${monthFilter}`
+          fields: "mini_id,daily_id,midi_id,publication_date,id",
+          filter: `${type}_id!=0 && ${monthFilter}`
         })) as BasicArchiveRecord[];
 
         let stateFilter = `user="${pb.authStore?.record?.id}"`;
 
         if (list.length > 0) {
-          stateFilter += ` && (${list.map((x) => `puzzle_id = "${type === "mini" ? x.mini_id : x.crossword_id}"`).join(" || ")})`;
+          stateFilter += ` && (${list.map((x) => `puzzle_id = "${x[`${type}_id`]}"`).join(" || ")})`;
         }
 
         let completed: ArchiveStateRecord[] = [];
@@ -81,12 +81,7 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
         setSelectedPuzzleTime(0);
         return;
       }
-      let puzzleState = undefined;
-      if (type === "mini") {
-        puzzleState = puzzleStates?.find((ps) => ps.puzzle_id === puzzle?.mini_id);
-      } else {
-        puzzleState = puzzleStates?.find((ps) => ps.puzzle_id === puzzle?.crossword_id);
-      }
+      const puzzleState = puzzleStates?.find((ps) => ps.puzzle_id === puzzle[`${type}_id`]);
       if (puzzleState) {
         setSelectedPuzzleTime(puzzleState.time || 0);
         if (puzzleState.complete) {
@@ -147,15 +142,10 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
           renderCell={(date) => {
             const day = date.toISOString().split("T")[0];
             const puzzle = data?.find((r) => r.publication_date === day);
-            let puzzleState = undefined;
-            if (type === "mini") {
-              puzzleState = puzzleStates?.find((ps) => ps.puzzle_id === puzzle?.mini_id);
-            } else {
-              puzzleState = puzzleStates?.find((ps) => ps.puzzle_id === puzzle?.crossword_id);
-            }
             if (!puzzle) {
               return <Badge className="archive-badge" style={{ visibility: "hidden" }} />;
             }
+            const puzzleState = puzzleStates?.find((ps) => ps.puzzle_id === puzzle[`${type}_id`]);
             if (puzzleState?.complete) {
               return <CircleCheckIcon className="archive-badge-icon archive-badge-icon-completed" />;
             }
@@ -190,11 +180,7 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
                   type
                 });
                 const archiveRecord = record as ArchiveRecord;
-                if (type === "crossword") {
-                  setPuzzleData(archiveRecord.crossword);
-                } else {
-                  setPuzzleData(archiveRecord.mini);
-                }
+                setPuzzleData(archiveRecord[type]);
                 setOpen(false);
               })
               .finally(() => {

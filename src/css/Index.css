@@ -4,8 +4,9 @@
     transition: transform 0.15s;
   }
 
-  .rs-card-body {
-    padding-block-start: 12px;
+  .rs-card-body,
+  .rs-card-header {
+    padding-block-start: 10px;
   }
 
   .game-cards .rs-card:hover {
@@ -39,6 +40,12 @@
 
   a {
     color: unset !important;
+  }
+
+  .link-card-disabled {
+    opacity: 70%;
+    user-select: none;
+    pointer-events: none;
   }
 }
 
