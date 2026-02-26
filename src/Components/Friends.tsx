@@ -74,7 +74,7 @@ function FriendListEntry({ friend, fetchFriends }: { friend: UserRecord; fetchFr
         </HStack>
       </List.Item>
       <Stats open={miniStatsOpen} setOpen={setMiniStatsOpen} type="mini" user={friend} />
-      <Stats open={dailyStatsOpen} setOpen={setDailyStatsOpen} type="crossword" user={friend} />
+      <Stats open={dailyStatsOpen} setOpen={setDailyStatsOpen} type="daily" user={friend} />
     </>
   );
 }
