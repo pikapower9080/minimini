@@ -25,15 +25,13 @@ interface MiniProps {
   data: MiniCrossword;
   startTouched: boolean;
   timeRef: React.RefObject<number[]>;
-  complete: boolean;
-  setComplete: (paused: boolean) => void;
   stateDocId: RefObject<string>;
   alreadyCompleted: boolean;
 }
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
 
-export default function Mini({ data, startTouched, timeRef, complete, setComplete, stateDocId, alreadyCompleted }: MiniProps) {
+export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyCompleted }: MiniProps) {
   const body = data.body[0];
 
   const [selected, setSelected] = useState<number | null>(null);
@@ -54,9 +52,14 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const { user } = useContext(GlobalState);
-  const { paused, type, options } = useContext(MiniState);
+  const { paused, type, options, setModalState, complete, setComplete } = useContext(MiniState);
 
   let relatedClues: number[] = [];
+
+  function exit(destination: string = "welcome") {
+    setComplete(false);
+    setModalState(destination);
+  }
 
   useLayoutEffect(() => {
     if (boardRef.current) {
@@ -827,7 +830,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
             <Text>{formatDate(data.publicationDate)}</Text>
           </VStack>
           <Rating id={data.id} />
-          <ButtonGroup vertical block>
+          <ButtonGroup vertical block width={"100%"}>
             <Button
               onClick={() => {
                 setModalType(null);
@@ -846,6 +849,15 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
                 Leaderboard
               </Button>
             )}
+            <Button
+              appearance="default"
+              startIcon={<ArrowLeftIcon />}
+              onClick={() => {
+                exit("welcome");
+              }}
+            >
+              Back
+            </Button>
           </ButtonGroup>
         </VStack>
       </Modal>
@@ -881,7 +893,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
             clearLocalPuzzleData={clearLocalPuzzleData}
             stateDocId={stateDocId}
             setPuzzleModalState={setModalType}
-            complete={complete}
+            onExit={exit}
           />
         </div>
         {keyboardOpen && selected !== null && selectedClue > -1 ? (

@@ -121,7 +121,20 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
   }
 
   return (
-    <Modal open={open} onClose={() => setOpen(false)} centered overflow={false}>
+    <Modal
+      open={open}
+      onClose={() => {
+        setOpen(false);
+      }}
+      onExited={() => {
+        setData(null);
+        setPuzzleStates(null);
+        dataCache.current = {};
+        puzzleStateCache.current = {};
+      }}
+      centered
+      overflow={false}
+    >
       <VStack spacing={10}>
         <Modal.Header closeButton>
           <Modal.Title>

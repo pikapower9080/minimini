@@ -1,6 +1,6 @@
 import { useContext, type RefObject } from "react";
 import posthog from "posthog-js";
-import { DoorOpenIcon, MenuIcon, PrinterIcon, RotateCcwIcon, TrophyIcon } from "lucide-react";
+import { ArchiveIcon, DoorOpenIcon, LayoutGridIcon, MenuIcon, PrinterIcon, RotateCcwIcon, StarIcon, TrophyIcon, XIcon } from "lucide-react";
 
 import type { MiniCrossword } from "@/lib/types";
 import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
@@ -8,23 +8,27 @@ import { MiniState } from "@/routes/mini/state";
 import { pb, pb_url } from "@/main";
 import { GlobalState } from "@/lib/GlobalState";
 import { useDialog } from "rsuite";
+import { useNavigate } from "react-router";
 
 export default function PuzzleMenu({
   data,
   clearLocalPuzzleData,
   stateDocId,
   setPuzzleModalState,
-  complete
+  onExit
 }: {
   data: MiniCrossword;
   clearLocalPuzzleData: () => Promise<void>;
   stateDocId: RefObject<string>;
   setPuzzleModalState: (state: any) => void;
-  complete: boolean;
+  onExit: (destination: string) => void;
 }) {
   const { user } = useContext(GlobalState);
-  const { type, options } = useContext(MiniState);
+  const { type, options, complete, setModalState } = useContext(MiniState);
   const dialog = useDialog();
+  const navigate = useNavigate();
+
+  const hardcore = options.includes("hardcore");
 
   return (
     <Menu portal transition align="end" menuButton={<MenuIcon />}>
@@ -39,18 +43,43 @@ export default function PuzzleMenu({
             <TrophyIcon />
             Leaderboard
           </MenuItem>
-          <MenuDivider />
         </>
       ) : (
         ""
       )}
       <MenuItem
         onClick={() => {
-          location.reload();
+          setPuzzleModalState("victory");
+        }}
+        disabled={!complete}
+      >
+        <StarIcon />
+        Rate
+      </MenuItem>
+      <MenuDivider />
+      <MenuItem
+        onClick={() => {
+          onExit("welcome");
         }}
       >
-        <DoorOpenIcon />
-        Exit
+        <XIcon />
+        Quit
+      </MenuItem>
+      <MenuItem
+        onClick={() => {
+          onExit("archive");
+        }}
+      >
+        <ArchiveIcon />
+        Archive
+      </MenuItem>
+      <MenuItem
+        onClick={() => {
+          navigate("/");
+        }}
+      >
+        <LayoutGridIcon />
+        More Games
       </MenuItem>
       {type === "daily" && (
         <MenuItem
@@ -105,7 +134,7 @@ export default function PuzzleMenu({
             }
           });
         }}
-        disabled={options.includes("hardcore")}
+        disabled={hardcore}
       >
         <RotateCcwIcon />
         Reset Puzzle

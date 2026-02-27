@@ -58,9 +58,11 @@ function App({ type }: { type: "mini" | "daily" | "midi" }) {
       modalState,
       setModalState,
       type,
-      options
+      options,
+      complete,
+      setComplete
     }),
-    [user, paused, data, modalState, type, options]
+    [user, paused, data, modalState, type, options, complete]
   );
 
   function pause() {
@@ -388,8 +390,6 @@ function App({ type }: { type: "mini" | "daily" | "midi" }) {
           data={data}
           startTouched={startTouched.current}
           timeRef={timeRef}
-          complete={complete}
-          setComplete={setComplete}
           stateDocId={stateDocId}
           alreadyCompleted={alreadyCompleted}
         />
