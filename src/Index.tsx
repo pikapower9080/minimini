@@ -55,8 +55,12 @@ export default function Index() {
       <SignIn open={modalState === "sign-in"} setOpen={() => setModalState(null)} />
 
       <div className="title-container">
-        <Heading level={1}>Glyph</Heading>
-        <Heading level={3}>Daily word games</Heading>
+        <Heading level={1} className="merriweather-display">
+          Glyph
+        </Heading>
+        <Heading level={3} className="merriweather-bold">
+          Daily word games
+        </Heading>
         <Center>
           <ButtonGroup className="account-buttons" justified>
             <AccountButtons setModalState={setModalState} appearance="default" />
