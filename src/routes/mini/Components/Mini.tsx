@@ -28,11 +28,12 @@ interface MiniProps {
   complete: boolean;
   setComplete: (paused: boolean) => void;
   stateDocId: RefObject<string>;
+  alreadyCompleted: boolean;
 }
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
 
-export default function Mini({ data, startTouched, timeRef, complete, setComplete, stateDocId }: MiniProps) {
+export default function Mini({ data, startTouched, timeRef, complete, setComplete, stateDocId, alreadyCompleted }: MiniProps) {
   const body = data.body[0];
 
   const [selected, setSelected] = useState<number | null>(null);
@@ -542,7 +543,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
     const results = checkBoard();
     if (results.totalCells > 0 && results.totalCells === results.totalCorrect) {
       setModalType("victory");
-      if (!prefersReducedMotion) {
+      if (!prefersReducedMotion && !alreadyCompleted) {
         fireworks();
       }
       incorrectShown.current = false;

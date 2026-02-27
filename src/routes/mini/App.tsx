@@ -391,6 +391,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" }) {
           complete={complete}
           setComplete={setComplete}
           stateDocId={stateDocId}
+          alreadyCompleted={alreadyCompleted}
         />
       ) : (
         !data && !error && <Text className="loading centered block"></Text>
