@@ -20,6 +20,7 @@ export interface MiniCrosswordBody {
   clueLists: MiniCrosswordClueList[];
   clues: MiniCrosswordClue[];
   dimensions: MiniCrosswordDimensions;
+  SVG?: {};
 }
 
 export interface MiniCrosswordCell {

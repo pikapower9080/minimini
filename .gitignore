@@ -31,3 +31,5 @@ mini.json
 pb_data/
 pb_public/
 pocketbase.bin
+
+bot/puppeteer-data
