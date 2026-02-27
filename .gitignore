@@ -33,3 +33,4 @@ pb_public/
 pocketbase.bin
 
 bot/puppeteer-data
+bot/out.log
