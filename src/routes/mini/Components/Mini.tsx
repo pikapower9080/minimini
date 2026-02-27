@@ -1,10 +1,10 @@
 import { lazy, Suspense, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
-import { Divider, Input, Modal, Text } from "rsuite";
+import { Center, Divider, Image, Input, Modal, Text } from "rsuite";
 import posthog from "posthog-js";
 import localforage from "localforage";
 import throttle from "throttleit";
 import { Button, ButtonGroup, HStack, VStack, Toggle, Heading } from "rsuite";
-import { ChevronLeftIcon, ChevronRightIcon, StarIcon, TrophyIcon } from "lucide-react";
+import { ArrowLeftIcon, ChevronLeftIcon, ChevronRightIcon, Grid3X3Icon, LayoutGridIcon, StarIcon, TrophyIcon } from "lucide-react";
 
 import type { MiniCrossword, MiniCrosswordClue } from "@/lib/types";
 import { pb } from "@/main";
@@ -15,6 +15,7 @@ import Leaderboard from "@/Components/Leaderboard";
 import Rating from "@/Components/Rating";
 import { MiniState } from "@/routes/mini/state";
 import PuzzleMenu from "./PuzzleMenu";
+import { useNavigate } from "react-router";
 
 const Keyboard = lazy(async () => ({
   default: (await import("@/Components/VirtualKeyboard")).default
@@ -47,6 +48,7 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
   const rebusRef = useRef<HTMLInputElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
   const incorrectShown = useRef<boolean>(false);
+  const navigate = useNavigate();
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -794,17 +796,34 @@ export default function Mini({ data, startTouched, timeRef, complete, setComplet
         </div>
       </HStack>
 
-      <Modal open={modalType === "victory"} onClose={() => setModalType(null)} centered size="fit-content" overflow={false}>
-        <VStack spacing={15}>
-          <VStack spacing={5}>
-            <Heading level={2}>Congratulations!</Heading>
+      <Modal
+        open={modalType === "victory"}
+        onClose={() => setModalType(null)}
+        centered
+        size="fit-content"
+        overflow={false}
+        dialogClassName="complete-dialog"
+      >
+        <VStack spacing={15} width={"100%"}>
+          <VStack spacing={5} width={"100%"}>
+            <Center width={"100%"}>
+              <Image src={`/icons/${type}/pwa-192x192.png`} width={42} />
+            </Center>
+            <Heading level={2} className="merriweather-display">
+              Congratulations!
+            </Heading>
+          </VStack>
+          <VStack spacing={5} width={"100%"} alignItems={"center"}>
             {timeRef.current.length === 2 && (
-              <Heading level={3}>
-                You solved the {type.charAt(0).toUpperCase()}
-                {type.substring(1)} Crossword in {timeRef.current[0]}:{timeRef.current[1].toString().padStart(2, "0")}
-              </Heading>
+              <Text>
+                You solved The {type.charAt(0).toUpperCase()}
+                {type.substring(1)} in{" "}
+                <Text weight="bold">
+                  {timeRef.current[0]}:{timeRef.current[1].toString().padStart(2, "0")}
+                </Text>
+              </Text>
             )}
-            <Heading level={4}>{formatDate(data.publicationDate)}</Heading>
+            <Text>{formatDate(data.publicationDate)}</Text>
           </VStack>
           <Rating id={data.id} />
           <ButtonGroup vertical block>

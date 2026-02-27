@@ -68,3 +68,7 @@
 .rs-modal-footer {
   margin-block-start: 10px;
 }
+
+.rs-text .rs-text-bold {
+  display: inline;
+}

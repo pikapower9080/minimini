@@ -48,7 +48,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" }) {
   const dialog = useDialog();
   const navigate = useNavigate();
 
-  const { user, setUser } = useContext(GlobalState);
+  const { user } = useContext(GlobalState);
 
   const miniState = useMemo(
     () => ({
@@ -70,6 +70,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" }) {
   }
 
   useEffect(() => {
+    if (data) return;
     fetch(pb_url + "/api/today/" + type)
       .then((res) => res.json())
       .then((json) => {
@@ -83,7 +84,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" }) {
         console.error(err);
         setError(`${import.meta.env.DEV ? `Failed to access the Pocketbase API at ${pb_url}` : "Failed to load today's puzzle."}`);
       });
-  }, []);
+  }, [data]);
 
   useEffect(() => {
     document.title = `The ${type.charAt(0).toUpperCase()}${type.substring(1)} - Glyph`;

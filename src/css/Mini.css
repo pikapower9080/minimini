@@ -214,6 +214,10 @@ ol li {
   min-width: 300px;
 }
 
+.complete-dialog {
+  min-width: 350px;
+}
+
 @media (max-width: 900px) {
   #root {
     padding: 15px !important;
