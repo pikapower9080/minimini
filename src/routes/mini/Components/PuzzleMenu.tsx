@@ -52,21 +52,21 @@ export default function PuzzleMenu({
         <DoorOpenIcon />
         Exit
       </MenuItem>
-      {type === "crossword" && (
+      {type === "daily" && (
         <MenuItem
           onClick={async () => {
             const archive = pb.collection("archive");
-            const item = await archive.getFirstListItem(`crossword_id="${data.id}"`, {
+            const item = await archive.getFirstListItem(`daily_id="${data.id}"`, {
               fields: "id,media"
             });
             if (item.media && item.media.length > 0) {
               const printout = item.media.find((m: string) => m.endsWith("printout.pdf"));
               if (!printout) {
-                alert("This puzzle can't be printed at this time.");
+                dialog.alert("This puzzle can't be printed at this time.");
               }
               window.open(`${pb_url}/api/files/archive/${item.id}/${printout}`, "_blank");
             } else {
-              alert("This puzzle can't be printed at this time.");
+              dialog.alert("This puzzle can't be printed at this time.");
             }
           }}
         >
