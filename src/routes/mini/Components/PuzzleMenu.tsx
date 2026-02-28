@@ -32,21 +32,15 @@ export default function PuzzleMenu({
 
   return (
     <Menu portal transition align="end" menuButton={<MenuIcon />}>
-      {user ? (
-        <>
-          <MenuItem
-            onClick={() => {
-              setPuzzleModalState("leaderboard");
-            }}
-            disabled={!complete}
-          >
-            <TrophyIcon />
-            Leaderboard
-          </MenuItem>
-        </>
-      ) : (
-        ""
-      )}
+      <MenuItem
+        onClick={() => {
+          setPuzzleModalState("leaderboard");
+        }}
+        disabled={!complete}
+      >
+        <TrophyIcon />
+        Leaderboard
+      </MenuItem>
       <MenuItem
         onClick={() => {
           setPuzzleModalState("victory");

@@ -188,3 +188,25 @@ canvas {
 .modal-title {
   transform: translateY(-7px);
 }
+
+.nudge {
+  width: 280px;
+  .rs-text {
+    text-align: left;
+  }
+  .nudge-cta {
+    .rs-btn[data-appearance="subtle"] {
+      padding: 0;
+      &:hover {
+        background-color: transparent;
+      }
+    }
+  }
+}
+
+.leaderboard-nudge {
+  background-image: url("/icons/trophy-bg.svg");
+  background-size: 42px;
+  background-position: -21px -21px;
+  background-blend-mode: overlay;
+}

@@ -839,16 +839,14 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
             >
               Admire Puzzle
             </Button>
-            {pb.authStore.isValid && (
-              <Button
-                onClick={() => {
-                  setModalType("leaderboard");
-                }}
-                startIcon={<TrophyIcon />}
-              >
-                Leaderboard
-              </Button>
-            )}
+            <Button
+              onClick={() => {
+                setModalType("leaderboard");
+              }}
+              startIcon={<TrophyIcon />}
+            >
+              Leaderboard
+            </Button>
             <Button
               appearance="default"
               startIcon={<ArrowLeftIcon />}

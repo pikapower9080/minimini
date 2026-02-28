@@ -1,12 +1,14 @@
 import { useContext, useEffect, useState } from "react";
-import { Modal, Tooltip, Whisper } from "rsuite";
+import { Button, Modal, Tooltip, Whisper } from "rsuite";
 import { pb } from "../main";
 import { Checkbox, Loader, Text, Heading } from "rsuite";
 import { Table } from "rsuite/Table";
 import type { LeaderboardRecord, MiniCrossword, StateRecord } from "../lib/types";
 import { formatDuration } from "../lib/formatting";
 import { GlobalState } from "../lib/GlobalState";
-import { MonitorIcon, SmartphoneIcon, StarIcon, TrophyIcon } from "lucide-react";
+import { LogInIcon, MonitorIcon, SmartphoneIcon, StarIcon, TrophyIcon } from "lucide-react";
+import Nudge from "./Nudge";
+import { MiniState } from "@/routes/mini/state";
 
 export default function Leaderboard({
   open,
@@ -23,8 +25,10 @@ export default function Leaderboard({
   const [data, setData] = useState<StateRecord[]>([]);
 
   const { user } = useContext(GlobalState);
+  const { setModalState, setComplete } = useContext(MiniState);
 
   useEffect(() => {
+    if (!user) return;
     if (!open || !ready) return;
     if (data && data.length > 0) return;
     let cancelled = false;
@@ -60,6 +64,52 @@ export default function Leaderboard({
     };
   }, [open, puzzleData.id, ready]);
 
+  function ModalHeader() {
+    return (
+      <Modal.Header closeButton>
+        <Modal.Title>
+          <TrophyIcon /> Leaderboard
+        </Modal.Title>
+      </Modal.Header>
+    );
+  }
+
+  if (!user) {
+    return (
+      <Modal
+        centered
+        open={open}
+        onClose={() => {
+          setOpen(false);
+        }}
+        size="fit-content"
+        overflow={false}
+      >
+        <ModalHeader />
+        <Modal.Body>
+          <Nudge
+            title="Compete with Friends"
+            body="Sign in to access the leaderboard and compete with friends"
+            color="var(--rs-yellow-500)"
+            className="leaderboard-nudge"
+            cta={
+              <Button
+                appearance="ghost"
+                startIcon={<LogInIcon />}
+                onClick={() => {
+                  setComplete(false);
+                  setModalState("sign-in");
+                }}
+              >
+                Sign In
+              </Button>
+            }
+          />
+        </Modal.Body>
+      </Modal>
+    );
+  }
+
   return (
     <Modal
       centered
@@ -78,11 +128,7 @@ export default function Leaderboard({
         setData([]);
       }}
     >
-      <Modal.Header closeButton>
-        <Modal.Title>
-          <TrophyIcon /> Leaderboard
-        </Modal.Title>
-      </Modal.Header>
+      <ModalHeader />
       <Modal.Body>
         <div className="leaderboard-container" style={{ minWidth: "320px" }}>
           {data && !loading && (

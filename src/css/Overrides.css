@@ -1,3 +1,12 @@
+:root {
+  --rs-btn-ghost-text: black;
+  --rs-btn-ghost-hover-text: black;
+  --rs-btn-ghost-hover-border: black;
+  --rs-btn-ghost-border-width: 1px;
+  --rs-btn-ghost-border: black;
+  --rs-btn-ghost-hover-border: none;
+}
+
 .rs-btn[aria-label="Close"] {
   aspect-ratio: 1;
 }
