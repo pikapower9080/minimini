@@ -204,9 +204,16 @@ canvas {
   }
 }
 
+.icon-bg {
+  background-size: 42px;
+  background-position: -3px -3px;
+  background-blend-mode: overlay;
+}
+
 .leaderboard-nudge {
   background-image: url("/icons/trophy-bg.svg");
-  background-size: 42px;
-  background-position: -21px -21px;
-  background-blend-mode: overlay;
+}
+
+.friends-nudge {
+  background-image: url("/icons/users-bg.svg");
 }

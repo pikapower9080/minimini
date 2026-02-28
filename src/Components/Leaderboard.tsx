@@ -1,14 +1,14 @@
+import { MiniState } from "@/routes/mini/state";
+import { LogInIcon, MonitorIcon, SmartphoneIcon, StarIcon, TrophyIcon, UsersIcon } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
-import { Button, Modal, Tooltip, Whisper } from "rsuite";
-import { pb } from "../main";
-import { Checkbox, Loader, Text, Heading } from "rsuite";
+import { useNavigate } from "react-router";
+import { Button, Center, Checkbox, Loader, Modal, Tooltip, Whisper } from "rsuite";
 import { Table } from "rsuite/Table";
-import type { LeaderboardRecord, MiniCrossword, StateRecord } from "../lib/types";
 import { formatDuration } from "../lib/formatting";
 import { GlobalState } from "../lib/GlobalState";
-import { LogInIcon, MonitorIcon, SmartphoneIcon, StarIcon, TrophyIcon } from "lucide-react";
+import type { LeaderboardRecord, MiniCrossword, StateRecord } from "../lib/types";
+import { pb } from "../main";
 import Nudge from "./Nudge";
-import { MiniState } from "@/routes/mini/state";
 
 export default function Leaderboard({
   open,
@@ -26,6 +26,7 @@ export default function Leaderboard({
 
   const { user } = useContext(GlobalState);
   const { setModalState, setComplete } = useContext(MiniState);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) return;
@@ -91,7 +92,7 @@ export default function Leaderboard({
             title="Compete with Friends"
             body="Sign in to access the leaderboard and compete with friends"
             color="var(--rs-yellow-500)"
-            className="leaderboard-nudge"
+            className="icon-bg leaderboard-nudge"
             cta={
               <Button
                 appearance="ghost"
@@ -184,9 +185,20 @@ export default function Leaderboard({
                 </Table.Column>
               </Table>
               {user.friends.length === 0 && (
-                <Text style={{ marginTop: 10 }} weight="bold" className="centered block">
-                  Add friends to compare scores
-                </Text>
+                <Center marginTop={10}>
+                  <Nudge
+                    title="Add Friends to Compete"
+                    body="When you add friends, you can see their scores on the leaderboard"
+                    color="var(--rs-violet-500)"
+                    className="icon-bg friends-nudge"
+                    width={320}
+                    cta={
+                      <Button appearance="ghost" startIcon={<UsersIcon />} onClick={() => navigate("/#friends")}>
+                        Friends
+                      </Button>
+                    }
+                  />
+                </Center>
               )}
             </>
           )}

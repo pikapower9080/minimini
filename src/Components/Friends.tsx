@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Modal, useDialog } from "rsuite";
+import { Box, Center, Modal, useDialog } from "rsuite";
 import { Button, Form, HStack, VStack, List, Text, Heading, PinInput, Avatar } from "rsuite";
 import { pb, pb_url } from "../main";
 import type { UserRecord } from "../lib/types";
@@ -9,6 +9,7 @@ import { getDefaultAvatar } from "../lib/avatars";
 import { ChartNoAxesColumnIcon, MenuIcon, UsersIcon, UserXIcon } from "lucide-react";
 import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
 import { Stats } from "@/routes/mini/Components/Stats";
+import Nudge from "./Nudge";
 
 function FriendListEntry({ friend, fetchFriends }: { friend: UserRecord; fetchFriends: () => Promise<void> }) {
   const defaultAvatar = useMemo(() => getDefaultAvatar(friend.username), []);
@@ -83,6 +84,7 @@ export default function Friends({ open, setOpen }: { open: boolean; setOpen: (op
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [friends, setFriends] = useState<UserRecord[]>([]);
+  const [friendsLoading, setFriendsLoading] = useState(true);
 
   async function fetchFriends() {
     if (!pb.authStore.isValid || !pb.authStore.record?.id) return;
@@ -93,6 +95,7 @@ export default function Friends({ open, setOpen }: { open: boolean; setOpen: (op
         filter: `id != "${pb.authStore.record.id}"`
       });
       setFriends(friends);
+      setFriendsLoading(false);
     } catch (err) {
       console.error(err);
     }
@@ -120,63 +123,75 @@ export default function Friends({ open, setOpen }: { open: boolean; setOpen: (op
             <UsersIcon /> Friends
           </Modal.Title>
         </Modal.Header>
-        <VStack spacing={friends.length > 0 ? 10 : 0}>
-          <List bordered={friends.length > 0} className="friends-list" hover>
-            {friends.map((friend) => {
-              return <FriendListEntry key={friend.id} friend={friend} fetchFriends={fetchFriends} />;
-            })}
-          </List>
-          <Form
-            className="add-friend-form"
-            onSubmit={async (e) => {
-              if (!e || !e.code || e.code.length < 6) return;
-              setLoading(true);
-              try {
-                if (!pb.authStore.isValid || !pb.authStore.record?.id) return;
-                const response = await fetch(pb_url + "/api/friends/from_code/" + e.code, {
-                  method: "GET"
-                });
-                const json = await response.json();
-                console.log(json);
-                if (json.id) {
-                  if (json.id === pb.authStore.record?.id) {
-                    setResult("You can't add yourself as a friend");
-                    return;
-                  }
-                  await pb.collection("users").update(pb.authStore.record.id, {
-                    "friends+": [json.id]
+        <Modal.Body width={"100%"}>
+          <VStack spacing={10} alignItems={"center"}>
+            {friends.length > 0 && (
+              <List bordered={friends.length > 0} className="friends-list" hover>
+                {friends.map((friend) => {
+                  return <FriendListEntry key={friend.id} friend={friend} fetchFriends={fetchFriends} />;
+                })}
+              </List>
+            )}
+            {friends.length === 0 && !friendsLoading && (
+              <Nudge
+                title="Add Friends to Compete"
+                body="Add friends by exchanging friend codes"
+                color="var(--rs-violet-500)"
+                className="icon-bg friends-nudge"
+              />
+            )}
+            <Form
+              className="add-friend-form"
+              onSubmit={async (e) => {
+                if (!e || !e.code || e.code.length < 6) return;
+                setLoading(true);
+                try {
+                  if (!pb.authStore.isValid || !pb.authStore.record?.id) return;
+                  const response = await fetch(pb_url + "/api/friends/from_code/" + e.code, {
+                    method: "GET"
                   });
-                  setResult(`Added ${json.username} as a friend`);
-                  fetchFriends();
-                } else {
-                  setResult(json.error ?? "An unexpected error occurred");
+                  const json = await response.json();
+                  console.log(json);
+                  if (json.id) {
+                    if (json.id === pb.authStore.record?.id) {
+                      setResult("You can't add yourself as a friend");
+                      return;
+                    }
+                    await pb.collection("users").update(pb.authStore.record.id, {
+                      "friends+": [json.id]
+                    });
+                    setResult(`Added ${json.username} as a friend`);
+                    fetchFriends();
+                  } else {
+                    setResult(json.error ?? "An unexpected error occurred");
+                  }
+                } catch (err) {
+                  console.error(err);
+                  setResult("An unexpected error occurred");
+                } finally {
+                  setLoading(false);
                 }
-              } catch (err) {
-                console.error(err);
-                setResult("An unexpected error occurred");
-              } finally {
-                setLoading(false);
-              }
-            }}
-          >
-            <VStack spacing={10}>
-              <Text weight="bold" className="block centered">
-                Your friend code: {pb.authStore.record?.friend_code}
-              </Text>
-              <Form.Group controlId="code">
-                <Form.Control className="friend-code-input" name="code" accepter={PinInput} length={6} size="sm" />
-                {result && (
-                  <Text className="block centered" style={{ marginTop: 5 }}>
-                    {result}
-                  </Text>
-                )}
-              </Form.Group>
-              <Button className="auto-center" appearance="primary" type="submit" loading={loading}>
-                Add Friend
-              </Button>
-            </VStack>
-          </Form>
-        </VStack>
+              }}
+            >
+              <VStack spacing={10} alignItems={"center"}>
+                <Text>
+                  Your friend code: <Text weight="bold">{pb.authStore.record?.friend_code}</Text>
+                </Text>
+                <Form.Group controlId="code">
+                  <Form.Control className="friend-code-input" name="code" accepter={PinInput} length={6} size="sm" />
+                  {result && (
+                    <Text className="block centered" style={{ marginTop: 5 }}>
+                      {result}
+                    </Text>
+                  )}
+                </Form.Group>
+                <Button appearance="primary" type="submit" loading={loading}>
+                  Add Friend
+                </Button>
+              </VStack>
+            </Form>
+          </VStack>
+        </Modal.Body>
       </VStack>
     </Modal>
   );

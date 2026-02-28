@@ -1,5 +1,5 @@
 import { ButtonGroup, Card, CardGroup, Heading, HStack, Image, Text, Center, Badge } from "rsuite";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { useContext, useEffect, useState } from "react";
 
 import Account from "@/Components/Account";
@@ -38,7 +38,7 @@ function LinkCard({ title, description, imageSrc, link, disabled, badgeContent }
 
 export default function Index() {
   const [modalState, setModalState] = useState<"account" | "friends" | "sign-in" | null>(null);
-  const { user, setUser } = useContext(GlobalState);
+  const location = useLocation();
 
   useEffect(() => {
     document.title = "Glyph - Daily word games";
@@ -47,6 +47,19 @@ export default function Index() {
     document.getElementById("apple-touch-icon")?.setAttribute("href", `/icons/mini/apple-touch-icon.png`);
     document.getElementById("site-manifest")?.setAttribute("href", `/pwa/index.webmanifest`);
   }, []);
+
+  useEffect(() => {
+    switch (location.hash) {
+      case "#friends":
+        setModalState("friends");
+        break;
+      case "#account":
+        setModalState("account");
+        break;
+      default:
+        break;
+    }
+  }, [location]);
 
   return (
     <main className="index">

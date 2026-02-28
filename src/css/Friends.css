@@ -20,14 +20,6 @@
   margin: 0;
 }
 
-.add-friend-form {
-  width: 100%;
-}
-
-.add-friend-form .rs-stack-item {
-  width: 100%;
-}
-
 .friend-code-input {
   width: 256px;
 }

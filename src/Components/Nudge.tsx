@@ -8,14 +8,15 @@ interface NudgeProps {
   icon?: ReactElement;
   cta?: ReactElement;
   className?: string;
+  width?: string | number;
 }
 
-export default function Nudge({ title, body, color, icon, cta, className }: NudgeProps) {
+export default function Nudge({ title, body, color, icon, cta, className, width }: NudgeProps) {
   return (
     <Card
       className={`nudge${className ? ` ${className}` : ""}`}
       bordered
-      style={{ backgroundColor: `color-mix(in srgb, ${color} 30%, var(--rs-card-bg) 70%)` }}
+      style={{ backgroundColor: `color-mix(in srgb, ${color} 30%, var(--rs-card-bg) 70%)`, width }}
     >
       <Card.Body>
         <VStack spacing={5}>
