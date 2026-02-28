@@ -1,9 +1,9 @@
 import { useContext, useRef, useState } from "react";
-import { Modal } from "rsuite";
+import { Loader, Modal } from "rsuite";
 import { pb } from "../main";
 import { GlobalState } from "../lib/GlobalState";
 import { Button, ButtonGroup, Form, Heading, VStack, PasswordInput, Text } from "rsuite";
-import { EyeClosedIcon, EyeIcon } from "lucide-react";
+import { EyeClosedIcon, EyeIcon, LogInIcon, UserPlusIcon } from "lucide-react";
 
 interface SignInProps {
   open: boolean;
@@ -43,13 +43,16 @@ export default function SignIn({ open, setOpen }: SignInProps) {
     if (!username || !password) return;
     if (username.length < 3) {
       setUsernameValidation("Username must be between 3 and 16 characters");
+      return;
     } else if (!/^[a-zA-Z0-9\-_.]{3,16}$/.test(username)) {
       setUsernameValidation("Username can only contain letters, numbers, hyphens, underscores, and periods");
+      return;
     } else {
       setUsernameValidation("");
     }
     if (password.length < 6) {
       setPasswordValidation("Password must be between 6 and 71 characters");
+      return;
     } else {
       setPasswordValidation("");
     }
@@ -79,8 +82,8 @@ export default function SignIn({ open, setOpen }: SignInProps) {
         if (pb.authStore.isValid) {
           setError("");
           setUser(pb.authStore.record);
+          setOpen(false);
         }
-        location.reload();
       })
       .catch((err) => {
         handleError(err);
@@ -95,72 +98,77 @@ export default function SignIn({ open, setOpen }: SignInProps) {
       }}
       centered
       overflow={false}
-      size="fit-content"
+      size="xs"
     >
-      <VStack spacing={5} className="modal-title">
-        <Heading level={2}>Sign In</Heading>
-        <Text>
-          Compete with friends and track
-          <br />
-          your progress
-        </Text>
-      </VStack>
-      <Form
-        onSubmit={(e) => {
-          onSubmit(e);
-        }}
-        noValidate
-      >
-        <Form.Group controlId="username">
-          <Form.Control
-            ref={usernameRef}
-            name="username"
-            placeholder="Username"
-            required
-            maxLength={16}
-            pattern="^[a-zA-Z0-9\-_.]{3,16}$"
-            onChange={(e) => {
-              usernameRef.current = e;
+      <Modal.Header closeButton>
+        <Modal.Title>
+          <LogInIcon /> Sign In
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <VStack spacing={10}>
+          <Text>Compete with friends and track your progress</Text>
+          <Form
+            onSubmit={(e) => {
+              onSubmit(e);
             }}
-          ></Form.Control>
-        </Form.Group>
-        <Text style={{ color: "red", fontSize: "0.8em" }}>{usernameValidation}</Text>
-        <Form.Group controlId="password">
-          <Form.Control
-            accepter={PasswordInput}
-            name="password"
-            placeholder="Password"
-            required
-            maxLength={71}
-            pattern="^(?=.*\S).{6,71}$"
-            renderVisibilityIcon={(visible) => (visible ? <EyeClosedIcon /> : <EyeIcon />)}
-            onChange={(e) => {
-              passwordRef.current = e;
-            }}
-          ></Form.Control>
-        </Form.Group>
-        <Text style={{ color: "red", fontSize: "0.8em" }}>{passwordValidation}</Text>
-        <Text style={{ color: "red", fontSize: "0.8em" }}>{error}</Text>
-        <ButtonGroup vertical style={{ marginTop: 5 }}>
-          <Button appearance="primary" type="submit" loading={loading} disabled={loading}>
-            Sign In
-          </Button>
-          <Button
-            onClick={() => {
-              onSubmit(
-                {
-                  username: usernameRef.current,
-                  password: passwordRef.current
-                },
-                true
-              );
-            }}
-            disabled={loading}
+            noValidate
+            style={{ width: "100%" }}
           >
-            Sign Up
-          </Button>
-        </ButtonGroup>
-      </Form>
+            <Form.Group controlId="username">
+              <Form.Control
+                ref={usernameRef}
+                name="username"
+                placeholder="Username"
+                required
+                maxLength={16}
+                pattern="^[a-zA-Z0-9\-_.]{3,16}$"
+                onChange={(e) => {
+                  usernameRef.current = e;
+                }}
+              ></Form.Control>
+            </Form.Group>
+            <Text style={{ color: "red", fontSize: "0.8em" }}>{usernameValidation}</Text>
+            <Form.Group controlId="password">
+              <Form.Control
+                accepter={PasswordInput}
+                name="password"
+                placeholder="Password"
+                required
+                maxLength={71}
+                pattern="^(?=.*\S).{6,71}$"
+                renderVisibilityIcon={(visible) => (visible ? <EyeClosedIcon /> : <EyeIcon />)}
+                onChange={(e) => {
+                  passwordRef.current = e;
+                }}
+              ></Form.Control>
+            </Form.Group>
+            <Text style={{ color: "red", fontSize: "0.8em" }}>{passwordValidation}</Text>
+            <Text style={{ color: "red", fontSize: "0.8em" }}>{error}</Text>
+            <ButtonGroup justified style={{ marginTop: 10 }}>
+              <Button appearance="default" type="submit" disabled={loading} startIcon={<LogInIcon />}>
+                Sign In
+              </Button>
+              <Button
+                onClick={() => {
+                  onSubmit(
+                    {
+                      username: usernameRef.current,
+                      password: passwordRef.current
+                    },
+                    true
+                  );
+                }}
+                disabled={loading}
+                startIcon={<UserPlusIcon />}
+              >
+                Sign Up
+              </Button>
+            </ButtonGroup>
+          </Form>
+        </VStack>
+        {loading && <Loader center backdrop />}
+      </Modal.Body>
     </Modal>
   );
 }
