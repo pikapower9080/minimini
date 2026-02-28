@@ -161,6 +161,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" }) {
           setOptions((prev) => prev.filter((opt) => opt !== "hardcore"));
           posthog.capture("hardcore_invalidate");
           dialog.alert("Hardcore mode was invalidated because you left the tab. You can still continue in normal mode.");
+          setPaused(true);
         }
         if (import.meta.env.VITE_AUTO_PAUSE === "false") return;
         posthog.capture("auto_pause", {
