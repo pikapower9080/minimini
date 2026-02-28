@@ -1,5 +1,5 @@
 import localforage from "localforage";
-import { ArchiveIcon, ArrowLeftIcon, ChartNoAxesColumnIcon, InfoIcon, StarIcon } from "lucide-react";
+import { ArchiveIcon, ArrowLeftIcon, ChartNoAxesColumnIcon, InfoIcon, PlayIcon, StarIcon } from "lucide-react";
 import posthog from "posthog-js";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -334,10 +334,12 @@ function App({ type }: { type: "mini" | "daily" | "midi" }) {
         overflow={false}
         className="pause-modal"
       >
-        <VStack spacing={8}>
-          <Heading level={2}>Paused</Heading>
+        <VStack spacing={10}>
+          <Heading level={2} className="merriweather-display">
+            Paused
+          </Heading>
           {timeRef.current.length === 2 ? (
-            <Text weight="bold" className="pause-time block centered">
+            <Text weight="bold" size={"lg"} className="pause-time block centered">
               {timeRef.current[0]}:{timeRef.current[1].toString().padStart(2, "0")}
             </Text>
           ) : (
@@ -349,6 +351,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" }) {
               setPaused(false);
               posthog.capture("resume");
             }}
+            startIcon={<PlayIcon />}
           >
             Resume
           </Button>
