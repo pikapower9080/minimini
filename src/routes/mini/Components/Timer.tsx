@@ -26,7 +26,7 @@ export default function Timer({ onPause, running, setTime, puzzle, restoredTime 
   });
 
   const [justPaused, setJustPaused] = useState(false);
-  const { type } = useContext(MiniState);
+  const { type, options } = useContext(MiniState);
 
   useEffect(() => {
     if (running) {
@@ -67,17 +67,19 @@ export default function Timer({ onPause, running, setTime, puzzle, restoredTime 
       <Text className="timer-text">
         {minutes}:{seconds.toString().padStart(2, "0")}
       </Text>
-      <PauseIcon
-        className="timer-icon"
-        onClick={() => {
-          posthog.capture("manual_pause", {
-            time: `${minutes}:${seconds.toString().padStart(2, "0")}`,
-            puzzle: puzzle.id,
-            keyboardActivated: false
-          });
-          onPause();
-        }}
-      />
+      {!options.includes("hardcore") && (
+        <PauseIcon
+          className="timer-icon"
+          onClick={() => {
+            posthog.capture("manual_pause", {
+              time: `${minutes}:${seconds.toString().padStart(2, "0")}`,
+              puzzle: puzzle.id,
+              keyboardActivated: false
+            });
+            onPause();
+          }}
+        />
+      )}
     </HStack>
   );
 }
