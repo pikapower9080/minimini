@@ -261,8 +261,6 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
     if (autoCheck) {
       localforage.setItem(`cheated-${data.id}`, true);
       posthog.capture("enabled_autocheck", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current });
-    } else {
-      posthog.capture("disabled_autocheck", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current });
     }
     localforage.setItem(`autocheck-${data.id}`, autoCheck);
   }, [autoCheck]);
@@ -282,6 +280,17 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
     return body.clues.findIndex((clue) => clue.cells.includes(selected) && clue.direction.toLowerCase() === direction);
   }
 
+  function isClueComplete(clueIndex: number): boolean {
+    const clue = body.clues[clueIndex];
+    let result = true;
+    clue.cells.forEach((cellIndex) => {
+      if (!boardState[cellIndex]) {
+        result = false;
+      }
+    });
+    return result;
+  }
+
   function getNextClueIndex(previous: boolean = false): number | null {
     const currentClue = getCurrentClueIndex();
     if (currentClue === null) return null;
@@ -294,13 +303,7 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
       } else {
         nextClueIndex = (i + 1) % body.clues.length;
       }
-      const nextClue = body.clues[nextClueIndex];
-      let filled = true;
-      nextClue.cells.forEach((cellIndex) => {
-        if (!boardState[cellIndex]) {
-          filled = false;
-        }
-      });
+      const filled = isClueComplete(nextClueIndex);
       if (!filled) {
         return nextClueIndex;
       }
@@ -781,7 +784,7 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
                     return (
                       <li
                         key={clueIndex}
-                        className={`clue ${activeClues.includes(clueIndex) ? "active-clue" : ""} ${activeClues[selectedClue] === clueIndex ? "selected-clue" : ""} ${relatedClues.includes(clueIndex) ? "related-clue" : ""}`}
+                        className={`clue ${activeClues.includes(clueIndex) ? "active-clue" : ""} ${activeClues[selectedClue] === clueIndex ? "selected-clue" : ""} ${relatedClues.includes(clueIndex) ? "related-clue" : ""} ${isClueComplete(clueIndex) ? "completed-clue" : ""}`}
                         onClick={() => {
                           const targetCell = getFirstEmptyCell(clue);
                           setSelected(targetCell);

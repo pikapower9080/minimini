@@ -122,6 +122,10 @@ ol li {
   background-color: var(--clue-highlight);
 }
 
+.completed-clue {
+  color: var(--rs-text-secondary);
+}
+
 .keyboard-container {
   position: fixed;
   width: 100vw;
