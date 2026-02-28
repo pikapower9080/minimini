@@ -1,6 +1,6 @@
 import { useContext, type RefObject } from "react";
 import posthog from "posthog-js";
-import { ArchiveIcon, DoorOpenIcon, LayoutGridIcon, MenuIcon, PrinterIcon, RotateCcwIcon, StarIcon, TrophyIcon, XIcon } from "lucide-react";
+import { ArchiveIcon, LayoutGridIcon, MenuIcon, PrinterIcon, RotateCcwIcon, StarIcon, TrophyIcon, XIcon } from "lucide-react";
 
 import type { MiniCrossword } from "@/lib/types";
 import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
@@ -24,7 +24,7 @@ export default function PuzzleMenu({
   onExit: (destination: string) => void;
 }) {
   const { user } = useContext(GlobalState);
-  const { type, options, complete, setModalState } = useContext(MiniState);
+  const { type, options, complete } = useContext(MiniState);
   const dialog = useDialog();
   const navigate = useNavigate();
 
@@ -61,6 +61,7 @@ export default function PuzzleMenu({
         onClick={() => {
           onExit("welcome");
         }}
+        disabled={hardcore}
       >
         <XIcon />
         Quit
@@ -69,6 +70,7 @@ export default function PuzzleMenu({
         onClick={() => {
           onExit("archive");
         }}
+        disabled={hardcore}
       >
         <ArchiveIcon />
         Archive
@@ -77,10 +79,12 @@ export default function PuzzleMenu({
         onClick={() => {
           navigate("/");
         }}
+        disabled={hardcore}
       >
         <LayoutGridIcon />
         More Games
       </MenuItem>
+      <MenuDivider />
       {type === "daily" && (
         <MenuItem
           onClick={async () => {
@@ -98,6 +102,7 @@ export default function PuzzleMenu({
               dialog.alert("This puzzle can't be printed at this time.");
             }
           }}
+          disabled={hardcore}
         >
           <PrinterIcon />
           Print
