@@ -59,6 +59,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" }) {
       setModalState,
       type,
       options,
+      setOptions,
       complete,
       setComplete
     }),

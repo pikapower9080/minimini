@@ -47,7 +47,6 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
   const rebusRef = useRef<HTMLInputElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
   const incorrectShown = useRef<boolean>(false);
-  const navigate = useNavigate();
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 

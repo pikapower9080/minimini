@@ -1,6 +1,6 @@
 import { useContext, type RefObject } from "react";
 import posthog from "posthog-js";
-import { ArchiveIcon, LayoutGridIcon, MenuIcon, PrinterIcon, RotateCcwIcon, StarIcon, TrophyIcon, XIcon } from "lucide-react";
+import { ArchiveIcon, LayoutGridIcon, MenuIcon, PrinterIcon, RotateCcwIcon, StarIcon, StarOffIcon, TrophyIcon, XIcon } from "lucide-react";
 
 import type { MiniCrossword } from "@/lib/types";
 import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
@@ -24,7 +24,7 @@ export default function PuzzleMenu({
   onExit: (destination: string) => void;
 }) {
   const { user } = useContext(GlobalState);
-  const { type, options, complete } = useContext(MiniState);
+  const { type, options, complete, setOptions } = useContext(MiniState);
   const dialog = useDialog();
   const navigate = useNavigate();
 
@@ -138,6 +138,15 @@ export default function PuzzleMenu({
         <RotateCcwIcon />
         Reset Puzzle
       </MenuItem>
+      {hardcore && (
+        <MenuItem
+          onClick={() => {
+            setOptions((prev: string[]) => prev.filter((opt) => opt !== "hardcore"));
+          }}
+        >
+          <StarOffIcon /> Forfeit Hardcore
+        </MenuItem>
+      )}
     </Menu>
   );
 }
